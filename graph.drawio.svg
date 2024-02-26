@@ -1,0 +1,677 @@
+<svg host="65bd71144e" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1010px" height="658px" viewBox="-0.5 -0.5 1010 658" content="&lt;mxfile&gt;&lt;diagram id=&quot;PQQIym44KlLApgbXZrHG&quot; name=&quot;Page-1&quot;&gt;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&lt;/diagram&gt;&lt;diagram id=&quot;XOStJY0VgDrUDT8eQAx4&quot; name=&quot;Page-2&quot;&gt;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&lt;/diagram&gt;&lt;/mxfile&gt;" style="background-color: rgb(255, 255, 255);">
+    <defs/>
+    <g>
+        <path d="M 0 552 L 0 522 L 80 522 L 80 552" fill="#e6e6e6" stroke="#000000" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 0 552 L 80 552" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 78px; height: 1px; padding-top: 537px; margin-left: 1px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                Server
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="40" y="541" fill="#000000" font-family="Fira Code" font-size="12px" text-anchor="middle">
+                    Server
+                </text>
+            </switch>
+        </g>
+        <path d="M 0 498 L 0 468 L 80 468 L 80 498" fill="#e6e6e6" stroke="#000000" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 0 498 L 80 498" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 78px; height: 1px; padding-top: 483px; margin-left: 1px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                Server
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="40" y="487" fill="#000000" font-family="Fira Code" font-size="12px" text-anchor="middle">
+                    Server
+                </text>
+            </switch>
+        </g>
+        <path d="M 148 589 L 148 559 L 328 559 L 328 589" fill="#e6e6e6" stroke="#000000" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 148 589 L 148 609 L 328 609 L 328 589" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 148 589 L 328 589" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 178px; height: 1px; padding-top: 574px; margin-left: 149px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                MasterSocket
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="238" y="578" fill="#000000" font-family="Fira Code" font-size="12px" text-anchor="middle">
+                    MasterSocket
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 170px; height: 1px; padding-top: 599px; margin-left: 154px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                m_server:vector&lt;Server&gt;
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="154" y="603" fill="#000000" font-family="Fira Code" font-size="12px">
+                    m_server:vector&lt;Server&gt;
+                </text>
+            </switch>
+        </g>
+        <path d="M 148 599 L 124 599 Q 114 599 114 589 L 114 547 Q 114 537 104 537 L 86.37 537" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 81.12 537 L 88.12 533.5 L 86.37 537 L 88.12 540.5 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 148 599 L 124 599 Q 114 599 114 589 L 114 493 Q 114 483 104 483 L 86.37 483" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 81.12 483 L 88.12 479.5 L 86.37 483 L 88.12 486.5 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 757 145 L 757 115 L 951 115 L 951 145" fill="#e6e6e6" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 757 145 L 757 265 L 951 265 L 951 145" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 757 145 L 951 145" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 192px; height: 1px; padding-top: 130px; margin-left: 758px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                ClientSocketReadTask
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="854" y="134" fill="#000000" font-family="Fira Code" font-size="12px" text-anchor="middle">
+                    ClientSocketReadTask
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 184px; height: 1px; padding-top: 155px; margin-left: 763px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                m_clientSocket
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="763" y="159" fill="#000000" font-family="Fira Code" font-size="12px">
+                    m_clientSocket
+                </text>
+            </switch>
+        </g>
+        <path d="M 951 185 L 951 174 Q 951 165 942 165 L 766 165 Q 757 165 757 174 L 757 185" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 757 185 L 757 256 Q 757 265 766 265 L 942 265 Q 951 265 951 256 L 951 185" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 757 185 L 951 185" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 178px; height: 1px; padding-top: 175px; margin-left: 773px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                HTTPParser
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="773" y="179" fill="#000000" font-family="Fira Code" font-size="12px">
+                    HTTPParser
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 174px; height: 1px; padding-top: 195px; margin-left: 773px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                Byte* getBuffer()
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="773" y="199" fill="#000000" font-family="Fira Code" font-size="12px">
+                    Byte* getBuffer()
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 174px; height: 1px; padding-top: 215px; margin-left: 773px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                void parse(uint32 len)
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="773" y="219" fill="#000000" font-family="Fira Code" font-size="12px">
+                    void parse(uint32 len)
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 174px; height: 1px; padding-top: 235px; margin-left: 773px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                bool isComplete() const
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="773" y="239" fill="#000000" font-family="Fira Code" font-size="12px">
+                    bool isComplete() const
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 174px; height: 1px; padding-top: 255px; margin-left: 773px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                HTTPRequest getParsed()
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="773" y="259" fill="#000000" font-family="Fira Code" font-size="12px">
+                    HTTPRequest getParsed()
+                </text>
+            </switch>
+        </g>
+        <path d="M 432 457 L 432 427 L 685 427 L 685 457" fill="#e6e6e6" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 432 457 L 432 517 L 685 517 L 685 457" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 432 457 L 685 457" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 251px; height: 1px; padding-top: 442px; margin-left: 433px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                ClientSocket
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="559" y="446" fill="#000000" font-family="Fira Code" font-size="12px" text-anchor="middle">
+                    ClientSocket
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 243px; height: 1px; padding-top: 467px; margin-left: 438px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                m_fd
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="438" y="471" fill="#000000" font-family="Fira Code" font-size="12px">
+                    m_fd
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 243px; height: 1px; padding-top: 487px; margin-left: 438px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                m_masterSocket
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="438" y="491" fill="#000000" font-family="Fira Code" font-size="12px">
+                    m_masterSocket
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 243px; height: 1px; padding-top: 507px; margin-left: 438px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                m_responses:queue&lt;HTTPResponse&gt;
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="438" y="511" fill="#000000" font-family="Fira Code" font-size="12px">
+                    m_responses:queue&lt;HTTPResponse&gt;
+                </text>
+            </switch>
+        </g>
+        <path d="M 868 437 L 868 407 L 998 407 L 998 437" fill="#e6e6e6" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 868 437 L 868 517 L 998 517 L 998 437" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 868 437 L 998 437" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 128px; height: 1px; padding-top: 422px; margin-left: 869px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                FileReadTask
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="933" y="426" fill="#000000" font-family="Fira Code" font-size="12px" text-anchor="middle">
+                    FileReadTask
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 120px; height: 1px; padding-top: 447px; margin-left: 874px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                m_fd:Int
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="874" y="451" fill="#000000" font-family="Fira Code" font-size="12px">
+                    m_fd:Int
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 120px; height: 1px; padding-top: 467px; margin-left: 874px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                m_clientSocket
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="874" y="471" fill="#000000" font-family="Fira Code" font-size="12px">
+                    m_clientSocket
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 120px; height: 1px; padding-top: 487px; margin-left: 874px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                m_response
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="874" y="491" fill="#000000" font-family="Fira Code" font-size="12px">
+                    m_response
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 120px; height: 1px; padding-top: 507px; margin-left: 874px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                m_responseDst
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="874" y="511" fill="#000000" font-family="Fira Code" font-size="12px">
+                    m_responseDst
+                </text>
+            </switch>
+        </g>
+        <path d="M 432 487 L 390 487 Q 380 487 380 497 L 380 561.5 Q 380 571.5 370 571.5 L 334.37 571.5" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 329.12 571.5 L 336.12 568 L 334.37 571.5 L 336.12 575 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 757 155 L 731 155 Q 721 155 721 165 L 721 431.4 Q 721 441.4 711 441.4 L 691.37 441.4" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 686.12 441.4 L 693.12 437.9 L 691.37 441.4 L 693.12 444.9 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 868 467 L 786.5 467 Q 776.5 467 776.5 457 L 776.5 449.2 Q 776.5 441.4 766.5 441.4 L 691.37 441.4" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 686.12 441.4 L 693.12 437.9 L 691.37 441.4 L 693.12 444.9 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 206 334 L 206 304 L 376 304 L 376 334" fill="#e6e6e6" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 206 334 L 206 374 L 376 374 L 376 334" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 206 334 L 376 334" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 168px; height: 1px; padding-top: 319px; margin-left: 207px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                ClientSocketWriteTask
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="291" y="323" fill="#000000" font-family="Fira Code" font-size="12px" text-anchor="middle">
+                    ClientSocketWriteTask
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 160px; height: 1px; padding-top: 344px; margin-left: 212px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                m_clientSocket
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="212" y="348" fill="#000000" font-family="Fira Code" font-size="12px">
+                    m_clientSocket
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 160px; height: 1px; padding-top: 364px; margin-left: 212px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                m_buffer
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="212" y="368" fill="#000000" font-family="Fira Code" font-size="12px">
+                    m_buffer
+                </text>
+            </switch>
+        </g>
+        <path d="M 376 344 L 394 344 Q 404 344 404 354 L 404 431.4 Q 404 441.4 414 441.4 L 425.63 441.4" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 430.88 441.4 L 423.88 444.9 L 425.63 441.4 L 423.88 437.9 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 770 30 L 770 0 L 900 0 L 900 30" fill="#e6e6e6" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 770 30 L 770 70 L 900 70 L 900 30" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 770 30 L 900 30" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 128px; height: 1px; padding-top: 15px; margin-left: 771px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                IReadTask
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="835" y="19" fill="#000000" font-family="Fira Code" font-size="12px" text-anchor="middle">
+                    IReadTask
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 120px; height: 1px; padding-top: 40px; margin-left: 776px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                fd() = 0;
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="776" y="44" fill="#000000" font-family="Fira Code" font-size="12px">
+                    fd() = 0;
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 120px; height: 1px; padding-top: 60px; margin-left: 776px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                read() = 0;
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="776" y="64" fill="#000000" font-family="Fira Code" font-size="12px">
+                    read() = 0;
+                </text>
+            </switch>
+        </g>
+        <path d="M 191 135 L 191 105 L 361 105 L 361 135" fill="#e6e6e6" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 191 135 L 191 175 L 361 175 L 361 135" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 191 135 L 361 135" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 168px; height: 1px; padding-top: 120px; margin-left: 192px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                IWriteTask
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="276" y="124" fill="#000000" font-family="Fira Code" font-size="12px" text-anchor="middle">
+                    IWriteTask
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 160px; height: 1px; padding-top: 145px; margin-left: 197px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                fd() = 0;
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="197" y="149" fill="#000000" font-family="Fira Code" font-size="12px">
+                    fd() = 0;
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 160px; height: 1px; padding-top: 165px; margin-left: 197px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                write() = 0;
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="197" y="169" fill="#000000" font-family="Fira Code" font-size="12px">
+                    write() = 0;
+                </text>
+            </switch>
+        </g>
+        <path d="M 824 311 L 824 281 L 954 281 L 954 311" fill="#e6e6e6" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 824 311 L 824 371 L 954 371 L 954 311" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 824 311 L 954 311" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 128px; height: 1px; padding-top: 296px; margin-left: 825px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                CGIReadTask
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="889" y="300" fill="#000000" font-family="Fira Code" font-size="12px" text-anchor="middle">
+                    CGIReadTask
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 120px; height: 1px; padding-top: 321px; margin-left: 830px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                m_readFd:Int
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="830" y="325" fill="#000000" font-family="Fira Code" font-size="12px">
+                    m_readFd:Int
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 120px; height: 1px; padding-top: 341px; margin-left: 830px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                m_clientSocket
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="830" y="345" fill="#000000" font-family="Fira Code" font-size="12px">
+                    m_clientSocket
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 120px; height: 1px; padding-top: 361px; margin-left: 830px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                m_response
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="830" y="365" fill="#000000" font-family="Fira Code" font-size="12px">
+                    m_response
+                </text>
+            </switch>
+        </g>
+        <path d="M 824 341 L 764.5 341 Q 754.5 341 754.5 351 L 754.5 431.4 Q 754.5 441.4 744.5 441.4 L 691.37 441.4" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 686.12 441.4 L 693.12 437.9 L 691.37 441.4 L 693.12 444.9 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 512 597 L 512 567 L 793 567 L 793 597" fill="#e6e6e6" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 512 597 L 512 657 L 793 657 L 793 597" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 512 597 L 793 597" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 279px; height: 1px; padding-top: 582px; margin-left: 513px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                <span style="text-align: left;">
+                                    HTTPResponse
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="653" y="586" fill="#000000" font-family="Fira Code" font-size="12px" text-anchor="middle">
+                    HTTPResponse
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 271px; height: 1px; padding-top: 607px; margin-left: 518px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                void setStatusCode()
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="518" y="611" fill="#000000" font-family="Fira Code" font-size="12px">
+                    void setStatusCode()
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 271px; height: 1px; padding-top: 627px; margin-left: 518px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                void appendToBody(Byte*, uint32 len)
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="518" y="631" fill="#000000" font-family="Fira Code" font-size="12px">
+                    void appendToBody(Byte*, uint32 len)
+                </text>
+            </switch>
+        </g>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 271px; height: 1px; padding-top: 647px; margin-left: 518px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 16px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                vector&lt;Byte&gt; getRaw();
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="518" y="651" fill="#000000" font-family="Fira Code" font-size="12px">
+                    vector&lt;Byte&gt; getRaw();
+                </text>
+            </switch>
+        </g>
+        <path d="M 868 487 L 840.5 487 Q 830.5 487 830.5 497 L 830.5 571.4 Q 830.5 581.4 820.5 581.4 L 799.37 581.4" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 794.12 581.4 L 801.12 577.9 L 799.37 581.4 L 801.12 584.9 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 868 507 L 691.37 507" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 686.12 507 L 693.12 503.5 L 691.37 507 L 693.12 510.5 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 878 597 L 878 567 L 1009 567 L 1009 597" fill="#e6e6e6" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 878 597 L 1009 597" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 129px; height: 1px; padding-top: 582px; margin-left: 879px;">
+                        <div data-drawio-colors="color: #000000; " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Fira Code&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">
+                                StdinReadTask
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="944" y="586" fill="#000000" font-family="Fira Code" font-size="12px" text-anchor="middle">
+                    StdinReadTask
+                </text>
+            </switch>
+        </g>
+    </g>
+    <switch>
+        <g requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"/>
+        <a transform="translate(0,-5)" xlink:href="https://www.diagrams.net/doc/faq/svg-export-text-problems" target="_blank">
+            <text text-anchor="middle" font-size="10px" x="50%" y="100%">
+                Text is not SVG - cannot display
+            </text>
+        </a>
+    </switch>
+</svg>
