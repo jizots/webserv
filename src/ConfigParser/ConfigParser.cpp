@@ -634,6 +634,11 @@ static void	getFromServerContext(const BlockDirective& server, ServerConfig& sCo
 	for (size_t i = 0; i < server.directives.size(); ++i)
 	{
 		int	id = searchDirectiveName(server.directives[i].name);
+		if (id == ERROR_PAGE)
+		{
+			for (size_t j = 0; j < sConf.locations.size() - 1; ++j)
+				setErrorPage(sConf.locations[j].error_page, server.directives[i].parameters);
+		}
 		setToLocationLevel(sConf.locations[sConf.locations.size() - 1], static_cast<eSimpleDirective>(id), server.directives[i].parameters);
 		setToServerLevel(sConf, static_cast<eSimpleDirective>(id), server.directives[i].parameters);
 	}
