@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 17:55:53 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/02/26 17:47:02 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/02/29 14:10:24 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,13 @@ void HTTPResponse::setContentType(const std::string& filePath)
         contentType = HTTP::none;
 }
 
+void HTTPResponse::setBody(const std::string& str)
+{
+    body.reserve(str.size());
+    for (std::string::const_iterator c = str.begin(); c != str.end(); ++c)
+        body.push_back(*c);
+}
+
 void HTTPResponse::completeResponse()
 {
     switch (contentType)
@@ -73,17 +80,17 @@ void HTTPResponse::completeResponse()
 
         case HTTP::html:
             headers["Content-Type"] = "text/html";
-            headers["Content-Length"] = std::to_string(body.size());
+            headers["Content-Length"] = to_string(body.size());
             break;
 
         case HTTP::gif:
             headers["Content-Type"] = "image/gif";
-            headers["Content-Length"] = std::to_string(body.size());
+            headers["Content-Length"] = to_string(body.size());
             break;
 
         case HTTP::icon:
             headers["Content-Type"] = "image/vnd.microsoft.icon";
-            headers["Content-Length"] = std::to_string(body.size());
+            headers["Content-Length"] = to_string(body.size());
             break;
     }
     isComplete = true;

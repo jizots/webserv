@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 18:50:18 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/02/26 15:22:08 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/02/28 15:20:55 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ private:
     LocationDirective findBestLocation(const std::string& requestedURI);
 
     const ServerConfig m_config;
+    uint32 m_internalRedirectionCount;
 };
 typedef SharedPtr<Server> ServerPtr;
 

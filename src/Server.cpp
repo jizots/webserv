@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 18:50:57 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/02/26 16:13:27 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/02/28 17:03:37 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ void Server::handleRequest(const HTTPRequest& req, const ClientSocketPtr& client
 {
     int bodyFd;
     HTTPResponsePtr response = clientSocket->newEnqueuedResponse();
+    m_internalRedirectionCount = 0;
 
     if (makeResponse(req, response, bodyFd)->isComplete)
     {
@@ -41,11 +42,20 @@ void Server::handleRequest(const HTTPRequest& req, const ClientSocketPtr& client
 
 HTTPResponsePtr& Server::makeResponse(const HTTPRequest& request, HTTPResponsePtr& response, int& fd)
 {
-    if (request.isBadRequest)
-        return makeErrorResponse(400, response, !request.isInternal ? m_config.locations.back().error_page : std::map<int, std::string>(), fd);
-
     LocationDirective location = findBestLocation(request.requestedFile);
     struct stat fileStat;
+
+    m_internalRedirectionCount++;
+    if (m_internalRedirectionCount == 10)
+    {
+        log << "Too many internal redirection, 500 internal server error\n";
+        return makeErrorResponse(500, response, location.error_page, fd);
+    }
+    if (m_internalRedirectionCount == 12)
+        return makeErrorResponse(500, response, std::map<int, std::string>(), fd);
+
+    if (request.isBadRequest)
+        return makeErrorResponse(400, response, location.error_page, fd);
     
     std::string fileFullPath = (location.root.back() == '/' ? location.root.substr(0, location.root.length() - 1) : location.root) + request.requestedFile;
     log << "resolved file : " << fileFullPath << '\n';
@@ -64,9 +74,9 @@ HTTPResponsePtr& Server::makeResponse(const HTTPRequest& request, HTTPResponsePt
     {
         log << fileFullPath << ": stat(): " << std::strerror(errno) << '\n';
         if (errno == ENOENT)
-            return makeErrorResponse(404, response, !request.isInternal ? location.error_page : std::map<int, std::string>(), fd);
-        
-        return makeErrorResponse(500, response, !request.isInternal ? location.error_page : std::map<int, std::string>(), fd);
+            return makeErrorResponse(404, response, location.error_page, fd);
+
+        return makeErrorResponse(500, response, location.error_page, fd);
     }
 
     if (S_ISDIR(fileStat.st_mode))
@@ -75,7 +85,7 @@ HTTPResponsePtr& Server::makeResponse(const HTTPRequest& request, HTTPResponsePt
     if ((fd = open(fileFullPath.c_str(), O_RDONLY)) < 0)
     {
         log << fileFullPath << ": open(): " << strerror(errno) << ". 500 error\n";
-        return makeErrorResponse(500, response, !request.isInternal ? location.error_page : std::map<int, std::string>(), fd);
+        return makeErrorResponse(500, response, location.error_page, fd);
     }
 
     response->body.resize(fileStat.st_size);
@@ -87,16 +97,13 @@ HTTPResponsePtr& Server::makeResponse(const HTTPRequest& request, HTTPResponsePt
 HTTPResponsePtr& Server::makeErrorResponse(uint32 code, HTTPResponsePtr& response, const std::map<int, std::string>& error_pages, int& fd)
 {
     std::map<int, std::string>::const_iterator errorPage = error_pages.find(code);
-    if (errorPage != error_pages.end())
+    if (response->statusCode < 300 && errorPage != error_pages.end())
     {
         if (errorPage->second.front() == '/')
         {
             log << "internal redirection to " << errorPage->second << '\n';
-            if (makeResponse(HTTPRequest(HTTPRequest(), "GET", errorPage->second), response, fd)->statusCode == 200)
-            {
-                response->setStatusCode(code);
-                return response;
-            }
+            response->setStatusCode(code);
+            return makeResponse(HTTPRequest(HTTPRequest(), "GET", errorPage->second), response, fd);
         }
         else
             return makeRedirResponse(302, response, errorPage->second, fd);
@@ -105,7 +112,9 @@ HTTPResponsePtr& Server::makeErrorResponse(uint32 code, HTTPResponsePtr& respons
     log << "built in error page\n";
 
     response->setStatusCode(code);
-    response->contentType = HTTP::none;
+    response->contentType = HTTP::html;
+    response->setBody(BUILT_IN_ERROR_PAGE(code, response->statusDescription));
+    
     response->completeResponse();
     return response;
 }

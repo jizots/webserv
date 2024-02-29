@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 13:34:28 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/02/25 16:37:26 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/02/29 14:10:24 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ using namespace webserv;
     __attribute__((destructor))
     static void	destructor(void)
     {
-        system(std::string("leaks -q " + std::to_string(getpid())).c_str());
+        system(std::string("leaks -q " + to_string(getpid())).c_str());
     }
 #endif // NDEBUG
 

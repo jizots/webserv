@@ -33,7 +33,7 @@ struct HTTP
     std::map<std::string, std::string> headers;
     std::vector<Byte> body;
 
-    inline std::string httpVersionStr() const { return "HTTP/" + std::to_string(httpVersionMajor) + '.' + std::to_string(httpVersionMinor); }
+    inline std::string httpVersionStr() const { return "HTTP/" + to_string(httpVersionMajor) + '.' + to_string(httpVersionMinor); }
     
     inline std::string& operator [] (const std::string& key) { return headers[key]; }
 };
@@ -41,18 +41,15 @@ struct HTTP
 struct HTTPRequest : public HTTP
 {
     inline HTTPRequest()
-        : HTTP(), requestedFile("/"), requestedServerHostName("localhost"), isBadRequest(false), isInternal(false) {};
+        : HTTP(), requestedFile("/"), requestedServerHostName("localhost"), isBadRequest(false) {};
 
-    // Used for internal requests
     inline HTTPRequest(const HTTPRequest& cp, const std::string& method, const std::string& requestedFile)
-        : HTTP(cp), method(method), requestedFile(requestedFile), requestedServerHostName(cp.requestedServerHostName), isBadRequest(false), isInternal(true) {};
-    // ----
+        : HTTP(cp), method(method), requestedFile(requestedFile), requestedServerHostName(cp.requestedServerHostName), isBadRequest(false) {};
 
     std::string method;
     std::string requestedFile;
     std::string requestedServerHostName;
     bool isBadRequest;
-    bool isInternal;
 };
 
 struct HTTPResponse : public HTTP
@@ -64,10 +61,11 @@ struct HTTPResponse : public HTTP
     bool isComplete;
     ContentType contentType;
 
-    inline std::string firstLine() const { return httpVersionStr() + ' ' + std::to_string(statusCode) + ' ' + statusDescription; }
+    inline std::string firstLine() const { return httpVersionStr() + ' ' + to_string(statusCode) + ' ' + statusDescription; }
 
     void setStatusCode(uint32 code);
     void setContentType(const std::string& filePath);
+    void setBody(const std::string& str);
     void completeResponse();
     void getRaw(std::vector<Byte>&) const;
 };
