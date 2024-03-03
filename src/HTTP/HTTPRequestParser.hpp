@@ -39,7 +39,8 @@ private:
         _endRequest,
         _headerKey,
         _headerValue,
-        _badRequest =10,
+        _requestBody=10,
+        _badRequest,
         _parseComplete,
         _statusCount
     };
@@ -65,6 +66,7 @@ private:
     int m_idx;
     std::string m_hex;
     std::vector<Byte> m_buffer;
+    int m_contentLength;
 };
 }
 
