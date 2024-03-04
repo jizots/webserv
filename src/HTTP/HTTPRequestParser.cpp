@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPRequestParser.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ekamada <ekamada@student.42.fr>            +#+  +:+       +#+        */
+/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 18:35:15 by ekamada           #+#    #+#             */
-/*   Updated: 2024/02/29 17:46:19 by ekamada          ###   ########.fr       */
+/*   Updated: 2024/03/03 22:30:07 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ void HTTPRequestParser::parse(uint32 len) {
 				m_request.method += m_buffer[idx];
 				if (m_request.method == "GET " || m_request.method == "POST " || m_request.method == "DELETE ")
 				{
-                    m_request.method.pop_back();
+                    m_request.method = m_request.method.substr(0, m_request.method.size() - 1);
 					m_status = _slash;
 				}
 				else if (m_request.method.size() > 6)

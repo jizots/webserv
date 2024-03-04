@@ -6,13 +6,14 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 17:10:53 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/02/26 16:02:13 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/01 09:56:21 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "IOTask.hpp"
 
 #include <sys/socket.h>
+#include <cstring>
 
 #include "IOManager.hpp"
 #include "ClientSocket.hpp"
@@ -48,11 +49,11 @@ void ClientSocketReadTask::read(const IReadTaskPtr& _this)
     }
 }
 
-void FileReadTask::read(const IReadTaskPtr& _this)
+void FileReadTask::read(const IReadTaskPtr&)
 {
     ssize_t readLen = ::read(m_fd, m_response->body.data(), m_response->body.size());
 
-    if (readLen != m_response->body.size())
+    if (readLen < 0 || static_cast<uint64>(readLen) != m_response->body.size())
         throw std::runtime_error("read: " + std::string(std::strerror(errno)));
 
     m_response->completeResponse();

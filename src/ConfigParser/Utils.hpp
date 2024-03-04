@@ -4,6 +4,7 @@
 # include <string>
 # include <sstream>
 # include <set>
+# include <vector>
 
 bool	isDirectory(const std::string& path);
 bool	isFileAccessible(const std::string& path);

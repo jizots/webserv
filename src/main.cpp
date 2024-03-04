@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 13:34:28 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/02/29 14:10:24 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/02 00:19:27 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,16 @@
 using namespace webserv;
 
 #ifndef NDEBUG
-    #include <unistd.h>
-    __attribute__((destructor))
-    static void	destructor(void)
-    {
-        system(std::string("leaks -q " + to_string(getpid())).c_str());
-    }
+    #ifdef __APPLE__
+        #include <unistd.h>
+        #include <cstdlib>
+        
+        __attribute__((destructor))
+        static void	destructor(void)
+        {
+            std::system(std::string("leaks -q " + to_string(getpid())).c_str());
+        }
+    #endif
 #endif // NDEBUG
 
 int main(int argc, const char* argv[])

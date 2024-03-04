@@ -2,6 +2,9 @@
 #include "Utils.hpp"
 #include <fstream>
 #include <sys/stat.h>
+#include <cstdlib>
+#include <algorithm>
+#include "Utils/Utils.hpp"
 // #include <iostream> /*debug*/
 
 
@@ -175,10 +178,11 @@ static bool	isValidBlock(const std::string& block, const std::string& parentCont
 static bool	isValidErrorPage(const std::vector<std::string>& tokens,
 	int& index, MainDirective& mainDir)
 {
+    (void)mainDir;
 	std::string tmp;
 	int 		errorCode;
 
-	while (tokens[index + 1] != ";" && tokens[index] != ";" && index < tokens.size() - 1)
+	while (tokens[index + 1] != ";" && tokens[index] != ";" && (index < 0 || static_cast<uint64>(index) < tokens.size() - 1))
 	{
 		tmp = tokens[index];
 		errorCode = convertStrToType<int>(tmp, isNumericLiteral);
@@ -194,9 +198,10 @@ static bool	isValidErrorPage(const std::vector<std::string>& tokens,
 static bool	isValidAcceptedMethods(const std::vector<std::string>& tokens,
 	int& index, MainDirective& mainDir)
 {
+    (void)mainDir;
 	std::string	tmp;
 
-	while (tokens[index] != ";" && index < tokens.size() - 1)
+	while (tokens[index] != ";" && (index < 0 || static_cast<uint64>(index) < tokens.size() - 1))
 	{
 		tmp = tokens[index];
 		if (tmp == "GET" || tmp == "POST" || tmp == "DELETE")
@@ -411,7 +416,7 @@ static bool	makeTmpStruct(const std::vector<std::string>& tokens,
 		hasItem = 0;
 	else if (isEndOfBlock(tokens, index, parentContext, hasItem))
 		++hasItem;
-	if (index == tokens.size())
+	if (static_cast<uint64>(index) == tokens.size())
 	{
 		throwIf(hasItem == 0 || searchContextName(parentContext) != MAIN,
 			"Error: Block is not closed or empty");
@@ -539,10 +544,10 @@ static int	getServerAmount(const MainDirective& mainDir)
 	return (mainDir.blocks[0].blockDirectives.size());
 };
 
-static int	getLocationAmount(const BlockDirective& server)
-{
-	return (server.blockDirectives.size());
-}
+// static int	getLocationAmount(const BlockDirective& server)
+// {
+// 	return (server.blockDirectives.size());
+// }
 
 static void	setErrorPage(std::map<int, std::string>& errorMap, const std::vector<std::string> src)
 {
@@ -592,7 +597,7 @@ static void	setToServerLevel(ServerConfig& sConf, const eSimpleDirective& target
 {
 	// make random number for port
 	std::srand(time(NULL));
-	int portRand = rand() % 1000 + 8000;
+	int portRand = std::rand() % 1000 + 8000;
 
 	switch (target)
 	{

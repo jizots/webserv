@@ -13,6 +13,7 @@
 #include "IOManager.hpp"
 
 #include <sys/select.h>
+#include <cstring>
 
 namespace webserv
 {
@@ -56,19 +57,19 @@ void IOManager::selectIOs(std::set<MasterSocketPtr>& masterSockets, std::set<IRe
     for (std::map<uint32, MasterSocketPtr>::iterator curr = m_masterSockets.begin(); curr != m_masterSockets.end(); ++curr)
     {
         FD_SET(curr->second->fileDescriptor(), &readableFdSet);
-        biggestFd = max(biggestFd, curr->second->fileDescriptor());
+        biggestFd = std::max(biggestFd, curr->second->fileDescriptor());
     }
 
     for (std::set<IReadTaskPtr>::iterator curr = m_readTasks.begin(); curr != m_readTasks.end(); ++curr)
     {
         FD_SET((*curr)->fd(), &readableFdSet);
-        biggestFd = max(biggestFd, (*curr)->fd());
+        biggestFd = std::max(biggestFd, (*curr)->fd());
     }
 
     for (std::set<IWriteTaskPtr>::iterator curr = m_writeTasks.begin(); curr != m_writeTasks.end(); ++curr)
     {
         FD_SET((*curr)->fd(), &writableFdSet);
-        biggestFd = max(biggestFd, (*curr)->fd());
+        biggestFd = std::max(biggestFd, (*curr)->fd());
     }
 
     if (select(biggestFd + 1, &readableFdSet, &writableFdSet, NULL, NULL) < 0)

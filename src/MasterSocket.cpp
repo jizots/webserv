@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 15:46:39 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/02/21 19:40:33 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/01 10:01:51 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <cstring>
+#include <algorithm>
 
 #include "ClientSocket.hpp"
 
@@ -27,7 +29,7 @@ MasterSocket::MasterSocket(uint32 port) : m_fileDescriptor(socket(AF_INET, SOCK_
         throw std::runtime_error("socket: " + std::string(std::strerror(errno)));
     
     sockaddr_in address = (sockaddr_in){
-        .sin_family = AF_INET, .sin_port = htons(port), .sin_addr=(in_addr){.s_addr=INADDR_ANY}
+        .sin_family = AF_INET, .sin_port = htons(port), .sin_addr=(in_addr){.s_addr=INADDR_ANY}, .sin_zero = {}
     };
 
     if (bind(m_fileDescriptor, reinterpret_cast<const sockaddr*>(&address), sizeof(sockaddr_in)) < 0)

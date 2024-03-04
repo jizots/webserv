@@ -63,7 +63,7 @@ private:
     bool m_foundCR;
     std::string m_key;
     std::string m_value;
-    int m_idx;
+    uint64 m_idx;
     std::string m_hex;
     std::vector<Byte> m_buffer;
     int m_contentLength;

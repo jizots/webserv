@@ -6,13 +6,14 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 16:57:24 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/02/25 12:00:14 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/01 09:24:54 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ClientSocket.hpp"
 
 #include <unistd.h>
+#include <cstring>
 
 namespace webserv
 {

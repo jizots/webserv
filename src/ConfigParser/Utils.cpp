@@ -3,6 +3,7 @@
 #include <fstream>
 #include <dirent.h>
 #include <iostream> // debug
+#include <cstring>
 
 bool	isDirectory(const std::string& path)
 {
@@ -11,7 +12,7 @@ bool	isDirectory(const std::string& path)
 
 	if (stat(path.c_str(), &statBuf) == -1)
 	{
-		errorMsg = path + ": " + strerror(errno);
+		errorMsg = path + ": " + std::strerror(errno);
 		throw (std::runtime_error(errorMsg));
 	}
 	if (S_ISDIR(statBuf.st_mode))
@@ -35,7 +36,7 @@ DIR*	openDirectory(const std::string& path)
 
 bool	isFileAccessible(const std::string& filePath)
 {
-	std::ifstream	ifs(filePath);
+	std::ifstream	ifs(filePath.c_str());
 	std::string		errorMsg;
 
 	if (!ifs.is_open())

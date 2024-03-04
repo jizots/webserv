@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 15:51:43 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/02/21 18:37:35 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/02 01:34:13 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,12 +36,19 @@ private:
 
     static Logger* s_instance; 
     std::ofstream m_ofstream;
+    std::string m_filepath;
 
 public:
     template<typename T> Logger& operator << (const T& data)
     {
         // std::cout << data;
-        m_ofstream << data << std::flush;
+        m_ofstream.open(m_filepath, std::ios::out | std::ios::app);
+        if (m_ofstream.rdstate() == std::ios_base::failbit)
+            throw std::runtime_error("error while opening " + m_filepath + ": " + std::strerror(errno));
+        if (m_ofstream.good() == false)
+            throw std::runtime_error("unknow error");
+        m_ofstream << data /*<< std::flush*/;
+        m_ofstream.close();
         return *this;
     }
 };

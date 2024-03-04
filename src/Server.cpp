@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 18:50:57 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/02/28 17:03:37 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/01 09:34:47 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,10 +57,10 @@ HTTPResponsePtr& Server::makeResponse(const HTTPRequest& request, HTTPResponsePt
     if (request.isBadRequest)
         return makeErrorResponse(400, response, location.error_page, fd);
     
-    std::string fileFullPath = (location.root.back() == '/' ? location.root.substr(0, location.root.length() - 1) : location.root) + request.requestedFile;
+    std::string fileFullPath = (*(--location.root.end()) == '/' ? location.root.substr(0, location.root.length() - 1) : location.root) + request.requestedFile;
     log << "resolved file : " << fileFullPath << '\n';
 
-    if (fileFullPath.back() == '/')
+    if (*(--fileFullPath.end()) == '/')
     {
         log << "Ending with '/' trying with index -> " << request.requestedFile + location.index << '\n';
         if (stat((fileFullPath + location.index).c_str(), &fileStat) == 0)
@@ -99,7 +99,7 @@ HTTPResponsePtr& Server::makeErrorResponse(uint32 code, HTTPResponsePtr& respons
     std::map<int, std::string>::const_iterator errorPage = error_pages.find(code);
     if (response->statusCode < 300 && errorPage != error_pages.end())
     {
-        if (errorPage->second.front() == '/')
+        if (*errorPage->second.begin() == '/')
         {
             log << "internal redirection to " << errorPage->second << '\n';
             response->setStatusCode(code);

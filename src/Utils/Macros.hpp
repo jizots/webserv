@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 16:20:12 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/02/29 14:10:24 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/01 09:39:08 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,10 @@
     #define assert(x) if ((x) == false) { std::abort(); }
 #endif // NDEBUG
 
-#ifdef max
-    #undef max
-#endif // max
-#define max(a, b) a > b ? a : b 
+// #ifdef max
+//     #undef max
+// #endif // max
+// #define max(a, b) a > b ? a : b 
 
 #ifndef BUFFER_SIZE
     #define BUFFER_SIZE 1024
