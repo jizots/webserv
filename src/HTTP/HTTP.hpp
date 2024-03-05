@@ -33,7 +33,7 @@ struct HTTP
     std::map<std::string, std::string> headers;
     std::vector<Byte> body;
 
-    inline std::string httpVersionStr() const { return "HTTP/" + to_string(httpVersionMajor) + '.' + to_string(httpVersionMinor); }
+    inline std::string httpVersionStr() const { return "HTTP/" + to_string((int)httpVersionMajor) + '.' + to_string((int)httpVersionMinor); }
     
     inline std::string& operator [] (const std::string& key) { return headers[key]; }
 };
