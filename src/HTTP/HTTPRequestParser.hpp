@@ -66,7 +66,7 @@ private:
     uint64 m_idx;
     std::string m_hex;
     std::vector<Byte> m_buffer;
-    int m_contentLength;
+    uint64 m_contentLength;
 };
 }
 

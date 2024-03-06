@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 18:35:15 by ekamada           #+#    #+#             */
-/*   Updated: 2024/03/03 22:30:07 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/04 08:36:30 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,7 +183,8 @@ void HTTPRequestParser::parse(uint32 len) {
 				if (!m_contentLength)
 					m_contentLength = convertStrToType<int>(m_request["content-length"], isInt);
 				m_request.body.push_back(m_buffer[idx]);
-				if (m_request.body.size() == m_contentLength) m_status = _parseComplete;
+				if (m_request.body.size() == m_contentLength)
+                    m_status = _parseComplete;
 
 		}
 	}
