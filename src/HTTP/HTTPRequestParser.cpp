@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPRequestParser.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: ekamada <ekamada@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 18:35:15 by ekamada           #+#    #+#             */
-/*   Updated: 2024/03/04 08:36:30 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/07 17:28:48 by ekamada          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,7 +162,7 @@ void HTTPRequestParser::parse(uint32 len) {
 			case _headerKey:
 				m_buffer[idx] = tolower(m_buffer[idx]);
 				if (m_key == "" && (m_buffer[idx] == '\r' || m_buffer[idx] == '\n')) {
-					if (m_request.method == "GET" || m_request["content-length"] == "")
+					if (m_request["content-length"] == "")
 						checkCRLF(m_buffer[idx], _parseComplete);
 					else checkCRLF(m_buffer[idx], _requestBody);
 				}
@@ -182,9 +182,10 @@ void HTTPRequestParser::parse(uint32 len) {
 			case _requestBody:
 				if (!m_contentLength)
 					m_contentLength = convertStrToType<int>(m_request["content-length"], isInt);
-				m_request.body.push_back(m_buffer[idx]);
-				if (m_request.body.size() == m_contentLength)
-                    m_status = _parseComplete;
+				if (m_request.body.size() < m_contentLength)
+					m_request.body.push_back(m_buffer[idx]);
+				else
+                    checkCRLF(m_buffer[idx], _parseComplete);
 
 		}
 	}
