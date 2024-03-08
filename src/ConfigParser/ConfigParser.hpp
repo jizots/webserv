@@ -32,6 +32,7 @@ enum eSimpleDirective {
 	ERROR_LOG,
 	LISTEN,
 	SERVER_NAME,
+	UPLOAD_PATH,
 	ROOT,
 	ERROR_PAGE,
 	AUTOINDEX,
@@ -46,6 +47,7 @@ const std::string	SIMPLE_DIRECTIVES[DIRECTIVE_ENUM_SIZE] = {
 	"error_log",
 	"listen",
 	"server_name",
+	"upload_path",
 	"root",
 	"error_page",
 	"autoindex",
@@ -110,6 +112,7 @@ struct ServerConfig {
 	std::string						error_log;
 	std::vector<int>				listens;
 	std::vector<std::string>		server_names;
+	std::string						upload_path;
 	std::vector<LocationDirective>	locations;
 };
 

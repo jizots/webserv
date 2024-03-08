@@ -176,9 +176,8 @@ static bool	isValidBlock(const std::string& block, const std::string& parentCont
 };
 
 static bool	isValidErrorPage(const std::vector<std::string>& tokens,
-	int& index, MainDirective& mainDir)
+	int& index)
 {
-    (void)mainDir;
 	std::string tmp;
 	int 		errorCode;
 
@@ -196,9 +195,8 @@ static bool	isValidErrorPage(const std::vector<std::string>& tokens,
 };
 
 static bool	isValidAcceptedMethods(const std::vector<std::string>& tokens,
-	int& index, MainDirective& mainDir)
+	int& index)
 {
-    (void)mainDir;
 	std::string	tmp;
 
 	while (tokens[index] != ";" && (index < 0 || static_cast<uint64>(index) < tokens.size() - 1))
@@ -218,7 +216,7 @@ static bool	isValidAcceptedMethods(const std::vector<std::string>& tokens,
 };
 
 static bool	isValidParam(const std::vector<std::string>& tokens,
-	int& index, MainDirective& mainDir)
+	int& index)
 {
 	std::string	param = tokens[index];
 	int		nameID = searchDirectiveName(tokens[index - 1]);
@@ -241,10 +239,12 @@ static bool	isValidParam(const std::vector<std::string>& tokens,
 			return (true);
 		case SERVER_NAME:
 			return (true);
+		case UPLOAD_PATH:
+			return (true);
 		case ROOT:
 			return (true);
 		case ERROR_PAGE:
-			if (!isValidErrorPage(tokens, index, mainDir))
+			if (!isValidErrorPage(tokens, index))
 				return (false);
 			return (true);
 		case AUTOINDEX:
@@ -261,7 +261,7 @@ static bool	isValidParam(const std::vector<std::string>& tokens,
 		case REDIRECT:
 			return (true);
 		case ACCEPTED_METHODS:
-			if (!isValidAcceptedMethods(tokens, index, mainDir))
+			if (!isValidAcceptedMethods(tokens, index))
 				return (false);
 			return (true);
 		case -1:
@@ -357,7 +357,7 @@ static bool	isSimpleDirective(const std::vector<std::string>& tokens,
 	{
 		nameIndex = index;
 		++index;
-		if (isValidParam(tokens, index, mainDir))
+		if (isValidParam(tokens, index))
 		{
 			++index;
 			if (tokens[index] == ";")
@@ -544,11 +544,6 @@ static int	getServerAmount(const MainDirective& mainDir)
 	return (mainDir.blocks[0].blockDirectives.size());
 };
 
-// static int	getLocationAmount(const BlockDirective& server)
-// {
-// 	return (server.blockDirectives.size());
-// }
-
 static void	setErrorPage(std::map<int, std::string>& errorMap, const std::vector<std::string> src)
 {
 	for (size_t i = 0; i < src.size() - 1; ++i)
@@ -610,6 +605,9 @@ static void	setToServerLevel(ServerConfig& sConf, const eSimpleDirective& target
 	case SERVER_NAME:
 		sConf.server_names.push_back(src[0]);
 		break;
+	case UPLOAD_PATH:
+		sConf.upload_path = src[0];
+		break;
 	default:
 		break;
 	}
@@ -669,13 +667,15 @@ static void	setUndefinedParam(ServerConfig& sConf)
 {
 	throwIf(sConf.server_names.size() == 0, "Error: server_name is not defined");
 	if (sConf.error_log.empty())
-		sConf.error_log = "webserv.log";
+		sConf.error_log = "log/webserv.log";
 	if (sConf.listens.empty())
 		sConf.listens.push_back(8042);
+	if (sConf.upload_path.empty())
+		sConf.upload_path = "www/uploads";
 	for (size_t i = 0; i < sConf.locations.size(); ++i)
 	{
 		if (sConf.locations[i].root.empty())
-			sConf.locations[i].root = "html";
+			sConf.locations[i].root = "www/html";
 		if (sConf.locations[i].index.empty())
 			sConf.locations[i].index = "index.html";
 		if (sConf.locations[i].client_max_body_size == -1)
