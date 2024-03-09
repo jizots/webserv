@@ -39,6 +39,7 @@ enum eSimpleDirective {
 	CLIENT_MAX_BODY_SIZE,
 	INDEX,
 	REDIRECT,
+	ACCEPTED_CGI_EXTENSION,
 	ACCEPTED_METHODS,
 	DIRECTIVE_ENUM_SIZE,
 };
@@ -54,6 +55,7 @@ const std::string	SIMPLE_DIRECTIVES[DIRECTIVE_ENUM_SIZE] = {
 	"client_max_body_size",
 	"index",
 	"redirect",
+	"accepted_cgi_extension",
 	"accepted_methods",
 };
 
@@ -78,7 +80,6 @@ struct MainDirective {
 	std::vector<BlockDirective>		blocks;
 };
 
-
 /*************
  * Parser struct
  * *************/
@@ -88,20 +89,22 @@ struct MultipleParameter
 	static std::vector<std::string>	listen;
 	static std::vector<std::string>	serverName;
 	static std::vector<std::string>	errorPage;
+	static std::vector<std::string> cgiPath;
 };
 
 /*
  * For location directive items.
 */
-struct LocationDirective {
-	std::string					location;
-	std::string					root;
-	std::string					redirect;
-	std::map<int, std::string>	error_page;
-	bool						autoindex;
-	int							client_max_body_size;
-	std::string					index;
-	std::vector<std::string>	accepted_methods;
+struct LocationDirective {		
+	std::string							location;
+	std::string							root;
+	std::string							redirect;
+	std::map<int, std::string>			error_page;
+	bool								autoindex;
+	int									client_max_body_size;
+	std::string							index;
+	std::vector<std::string>			accepted_methods;
+	std::map<std::string, std::string>	accepted_cgi_extension;
 };
 
 /*

@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <cstdlib>
 #include <algorithm>
+#include <unistd.h>
 #include "Utils/Utils.hpp"
 // #include <iostream> /*debug*/
 
@@ -47,6 +48,7 @@
 // 	printVector<int>(sConf.listens);
 // 	std::cout << "server_names: ";
 // 	printVector<std::string>(sConf.server_names);
+// 	std::cout << "upload_path: " << sConf.upload_path << std::endl;
 // 	for (size_t i = 0; i < sConf.locations.size(); ++i)
 // 	{
 // 		std::cout << "------ location: ";
@@ -60,6 +62,10 @@
 // 		std::cout << "autoindex: " << sConf.locations[i].autoindex << std::endl;
 // 		std::cout << "client_max_body_size: " << sConf.locations[i].client_max_body_size << std::endl;
 // 		std::cout << "redirect: " << sConf.locations[i].redirect << std::endl;
+// 		std::cout << "accepted_cgi_extension: ";
+// 		for (std::map<std::string, std::string>::const_iterator it = sConf.locations[i].accepted_cgi_extension.begin(); it != sConf.locations[i].accepted_cgi_extension.end(); ++it)
+// 			std::cout << it->first << " => " << it->second << ", ";		
+// 		std::cout << std::endl;
 // 		std::cout << "accepted_methods: ";
 // 		printVector<std::string>(sConf.locations[i].accepted_methods);
 // 		std::cout << std::endl;
@@ -148,7 +154,7 @@ static bool	isValidDirective(const std::string& name, const std::string& parentC
 	else if (parentID == HTTP)
 		return (false);
 	else if (parentID == SERVER
-			&& (LISTEN <= nameID && nameID <= INDEX))
+			&& (LISTEN <= nameID && nameID <= ACCEPTED_CGI_EXTENSION))
 		return (true);
 	else if (parentID == LOCATION
 			&& (ROOT <= nameID && nameID <= ACCEPTED_METHODS))
@@ -193,6 +199,20 @@ static bool	isValidErrorPage(const std::vector<std::string>& tokens,
 		return (true);
 	return (false);
 };
+
+static bool	isValidAcceptedCgiExtension(const std::vector<std::string>& tokens,
+	int& index)
+{
+	if (tokens[index] != ".py" && tokens[index] != ".pl" && tokens[index] != ".php")
+		return (false);
+	if (isCharInSet(tokens[index + 1][0], DELIMITER_CHARS))
+		return (true);
+	++index;
+	if (access(tokens[index].c_str(), X_OK) == 0)
+		return (true);
+	throw (std::runtime_error("access: " + tokens[index] + ": " + std::string(std::strerror(errno))));
+};
+
 
 static bool	isValidAcceptedMethods(const std::vector<std::string>& tokens,
 	int& index)
@@ -260,6 +280,10 @@ static bool	isValidParam(const std::vector<std::string>& tokens,
 			return (true);
 		case REDIRECT:
 			return (true);
+		case ACCEPTED_CGI_EXTENSION:
+			if (isValidAcceptedCgiExtension(tokens, index))
+				return (true);
+			return (false);
 		case ACCEPTED_METHODS:
 			if (!isValidAcceptedMethods(tokens, index))
 				return (false);
@@ -367,7 +391,7 @@ static bool	isSimpleDirective(const std::vector<std::string>& tokens,
 				return (true);
 			}
 		}
-		throw (std::runtime_error("Unexpected token: " + tokens[index]));
+		throw (std::runtime_error("SimpleDirective: Unexpected token: " + tokens[index]));
 	}
 	return (false);
 };
@@ -387,7 +411,7 @@ static bool	isBlockDirective(const std::vector<std::string>& tokens,
 			++index;
 			return (true);
 		}
-		throw (std::runtime_error("Unexpected token: " + tokens[index]));
+		throw (std::runtime_error("BlockDirective: Unexpected token: " + tokens[index]));
 	}
 	return (false);
 };
@@ -403,7 +427,7 @@ static bool	isEndOfBlock(const std::vector<std::string>& tokens,
 		resetParentContext(parentContext);
 		return (true);
 	}
-	throw (std::runtime_error("Unexpected token: " + tokens[index]));
+	throw (std::runtime_error("EndOfBlock: Unexpected token: " + tokens[index]));
 	return (false);
 }
 
@@ -431,6 +455,7 @@ static bool	makeTmpStruct(const std::vector<std::string>& tokens,
 std::vector<std::string>	MultipleParameter::listen;
 std::vector<std::string>	MultipleParameter::serverName;
 std::vector<std::string>	MultipleParameter::errorPage;
+std::vector<std::string>	MultipleParameter::cgiPath;
 
 static bool isGradualVectorDuplicate(std::vector<std::string>& strage, const std::vector<std::string>& add)
 {
@@ -471,6 +496,14 @@ static bool hasUniqMultiParameter(const int& nameId, const std::vector<std::stri
 		throwIf(isGradualVectorDuplicate(multiple.errorPage, tmp), "Error: Duplication error_page's code");
 		return (true);
 	}
+	else if (nameId == ACCEPTED_CGI_EXTENSION)
+	{
+		std::vector<std::string>	tmp(params);
+		if (tmp.size() == 2)
+			tmp.erase(tmp.end() - 1);
+		throwIf(isGradualVectorDuplicate(multiple.cgiPath, tmp), "Error: Duplication cgi extentions");
+		return (true);
+	}
 	return (false);
 };
 
@@ -482,7 +515,7 @@ static bool	isUniqSimpleDirective(const std::vector<SimpleDirective>& directives
 	for (size_t i = 0; i < directives.size(); ++i)
 	{
 		nameId = searchDirectiveName(directives[i].name);
-		if (nameId == LISTEN || nameId == SERVER_NAME || nameId == ERROR_PAGE)
+		if (nameId == LISTEN || nameId == SERVER_NAME || nameId == ERROR_PAGE || nameId == ACCEPTED_CGI_EXTENSION)
 		{
 			if (hasUniqMultiParameter(nameId, directives[i].parameters))
 				continue;
@@ -552,6 +585,14 @@ static void	setErrorPage(std::map<int, std::string>& errorMap, const std::vector
 	}
 }
 
+static void	setCgiExtension(std::map<std::string, std::string>& cgiMap, const std::vector<std::string> src)
+{
+	if (src.size() == 2)
+		cgiMap.insert(std::make_pair(src[0], src[1]));
+	else
+		cgiMap.insert(std::make_pair(src[0], ""));
+}
+
 static void	setToLocationLevel(LocationDirective& lDir,
 	const eSimpleDirective& target, const std::vector<std::string>& src)
 {
@@ -579,6 +620,9 @@ static void	setToLocationLevel(LocationDirective& lDir,
 	case REDIRECT:
 		if (lDir.redirect.empty())
 			lDir.redirect = src[0];
+		break;
+	case ACCEPTED_CGI_EXTENSION:
+		setCgiExtension(lDir.accepted_cgi_extension, src);
 		break;
 	case ACCEPTED_METHODS:
 		if (lDir.accepted_methods.size() == 0)
@@ -641,6 +685,11 @@ static void	getFromServerContext(const BlockDirective& server, ServerConfig& sCo
 		{
 			for (size_t j = 0; j < sConf.locations.size() - 1; ++j)
 				setErrorPage(sConf.locations[j].error_page, server.directives[i].parameters);
+		}
+		if (id == ACCEPTED_CGI_EXTENSION)
+		{
+			for (size_t j = 0; j < sConf.locations.size() - 1; ++j)
+				setCgiExtension(sConf.locations[j].accepted_cgi_extension, server.directives[i].parameters);
 		}
 		setToLocationLevel(sConf.locations[sConf.locations.size() - 1], static_cast<eSimpleDirective>(id), server.directives[i].parameters);
 		setToServerLevel(sConf, static_cast<eSimpleDirective>(id), server.directives[i].parameters);
