@@ -187,7 +187,7 @@ static bool	isValidErrorPage(const std::vector<std::string>& tokens,
 	std::string tmp;
 	int 		errorCode;
 
-	while (tokens[index + 1] != ";" && tokens[index] != ";" && (index < 0 || static_cast<uint64>(index) < tokens.size() - 1))
+	while (!isCharInSet(tokens[index + 1][0], DELIMITER_CHARS) && tokens[index] != ";" && (index < 0 || static_cast<uint64>(index) < tokens.size() - 1))
 	{
 		tmp = tokens[index];
 		errorCode = convertStrToType<int>(tmp, isNumericLiteral);
@@ -195,7 +195,7 @@ static bool	isValidErrorPage(const std::vector<std::string>& tokens,
 		tmp.clear();
 		++index;
 	}
-	if (tokens[index + 1] == ";")
+	if (isCharInSet(tokens[index + 1][0], DELIMITER_CHARS))
 		return (true);
 	return (false);
 };
@@ -248,7 +248,6 @@ static bool	isValidParam(const std::vector<std::string>& tokens,
 	switch(nameID)
 	{
 		case ERROR_LOG:
-			isFileAccessible(param.c_str());
 			return (true);
 		case LISTEN:
 			if (param == "xxx") //for test
@@ -427,7 +426,7 @@ static bool	isEndOfBlock(const std::vector<std::string>& tokens,
 		resetParentContext(parentContext);
 		return (true);
 	}
-	throw (std::runtime_error("EndOfBlock: Unexpected token: " + tokens[index]));
+		throw (std::runtime_error("EndOfBlock: Unexpected token: " + tokens[index]));
 	return (false);
 }
 
@@ -763,13 +762,3 @@ std::vector<ServerConfig>	parseServerConfig(const int ac, const char **av)
 	// printServerConfig(sConfs[0]);
 	return (sConfs);
 }
-
-/**************
- * Test main
-************/
-
-// int main(const int argc, const char **argv)
-// {
-// 	std::vector<ServerConfig>	sConfs = parseServerConfig(argc, argv);
-// 	return (EXIT_SUCCESS);
-// }
