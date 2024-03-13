@@ -90,15 +90,31 @@ static std::string	readFileToString(const char *filePath)
 /**************
  * Tokenize in Lexing
 ************/
+static bool	ignoreComment(const char& c, bool& isComment)
+{
+	if (c == '#')
+		isComment = true;
+	if (isComment)
+	{
+		if (c == '\n' || c == '\0')
+			isComment = false;
+		return (true);
+	}
+	return (false);
+};
+
 static std::vector<std::string>	tokenize(const std::string& str)
 {
-	char		c;
+	char						c;
 	std::string					token;
 	std::vector<std::string> 	tokens;
+	bool						isComment = false;
 
 	for (size_t i = 0; i < str.length(); ++i)
 	{
 		c = str[i];
+		if (ignoreComment(c, isComment))
+			continue;
 		throwIf(isCharInSet(c, SPECIAL_CHARS), std::string("Error: '") + c + "' can't usable.");
 		if (std::isspace(c) || isCharInSet(c, DELIMITER_CHARS))
 		{
@@ -186,6 +202,7 @@ static bool	isValidErrorPage(const std::vector<std::string>& tokens,
 {
 	std::string tmp;
 	int 		errorCode;
+	bool		hasNumber = false;
 
 	while (!isCharInSet(tokens[index + 1][0], DELIMITER_CHARS) && tokens[index] != ";" && (index < 0 || static_cast<uint64>(index) < tokens.size() - 1))
 	{
@@ -194,9 +211,12 @@ static bool	isValidErrorPage(const std::vector<std::string>& tokens,
 		throwIf(errorCode < 200 || 599 < errorCode, "Error: invalid error code: " + tmp);
 		tmp.clear();
 		++index;
+		hasNumber = true;
 	}
-	if (isCharInSet(tokens[index + 1][0], DELIMITER_CHARS))
+	if (isCharInSet(tokens[index + 1][0], DELIMITER_CHARS) && hasNumber)
 		return (true);
+	if (!hasNumber)
+		throw (std::runtime_error("Error: invalid number of argumentes 'error_page'"));
 	return (false);
 };
 
@@ -212,7 +232,6 @@ static bool	isValidAcceptedCgiExtension(const std::vector<std::string>& tokens,
 		return (true);
 	throw (std::runtime_error("access: " + tokens[index] + ": " + std::string(std::strerror(errno))));
 };
-
 
 static bool	isValidAcceptedMethods(const std::vector<std::string>& tokens,
 	int& index)
