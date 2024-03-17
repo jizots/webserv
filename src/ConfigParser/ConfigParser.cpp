@@ -103,34 +103,48 @@ static bool	ignoreComment(const char& c, bool& isComment)
 	return (false);
 };
 
-static std::vector<std::string>	tokenize(const std::string& str)
+static void	addTokenToVector(std::vector<Token>& tokens, std::string& token, size_t line)
 {
-	char						c;
-	std::string					token;
-	std::vector<std::string> 	tokens;
-	bool						isComment = false;
+	Token	newToken;
+
+	newToken.value = token;
+	newToken.line = line;
+	tokens.push_back(newToken);
+	token.clear();
+};
+
+static std::vector<Token>	tokenize(const std::string& str)
+{
+	char				c;
+	std::string			token;
+	size_t				line = 1;
+	std::vector<Token> 	tokens;
+	bool				isComment = false;
 
 	for (size_t i = 0; i < str.length(); ++i)
 	{
 		c = str[i];
+		if (c == '\n')
+			++line;
 		if (ignoreComment(c, isComment))
 			continue;
-		throwIf(isCharInSet(c, SPECIAL_CHARS), std::string("Error: '") + c + "' can't usable.");
+		throwIf(isCharInSet(c, SPECIAL_CHARS),
+			"[Error] line#" + webserv::to_string(line) + ": '" + c + "' can't usable.");
 		if (std::isspace(c) || isCharInSet(c, DELIMITER_CHARS))
 		{
 			if (!token.empty())
-			{
-				tokens.push_back(token);
-				token.clear();
-			}
+				addTokenToVector(tokens, token, line);
 			if (isCharInSet(c, DELIMITER_CHARS))
-				tokens.push_back(std::string(1, c));
+			{
+				token += c;
+				addTokenToVector(tokens, token, line);
+			}
 		}
 		else
 			token += c;
 	}
 	if (!token.empty())
-		tokens.push_back(token);
+		addTokenToVector(tokens, token, line);
 	return (tokens);
 }
 
@@ -157,9 +171,9 @@ static int	searchDirectiveName(const std::string& name)
 /**************
  * Syntax check in Lexing
 ************/
-static bool	isValidDirective(const std::string& name, const std::string& parentContext)
+static bool	isValidDirective(const Token& name, const std::string& parentContext)
 {
-	int	nameID = searchDirectiveName(name);
+	int	nameID = searchDirectiveName(name.value);
 	int	parentID = searchContextName(parentContext);
 
 	if (nameID == -1 || parentID == -1)
@@ -178,9 +192,9 @@ static bool	isValidDirective(const std::string& name, const std::string& parentC
 	return (false);
 };
 
-static bool	isValidBlock(const std::string& block, const std::string& parentContext)
+static bool	isValidBlock(const Token& block, const std::string& parentContext)
 {
-	int	nameID = searchContextName(block);
+	int	nameID = searchContextName(block.value);
 	int	parentID = searchContextName(parentContext);
 
 	if (nameID == -1 || parentID == -1)
@@ -197,68 +211,87 @@ static bool	isValidBlock(const std::string& block, const std::string& parentCont
 	return (false);
 };
 
-static bool	isValidErrorPage(const std::vector<std::string>& tokens,
+static void	incrementIndex(const std::vector<Token>& tokens, int& index)
+{
+	++index;
+	if (static_cast<uint64>(index) == tokens.size())
+	{
+		--index;
+		throw (std::runtime_error("[Error] line#" + webserv::to_string(tokens[index].line)
+			+ ": Unexpected line ending with: " + tokens[index].value));
+	}
+}
+
+static bool	isValidErrorPage(const std::vector<Token>& tokens,
 	int& index)
 {
 	std::string tmp;
 	int 		errorCode;
 	bool		hasNumber = false;
 
-	while (!isCharInSet(tokens[index + 1][0], DELIMITER_CHARS) && tokens[index] != ";" && (index < 0 || static_cast<uint64>(index) < tokens.size() - 1))
+	while (!isCharInSet(tokens[index + 1].value[0], DELIMITER_CHARS)
+		&& tokens[index].value != ";"
+		&& (index < 0 || static_cast<uint64>(index) < tokens.size() - 1))
 	{
-		tmp = tokens[index];
+		tmp = tokens[index].value;
 		errorCode = convertStrToType<int>(tmp, isNumericLiteral);
-		throwIf(errorCode < 200 || 599 < errorCode, "Error: invalid error code: " + tmp);
+		throwIf(errorCode < 200 || 599 < errorCode,
+			"[Error] line#" + webserv::to_string(tokens[index].line) + ": invalid error code: " + tmp);
 		tmp.clear();
-		++index;
+		incrementIndex(tokens, index);
 		hasNumber = true;
 	}
-	if (isCharInSet(tokens[index + 1][0], DELIMITER_CHARS) && hasNumber)
+	if (isCharInSet(tokens[index + 1].value[0], DELIMITER_CHARS) && hasNumber)
 		return (true);
-	if (!hasNumber)
-		throw (std::runtime_error("Error: invalid number of argumentes 'error_page'"));
+	throwIf(!hasNumber, 
+		"[Error] line#" + webserv::to_string(tokens[index].line) + ": invalid number of argumentes 'error_page'");
 	return (false);
 };
 
-static bool	isValidAcceptedCgiExtension(const std::vector<std::string>& tokens,
+static bool	isValidAcceptedCgiExtension(const std::vector<Token>& tokens,
 	int& index)
 {
-	if (tokens[index] != ".py" && tokens[index] != ".pl" && tokens[index] != ".php")
+	if (tokens[index].value != ".py"
+		&& tokens[index].value != ".pl"
+		&& tokens[index].value != ".php")
 		return (false);
-	if (isCharInSet(tokens[index + 1][0], DELIMITER_CHARS))
+	if (isCharInSet(tokens[index + 1].value[0], DELIMITER_CHARS))
 		return (true);
-	++index;
-	if (access(tokens[index].c_str(), X_OK) == 0)
+	incrementIndex(tokens, index);
+	if (access(tokens[index].value.c_str(), X_OK) == 0)
 		return (true);
-	throw (std::runtime_error("access: " + tokens[index] + ": " + std::string(std::strerror(errno))));
+	throw (std::runtime_error("[Error] line#" +webserv::to_string(tokens[index].line) 
+		+ ": access: " + webserv::to_string(tokens[index].value) + ": " + std::string(std::strerror(errno))));
 };
 
-static bool	isValidAcceptedMethods(const std::vector<std::string>& tokens,
+static bool	isValidAcceptedMethods(const std::vector<Token>& tokens,
 	int& index)
 {
 	std::string	tmp;
 
-	while (tokens[index] != ";" && (index < 0 || static_cast<uint64>(index) < tokens.size() - 1))
+	while (tokens[index].value != ";"
+		&& (index < 0 || static_cast<uint64>(index) < tokens.size() - 1))
 	{
-		tmp = tokens[index];
+		tmp = tokens[index].value;
 		if (tmp == "GET" || tmp == "POST" || tmp == "DELETE")
 		{
 			tmp.clear();
-			if (tokens[index + 1] == ";")
+			if (tokens[index + 1].value == ";")
 				return (true);
-			++index;
+			incrementIndex(tokens, index);
 		}
 		else
-			throw (std::runtime_error("Error: invalid method: " + tmp));
+			throw (std::runtime_error("[Error] Invalid method: line#" + webserv::to_string(tokens[index].line)
+					+ ": " + tmp));
 	}
 	return (false);
 };
 
-static bool	isValidParam(const std::vector<std::string>& tokens,
+static bool	isValidParam(const std::vector<Token>& tokens,
 	int& index)
 {
-	std::string	param = tokens[index];
-	int		nameID = searchDirectiveName(tokens[index - 1]);
+	std::string	param = tokens[index].value;
+	int		nameID = searchDirectiveName(tokens[index - 1].value);
 	int 	port;
 	int		size;
 
@@ -347,14 +380,14 @@ static BlockDirective*	getLastLocationBlock(MainDirective& mainDir)
 };
 
 static void	addDirectiveToStruct(MainDirective& mainDir,
-	const std::vector<std::string>& tokens, int nameIndex, int semicoronIndex,
+	const std::vector<Token>& tokens, int nameIndex, int semicoronIndex,
 	const std::string& parentContext)
 {
 	SimpleDirective	simpleDir;
 
-	simpleDir.name = tokens[nameIndex];
+	simpleDir.name = tokens[nameIndex].value;
 	for (int i = nameIndex + 1; i < semicoronIndex; ++i)
-		simpleDir.parameters.push_back(tokens[i]);
+		simpleDir.parameters.push_back(tokens[i].value);
 	if (searchContextName(parentContext) == MAIN)
 		mainDir.directives.push_back(simpleDir);
 	else if (searchContextName(parentContext) == HTTP)
@@ -366,20 +399,21 @@ static void	addDirectiveToStruct(MainDirective& mainDir,
 };
 
 static void	addBlockToStruct(const std::string& parentContext,
-	MainDirective& mainDir, const std::string& name, const std::string& locationName)
+	MainDirective& mainDir, const Token& name, const Token& locationName)
 {
 	int	parentID = searchContextName(parentContext);
 	BlockDirective	blockDir;
 
 	if (parentID == LOCATION)
 	{
-		blockDir.nameContext = locationName;
-		blockDir.parameter = name;
-		throwIf(isCharInSet(name[0], DELIMITER_CHARS), "Error: invalid location name: " + name);
+		blockDir.nameContext = locationName.value;
+		blockDir.parameter = name.value;
+		throwIf(isCharInSet(name.value[0], DELIMITER_CHARS),
+			"[Error] line#" + webserv::to_string(name.line) + ": invalid location name: " + name.value);
 	}
 	else
 	{
-		blockDir.nameContext = name;
+		blockDir.nameContext = name.value;
 		blockDir.parameter = "";
 	}
 	if (parentID == HTTP)
@@ -390,7 +424,7 @@ static void	addBlockToStruct(const std::string& parentContext,
 		getLastServerBlock(mainDir)->blockDirectives.push_back(blockDir);
 };
 
-static bool	isSimpleDirective(const std::vector<std::string>& tokens,
+static bool	isSimpleDirective(const std::vector<Token>& tokens,
 	MainDirective& mainDir, int& index, const std::string& parentContext)
 {
 	int			nameIndex;
@@ -398,58 +432,61 @@ static bool	isSimpleDirective(const std::vector<std::string>& tokens,
 	if (isValidDirective(tokens[index], parentContext))
 	{
 		nameIndex = index;
-		++index;
+		incrementIndex(tokens, index);
 		if (isValidParam(tokens, index))
 		{
-			++index;
-			if (tokens[index] == ";")
+			incrementIndex(tokens, index);
+			if (tokens[index].value == ";")
 			{
 				addDirectiveToStruct(mainDir, tokens, nameIndex, index, parentContext);
 				++index;
 				return (true);
 			}
 		}
-		throw (std::runtime_error("SimpleDirective: Unexpected token: " + tokens[index]));
+		throw (std::runtime_error("[Error] line#" + webserv::to_string(tokens[index].line)
+				+ ": Unexpected token: " + tokens[index].value));
 	}
 	return (false);
 };
 
-static bool	isBlockDirective(const std::vector<std::string>& tokens,
+static bool	isBlockDirective(const std::vector<Token>& tokens,
 	MainDirective& mainDir, int& index, std::string& parentContext)
 {
 	if (isValidBlock(tokens[index], parentContext))
 	{
-		parentContext = tokens[index];
-		if (tokens[index] == CONFIG_CONTEXTS[LOCATION])
-			++index;
-		++index;
-		if (tokens[index] == "{")
+		parentContext = tokens[index].value;
+		if (tokens[index].value == CONFIG_CONTEXTS[LOCATION])
+			incrementIndex(tokens, index);
+		incrementIndex(tokens, index);
+		if (tokens[index].value == "{")
 		{
 			addBlockToStruct(parentContext, mainDir, tokens[index - 1], tokens[index - 2]);
 			++index;
 			return (true);
 		}
-		throw (std::runtime_error("BlockDirective: Unexpected token: " + tokens[index]));
+		throw (std::runtime_error("[Error] line#" + webserv::to_string(tokens[index].line)
+				+ ": Unexpected token: " + tokens[index].value));
 	}
 	return (false);
 };
 
-static bool	isEndOfBlock(const std::vector<std::string>& tokens,
+static bool	isEndOfBlock(const std::vector<Token>& tokens,
 	int& index, std::string& parentContext, int hasItem)
 {
 	if (searchContextName(parentContext) != MAIN
 		&& 0 < hasItem
-		&& tokens[index] == "}")
+		&& tokens[index].value == "}")
 	{
 		++index;
 		resetParentContext(parentContext);
 		return (true);
 	}
-		throw (std::runtime_error("EndOfBlock: Unexpected token: " + tokens[index]));
+		throw (std::runtime_error("[Error] line#" + webserv::to_string(tokens[index].line)
+				+ ": Unexpected token: " + tokens[index].value));
 	return (false);
 }
 
-static bool	makeTmpStruct(const std::vector<std::string>& tokens,
+static bool	makeTmpStruct(const std::vector<Token>& tokens,
 	MainDirective& mainDir, std::string parentContext, int index, int hasItem)
 {
 	if (isSimpleDirective(tokens, mainDir, index, parentContext))
@@ -511,7 +548,8 @@ static bool hasUniqMultiParameter(const int& nameId, const std::vector<std::stri
 	{
 		std::vector<std::string>	tmp(params);
 		tmp.erase(tmp.end() - 1);
-		throwIf(isGradualVectorDuplicate(multiple.errorPage, tmp), "Error: Duplication error_page's code");
+		throwIf(isGradualVectorDuplicate(multiple.errorPage, tmp),
+			"Error: Duplication error_page's code");
 		return (true);
 	}
 	else if (nameId == ACCEPTED_CGI_EXTENSION)
@@ -519,7 +557,8 @@ static bool hasUniqMultiParameter(const int& nameId, const std::vector<std::stri
 		std::vector<std::string>	tmp(params);
 		if (tmp.size() == 2)
 			tmp.erase(tmp.end() - 1);
-		throwIf(isGradualVectorDuplicate(multiple.cgiPath, tmp), "Error: Duplication cgi extentions");
+		throwIf(isGradualVectorDuplicate(multiple.cgiPath, tmp),
+			"Error: Duplication cgi extentions");
 		return (true);
 	}
 	return (false);
@@ -768,13 +807,14 @@ static void	setParamEachServer(const MainDirective& mainDir, std::vector<ServerC
 std::vector<ServerConfig>	parseServerConfig(const int ac, const char **av)
 {
 	std::string					fileContents;
-	std::vector<std::string> 	tokens;
+	std::vector<Token>		 	tokens;
 	MainDirective				mainDir;
 	std::vector<ServerConfig>	sConfs;
 
 	throwIf(ac != 2, "Usage: " + std::string(av[0]) + " <config file>");
 	fileContents = readFileToString(av[1]);
 	tokens = tokenize(fileContents);
+	throwIf(!tokens.size(), "[error] Configuration hasn't element.");
 	makeTmpStruct(tokens, mainDir, "main", 0, 0);
 	isNoDuplication(mainDir);
 	setParamEachServer(mainDir, sConfs);

@@ -62,6 +62,10 @@ const std::string	SIMPLE_DIRECTIVES[DIRECTIVE_ENUM_SIZE] = {
 /*************
  * Lexer struct
  * *************/
+struct Token {
+	std::string		value;
+	size_t			line;
+};
 
 struct SimpleDirective {
 	std::string					name;
