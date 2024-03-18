@@ -1,19 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Utils.hpp                                          :+:      :+:    :+:   */
+/*   HTTPUtils.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: emukamada <emukamada@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/11 15:09:19 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/09 14:18:19 by tchoquet         ###   ########.fr       */
+/*   Created: 2024/03/09 15:51:05 by ekamada           #+#    #+#             */
+/*   Updated: 2024/03/11 22:21:55 by emukamada        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Utils/UniPointer.hpp"
-#include "Utils/Logger.hpp"
-#include "Utils/Macros.hpp"
-#include "Utils/Types.hpp"
-#include "Utils/SharedPtr.hpp"
-#include "Utils/Functions.hpp"
-#include "Utils/ContentType.hpp"
+#include "Utils/Utils.hpp"
+
+
+
+namespace webserv
+{
+
+bool isUnReserved(Byte c);
+bool isReserved(Byte c);
+bool isPchar(Byte c);
+bool isToken(Byte c);
+bool isPrintableAscii(Byte c);
+std::string trimOptionalSpace(const std::string& str);
+
+}

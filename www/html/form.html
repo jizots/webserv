@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Form</title>
+    <style>
+        body {
+            background-color: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+
+        .submit-buttons {
+            text-align: center;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simple Form</h1>
+        <form>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" placeholder="Enter your name" value="John Doe">
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" value="johndoe@example.com">
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" value="********">
+
+            <div class="submit-buttons">
+                <input type="submit" value="to CGI Tester (POST)" formaction="/cgi-bin/cgi_tester" formmethod="post">
+                <input type="submit" value="to CGI Tester (GET)" formaction="/cgi-bin/cgi_tester" formmethod="get">
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Get all the submit buttons
+        const submitButtons = document.querySelectorAll('input[type="submit"]');
+
+        // Find the width of the widest button
+        let maxWidth = 0;
+        submitButtons.forEach(button => {
+            const buttonWidth = button.offsetWidth;
+            if (buttonWidth > maxWidth) {
+                maxWidth = buttonWidth;
+            }
+        });
+
+        // Set the width of all the buttons to the widest width
+        submitButtons.forEach(button => {
+            button.style.width = `${maxWidth}px`;
+        });
+    </script>
+</body>
+</html>

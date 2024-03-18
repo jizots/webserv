@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   HTTPRequestParser.hpp                                     :+:      :+:    :+:   */
+/*   CGIParser.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,51 +10,53 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef HTTPREQUESTPARSER_HPP
-# define HTTPREQUESTPARSER_HPP
+#ifndef CGIPARSER_HPP
+# define CGIPARSER_HPP
 
 #include <string>
 #include <vector>
 #include <sstream>
 
-#include "Utils/Utils.hpp"
-#include "HTTP/HTTPRequest.hpp"
+// #include "Utils/Utils.hpp"
 #include "HTTP/BodyParser.hpp"
 #include "HTTP/HeaderParser.hpp"
-#include "HTTP/RequestLineParser.hpp"
 
 namespace webserv
 {
 
-class HTTPRequestParser
+
+class CGIParser
 {
 private:
+    // enum class was c++11 extension
     enum status{
-        _requestLine     = 1 ,
-        _header          = 2 ,
-        _requestBody     = 4 ,
-        _parseComplete   = 5 ,
-        _badRequest      = 6 ,
+        _header          = 0,
+        _headerParseDone = 1,
+        _requestBody     = 2,
+        _parseComplete   = 3,
+        _badRequest      = 4,
     };
-
 public:
-    HTTPRequestParser();
+    CGIParser();
 
     Byte* getBuffer();
     void parse(uint32 len);
-    inline HTTPRequest& request() { return m_request; };
 
-    inline bool isRequestLineComplete() { return (m_status > _requestLine); };
-    inline bool isHeaderComplete()      { return (m_status > _header);      };
-    inline bool isBodyComplete()        { return (m_status > _requestBody); };
+    inline const std::map<std::string, std::string>& header() {return m_header;}
+    inline const std::vector<Byte>& body() {return m_body; }
+    inline uint64 contentLength() { return m_contentLength; }
+
+    inline bool isComplete() { return (m_status >= _parseComplete); };
+    inline bool isBadRequest() { return m_status == _badRequest; };
 
 private:
-    HTTPRequest m_request;
+    std::map<std::string, std::string> m_header;
+    std::vector<Byte> m_body;
 
-    RequestLineParser m_requestLineParser;
     HeaderParser m_headerParser;
     BodyParser m_bodyParser;
     
+    uint64 m_contentLength;
     int m_status;
     uint64 m_idx;
     std::string m_hex;

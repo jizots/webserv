@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "IOManager.hpp"
+#include "IO/IOManager.hpp"
 
 #include <sys/select.h>
 #include <cstring>
@@ -32,14 +32,6 @@ void IOManager::terminate()
     delete s_instance;
 }
 
-void IOManager::addServerToMasterSocket(int port, const ServerPtr& serv)
-{
-    std::map<uint32, MasterSocketPtr>::iterator it = m_masterSockets.find(port);
-    if (it == m_masterSockets.end())
-        it = m_masterSockets.insert(std::make_pair(port, new MasterSocket(port))).first;
-    it->second->addServer(serv);
-}
-
 void IOManager::selectIOs(std::set<MasterSocketPtr>& masterSockets, std::set<IReadTaskPtr>& readTasks,std::set<IWriteTaskPtr>& writeTasks)
 {
     fd_set readableFdSet;
@@ -54,7 +46,7 @@ void IOManager::selectIOs(std::set<MasterSocketPtr>& masterSockets, std::set<IRe
     readTasks.clear();
     writeTasks.clear();
 
-    for (std::map<uint32, MasterSocketPtr>::iterator curr = m_masterSockets.begin(); curr != m_masterSockets.end(); ++curr)
+    for (std::map<uint16, MasterSocketPtr>::iterator curr = m_masterSockets.begin(); curr != m_masterSockets.end(); ++curr)
     {
         FD_SET(curr->second->fileDescriptor(), &readableFdSet);
         biggestFd = std::max(biggestFd, curr->second->fileDescriptor());
@@ -75,17 +67,31 @@ void IOManager::selectIOs(std::set<MasterSocketPtr>& masterSockets, std::set<IRe
     if (select(biggestFd + 1, &readableFdSet, &writableFdSet, NULL, NULL) < 0)
         throw std::runtime_error("select: " + std::string(std::strerror(errno)));
 
-    for (std::map<uint32, MasterSocketPtr>::iterator curr = m_masterSockets.begin(); curr != m_masterSockets.end(); ++curr)
+    for (std::map<uint16, MasterSocketPtr>::iterator curr = m_masterSockets.begin(); curr != m_masterSockets.end(); ++curr)
     {
         if (FD_ISSET(curr->second->fileDescriptor(), &readableFdSet))
             masterSockets.insert(curr->second);
     }
 
-    for (std::set<IReadTaskPtr>::iterator curr = m_readTasks.begin(); curr != m_readTasks.end();)
+    for (std::set<IReadTaskPtr>::iterator curr = m_readTasks.begin(); curr != m_readTasks.end(); ++curr)
     {
         if (FD_ISSET((*curr)->fd(), &readableFdSet))
-        {
             readTasks.insert(*curr);
+    }
+
+    for (std::set<IWriteTaskPtr>::iterator curr = m_writeTasks.begin(); curr != m_writeTasks.end(); ++curr)
+    {
+        if (FD_ISSET((*curr)->fd(), &writableFdSet))
+            writeTasks.insert(*curr);
+    }
+}
+
+void IOManager::eraseReadTask(IReadTask* task)
+{
+    for (std::set<IReadTaskPtr>::iterator curr = m_readTasks.begin(); curr != m_readTasks.end();)
+    {
+        if ((*curr) == task)
+        {
             std::set<IReadTaskPtr>::iterator pos = curr;
             ++curr;
             m_readTasks.erase(pos);
@@ -93,12 +99,14 @@ void IOManager::selectIOs(std::set<MasterSocketPtr>& masterSockets, std::set<IRe
         else
             ++curr;
     }
+}
 
+void IOManager::eraseWriteTask(IWriteTask* task)
+{
     for (std::set<IWriteTaskPtr>::iterator curr = m_writeTasks.begin(); curr != m_writeTasks.end();)
     {
-        if (FD_ISSET((*curr)->fd(), &writableFdSet))
+        if ((*curr) == task)
         {
-            writeTasks.insert(*curr);
             std::set<IWriteTaskPtr>::iterator pos = curr;
             ++curr;
             m_writeTasks.erase(pos);

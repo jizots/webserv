@@ -6,15 +6,15 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:56:12 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/02/25 12:00:20 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/06 17:10:38 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENTSOCKET_HPP
 # define CLIENTSOCKET_HPP
 
-#include "MasterSocket.hpp"
-#include "HTTP/HTTP.hpp"
+#include "Socket/MasterSocket.hpp"
+#include "HTTP/HTTPResponse.hpp"
 
 #include <queue>
 
@@ -23,7 +23,7 @@ namespace webserv
 
 class ClientSocket
 {
-friend ClientSocketPtr MasterSocketPtr::acceptNewClient() const;
+friend ClientSocketPtr MasterSocket::acceptNewClient(const MasterSocketPtr&) const;
 
 public:
     inline int fileDescriptor() { return m_fileDescriptor; }

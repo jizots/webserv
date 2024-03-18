@@ -5,5 +5,4 @@ build/*
 .clang-format
 **/a.out
 **/.DS_Store
-configs/webserv-local.conf
-configs/nginx-local.conf
+configs/*-local.conf

@@ -31,12 +31,32 @@
             margin-top: 20px;
         }
     </style>
+    <script>
+        window.addEventListener('load', function() {
+            var buttons = document.querySelectorAll('.button button');
+            var maxWidth = 0;
+
+            buttons.forEach(function(button) {
+                maxWidth = Math.max(maxWidth, button.offsetWidth);
+            });
+
+            buttons.forEach(function(button) {
+                button.style.width = maxWidth + 'px';
+            });
+        });
+    </script>
 </head>
 <body>
     <div class="container">
         <h1>Hello, World!</h1>
         <div class="button">
-            <button onclick="window.location.href='/test'" style="font-size: 24px; padding: 10px 20px;">Go to /test</button>
+            <button onclick="window.location.href='/no_such'" style="font-size: 24px; padding: 10px 20px;">Go to /no_such</button>
+        </div>
+        <div class="button">
+            <button onclick="window.location.href='/cgi-bin/'" style="font-size: 24px; padding: 10px 20px;">Go to CGI bin</button>
+        </div>
+        <div class="button">
+            <button onclick="window.location.href='/form.html'" style="font-size: 24px; padding: 10px 20px;">Go to form</button>
         </div>
     </div>
 </body>

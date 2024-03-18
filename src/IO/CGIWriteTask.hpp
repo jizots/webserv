@@ -1,40 +1,41 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Webserv.hpp                                        :+:      :+:    :+:   */
+/*   CGIWriteTask.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/13 15:35:41 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/02/21 18:34:25 by tchoquet         ###   ########.fr       */
+/*   Created: 2024/03/06 16:16:17 by tchoquet          #+#    #+#             */
+/*   Updated: 2024/03/06 17:29:58 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef WEBSERV_HPP
-# define WEBSERV_HPP
+#ifndef CGIWRITETASK_HPP
+# define CGIWRITETASK_HPP
 
-#include <vector>
-#include <map>
+#include "IO/IOTask.hpp"
 
-#include "Utils/Utils.hpp"
-#include "ConfigParser/ConfigParser.hpp"
+#include "HTTP/HTTPRequest.hpp"
 
 namespace webserv
 {
 
-class Webserv
+class CGIWriteTask : public IWriteTask
 {
-
 public:
-    Webserv(const std::vector<ServerConfig>& configs);
+    CGIWriteTask(int writeFd, const HTTPRequest& request);
 
-    void run();
-    inline void stop() { m_running = false; };
+    int fd() /*override*/;
+    void write() /*override*/;
+
+    ~CGIWriteTask() /*override*/;
 
 private:
-    bool m_running;
+    int m_writeFd;
+    std::vector<Byte> m_buffer;
+    uint64 m_idx;
 };
 
 }
 
-#endif // WEBSERV_HPP
+#endif // CGIWRITETASK_HPP

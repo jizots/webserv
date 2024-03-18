@@ -14,9 +14,8 @@
 # define IOMANAGER_HPP
 
 #include "Utils/Utils.hpp"
-#include "MasterSocket.hpp"
-#include "Server.hpp"
-#include "IOTask.hpp"
+#include "Socket/MasterSocket.hpp"
+#include "IO/IOTask.hpp"
 
 #include <map>
 #include <set>
@@ -31,9 +30,16 @@ public:
     static inline IOManager& shared() { return *s_instance; }
     static void terminate();
 
-    void addServerToMasterSocket(int port, const ServerPtr& serv);
+    inline std::map<uint16, MasterSocketPtr>& masterSockets() { return m_masterSockets; }
+
     inline void insertReadTask(const IReadTaskPtr& task) { m_readTasks.insert(task); }
     inline void insertWriteTask(const IWriteTaskPtr& task) { m_writeTasks.insert(task); }
+
+    inline void eraseReadTask(const IReadTaskPtr& task) { m_readTasks.erase(task); }
+    inline void eraseWriteTask(const IWriteTaskPtr& task) { m_writeTasks.erase(task); }
+
+    void eraseReadTask(IReadTask* task);
+    void eraseWriteTask(IWriteTask* task);
 
     void selectIOs(std::set<MasterSocketPtr>&, std::set<IReadTaskPtr>&, std::set<IWriteTaskPtr>&);
 
@@ -43,7 +49,7 @@ private:
     
     static IOManager* s_instance;
 
-    std::map<uint32, MasterSocketPtr> m_masterSockets;
+    std::map<uint16, MasterSocketPtr> m_masterSockets;
     std::set<IReadTaskPtr> m_readTasks;
     std::set<IWriteTaskPtr> m_writeTasks;
 };

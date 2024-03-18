@@ -49,6 +49,7 @@ public:
     inline T* operator -> () const { return  *m_pointer; }
 
     inline bool operator == (const SharedPtr& rhs) const { return *m_pointer == *rhs.m_pointer; }
+    inline bool operator == (T* rhs) const { return *m_pointer == rhs; }
     inline bool operator != (const SharedPtr& rhs) const { return *m_pointer != *rhs.m_pointer; }
 
     inline bool operator < (const SharedPtr& rhs) const { return *m_pointer < *rhs.m_pointer; }

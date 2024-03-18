@@ -6,11 +6,11 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 16:57:24 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/01 09:24:54 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/06 17:07:05 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ClientSocket.hpp"
+#include "Socket/ClientSocket.hpp"
 
 #include <unistd.h>
 #include <cstring>
