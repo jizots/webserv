@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Functions.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 14:07:13 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/17 19:11:50 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/18 14:11:24 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 
 #include <string>
 #include <sstream>
+#include <vector>
+
+#include "Types.hpp"
 
 namespace webserv
 {
@@ -26,6 +29,7 @@ std::string to_string(const T& value)
     os << value;
     return os.str();
 }
+std::vector<Byte>   to_vector(const std::string& str);
 
 template<typename T>
 bool is(const std::string& str)

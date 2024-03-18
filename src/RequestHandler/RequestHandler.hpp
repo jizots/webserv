@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 15:24:37 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/13 16:57:43 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/18 14:09:55 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,25 @@
 
 namespace webserv
 {
+struct DirecInfo
+{
+	std::string		retPath;
+	std::string		fileSize;
+	struct tm		lastModified;
+};
+
+enum TmValue{
+	TM_SEC,
+	TM_MIN,
+	TM_HOUR,
+	TM_MDAY,
+	TM_MON,
+	TM_YEAR,
+	TM_WDAY,
+	TM_YDAY,
+	TM_ISDST,
+	STRUCT_ENUM_SIZE
+};
 
 class RequestHandler
 {
@@ -82,6 +101,7 @@ private:
     void makeResponseCode(int code, const std::map<int, std::string>& error_page);
     
     void makeEnvp(const HTTPRequest& request, std::vector<std::string>& envp);
+    void makeResponseAutoindex(const LocationDirective& location, const std::string& uri);
 
     ClientSocketPtr m_clientSocket;
     HTTPResponsePtr m_response;

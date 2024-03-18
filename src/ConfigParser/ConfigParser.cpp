@@ -669,6 +669,8 @@ static void	setToLocationLevel(LocationDirective& lDir,
 	case AUTOINDEX:
 		if (src[0] == "on")
 			lDir.autoindex = true;
+		else if (src[0] == "off")
+			lDir.isSetAutoindex = true;
 		break;
 	case CLIENT_MAX_BODY_SIZE:
 		if (lDir.client_max_body_size == -1)
@@ -747,6 +749,14 @@ static void	getFromServerContext(const BlockDirective& server, ServerConfig& sCo
 		{
 			for (size_t j = 0; j < sConf.locations.size() - 1; ++j)
 				setCgiExtension(sConf.locations[j].accepted_cgi_extension, server.directives[i].parameters);
+		}
+		if (id == AUTOINDEX && server.directives[i].parameters[0] == "on")
+		{
+			for (size_t j = 0; j < sConf.locations.size() - 1; ++j)
+			{
+				if (sConf.locations[j].isSetAutoindex == false)
+					sConf.locations[j].autoindex = true;
+			}
 		}
 		setToLocationLevel(sConf.locations[sConf.locations.size() - 1], static_cast<eSimpleDirective>(id), server.directives[i].parameters);
 		setToServerLevel(sConf, static_cast<eSimpleDirective>(id), server.directives[i].parameters);

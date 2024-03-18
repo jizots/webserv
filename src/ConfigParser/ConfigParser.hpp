@@ -105,6 +105,7 @@ struct LocationDirective {
 	std::string							redirect;
 	std::map<int, std::string>			error_page;
 	bool								autoindex;
+	bool								isSetAutoindex;
 	int									client_max_body_size;
 	std::string							index;
 	std::vector<std::string>			accepted_methods;
