@@ -3,16 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   ContentType.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ekamada <ekamada@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:11:47 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/18 14:16:17 by sotanaka         ###   ########.fr       */
+/*   Updated: 2024/03/18 18:41:24 by ekamada          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONTENTTYPE_HPP
 # define CONTENTTYPE_HPP
 
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <map>
 #include <string>
 
 namespace webserv
@@ -21,11 +26,15 @@ namespace webserv
 class ContentType
 {
 public:
-    enum Id { none, html, gif, ico };
+    enum Id {
+		ico, gzip, pdf, bmp,
+		gif, tiff, zip, rtf,
+		png, jpeg, html, xml, none
+	};
 
 public:
     ContentType(Id id = none);
-    ContentType(const std::string& ext);
+    ContentType(const std::string& filePath);
 
 private:
     Id m_id;

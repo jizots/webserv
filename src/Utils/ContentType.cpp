@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ContentType.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: emukamada <emukamada@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:12:54 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/09 14:17:32 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/19 14:24:19 by emukamada        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,52 @@ ContentType::ContentType(Id id_) : m_id(none)
     *this = id_;
 }
 
-ContentType::ContentType(const std::string& ext) : m_id(none)
-{
-    if (ext == ".html")
-        *this = html;
-    else if (ext == ".gif")
-        *this = gif;
-    else if (ext == ".ico")
-        *this = ico;
+
+ContentType::ContentType(const std::string& filePath): m_id(none){
+    *this = m_id;
+    std::ifstream inputFile(filePath.c_str(), std::ios::binary);
+    if (!inputFile)
+        return ;
+
+    std::map<std::string, int> magicNumber;
+    magicNumber["000001"] = ico;
+    magicNumber["1F8B08"] = gzip;
+    magicNumber["25504446"] = pdf;
+    magicNumber["424D"] = bmp;
+    magicNumber["47494638"] = gif;
+    magicNumber["49492A00"] = tiff;
+    magicNumber["504B0304"] = zip;
+    magicNumber["7B5C727466"] = rtf;
+    magicNumber["89504E47"] = png;
+    magicNumber["FFD8FFE0"] = jpeg;
+
+    char buffer;
+    std::stringstream out;
+    for (int i = 0; inputFile.read(&buffer, 1) && i < 8; i++)
+        out << std::hex << std::setw(2) << std::setfill('0') << (0xff & static_cast<int>(buffer));
+    inputFile.close();
+
+    std::string result = out.str();
+    for (int i = 0; result[i]; i++) result[i] = std::toupper(result[i]);
+
+    for (std::map<std::string, int>::iterator it = magicNumber.begin(); it != magicNumber.end(); it++)
+    {
+        if (result.compare(0, it->first.size(), it->first) == 0){
+            *this = (Id)it->second;
+            return ;
+        }
+    }
+
+    size_t ext_pos = filePath.rfind('.');
+    std::string ext;
+    if (ext_pos != std::string::npos) {
+        ext = filePath.substr(ext_pos+1, filePath.size()-ext_pos);
+        if (ext == "html")
+            *this = html;
+        else if (ext == "xml")
+            *this = xml;
+    }
+
 }
 
 ContentType& ContentType::operator = (const ContentType& rhs)
@@ -47,16 +85,52 @@ ContentType& ContentType::operator = (const Id& id)
         m_id = id;
         switch (m_id)
         {
-        case html:
-            m_str = "text/html";
+        case ico:
+            m_str = "image/vnd.microsoft.icon";
+            break;
+
+        case gzip:
+            m_str = "application/gzip";
+            break;
+
+        case pdf:
+            m_str = "application/pdf";
+            break;
+
+        case bmp:
+            m_str = "image/bmp";
             break;
 
         case gif:
             m_str = "image/gif";
             break;
 
-        case ico:
-            m_str = "image/vnd.microsoft.icon";
+        case tiff:
+            m_str = "image/tiff";
+            break;
+
+        case zip:
+            m_str = "application/zip";
+            break;
+
+        case rtf:
+            m_str = "application/rtf";
+            break;
+
+        case png:
+            m_str = "image/png";
+            break;
+
+        case jpeg:
+            m_str = "image/jpeg";
+            break;
+
+        case html:
+            m_str = "text/html";
+            break;
+
+        case xml:
+            m_str = "application/xml";
             break;
 
         default:

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Resource.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: emukamada <emukamada@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 13:26:07 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/17 19:57:07 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/19 13:56:39 by emukamada        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,23 +21,24 @@ namespace webserv
 
 RequestHandler::Resource::Resource()
     : m_cgiReadFd(-1), m_cgiWriteFd(-1),
-      m_fileReadFd(-1), m_fileWriteFd(-1) 
+      m_fileReadFd(-1), m_fileWriteFd(-1)
 {
 }
 
 RequestHandler::Resource::Resource(const std::string& path)
     : m_cgiReadFd(-1), m_cgiWriteFd(-1),
-      m_fileReadFd(-1), m_fileWriteFd(-1) 
+      m_fileReadFd(-1), m_fileWriteFd(-1)
 {
     if (::stat(path.c_str(), &m_stat) < 0)
     {
         log << "stat(): " << std::strerror(errno) << '\n';
         return;
     }
-    
+
     m_extention = path.find_last_of('.') == std::string::npos ? "" : path.substr(path.find_last_of('.'));
 
-    m_contentType = ContentType(m_extention);
+    // m_contentType = ContentType(m_extention);
+    m_contentType = ContentType(path);
     m_path = path;
 }
 
@@ -45,7 +46,7 @@ void RequestHandler::Resource::computeIsCGI(const std::map<std::string, std::str
 {
     if (m_extention == "")
         return (void)(m_isCGI = true);
-    
+
     for (std::map<std::string, std::string>::const_iterator curr = cgiExt.begin(); curr != cgiExt.end(); ++curr)
     {
         if (curr->first == m_extention)
@@ -72,21 +73,21 @@ int RequestHandler::Resource::createCGIProcess(const std::vector<std::string>& _
     {
         argv.push_back(m_cgiInterpreter.c_str());
         argv.push_back(m_path.c_str());
-    }   
+    }
     argv.push_back(NULL);
 
     envp.reserve(_envp.size());
     for (unsigned long i = 0; i < _envp.size(); i++)
         envp.push_back(_envp[i].c_str());
     envp.push_back(NULL);
-    
+
 
     if (pipe(toCGIfds) != 0)
     {
         log << "pipe(): " << std::strerror(errno) << '\n';
         return -1;
     }
-    
+
     if (pipe(fromCGIfds) != 0)
     {
         log << "pipe(): " << std::strerror(errno) << '\n';
@@ -141,7 +142,7 @@ int RequestHandler::Resource::createCGIProcess(const std::vector<std::string>& _
 
         close(toCGIfds[READ_END]);
         close(fromCGIfds[WRITE_END]);
-        
+
         if (cgiPid > 0)
         {
             m_cgiWriteFd = toCGIfds[WRITE_END];
