@@ -251,9 +251,7 @@ static bool	isValidErrorPage(const std::vector<Token>& tokens,
 static bool	isValidAcceptedCgiExtension(const std::vector<Token>& tokens,
 	int& index)
 {
-	if (tokens[index].value != ".py"
-		&& tokens[index].value != ".pl"
-		&& tokens[index].value != ".php")
+	if (tokens[index].value[0] != '.' || tokens[index].value.size() < 2)
 		return (false);
 	if (isCharInSet(tokens[index + 1].value[0], DELIMITER_CHARS))
 		return (true);
