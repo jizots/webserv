@@ -6,7 +6,7 @@
 /*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 18:32:54 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/18 14:32:15 by sotanaka         ###   ########.fr       */
+/*   Updated: 2024/03/21 14:57:23 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -300,7 +300,7 @@ static const std::string	formatFileSize(off_t size)
 	std::string	unit[] = {"B", "KB", "MB", "GB", "TB"};
 	int			i = 0;
 
-	while (size >= 1024)
+	while (size >= 1024 && i < 4)
 	{
 		size /= 1024;
 		++i;
@@ -308,7 +308,7 @@ static const std::string	formatFileSize(off_t size)
 	return (webserv::to_string(size) + unit[i]);
 }
 
-static std::vector<DirecInfo>	readDirectoryInfo(DIR *dir, const std::string& confRoot)
+static std::vector<DirecInfo>	readDirectoryInfo(DIR *dir, const std::string& confRoot, int& responseCode)
 {
 	struct dirent				*diread;
 	std::vector<DirecInfo>		infos;
@@ -322,16 +322,18 @@ static std::vector<DirecInfo>	readDirectoryInfo(DIR *dir, const std::string& con
 		if (diread->d_type == DT_DIR)
 			newInfo.retPath += '/';
 		if (stat((std::string(confRoot + '/' + newInfo.retPath)).c_str(), &stBuf) == -1)
-			throw (std::runtime_error("[error] stat(): " + std::string(std::strerror(errno))));
+		{
+			responseCode = 500;
+			break ;
+		}
 		newInfo.fileSize = formatFileSize(stBuf.st_size);
 		newInfo.lastModified = *(std::localtime(&(stBuf.st_mtime)));
 		infos.push_back(newInfo);
 	}
 	if (errno != 0)
 	{
-		if (closedir(dir) == -1)
-			throw (std::runtime_error("[error] closedir(): " + std::string(std::strerror(errno))));
-		throw (std::runtime_error("[error] readdir(): " + std::string(std::strerror(errno))));
+		closedir(dir);
+		responseCode = 500;
 	}
 	return (infos);
 }
@@ -352,7 +354,7 @@ static void	deleteSecretDirectory(std::vector<DirecInfo>& infos)
 	infos.erase(std::remove_if(infos.begin(), infos.end(), isDoubleDot), infos.end());
 }
 
-static std::string to_string_with_leading_zero(int value)
+static std::string toStringWithLeadingZero(int value)
 {
     std::ostringstream out;
     out << std::setw(2) << std::setfill('0') << value;
@@ -417,11 +419,11 @@ static std::string makeResponseBody(const std::vector<DirecInfo>& infos, const s
 		else
 			retHtml.append("<span class=\"file-icon\"></span>");
 		retHtml.append("<a href=\"" + infos[i].retPath + "\">" + infos[i].retPath + "</a></td>");
-		retHtml.append("<td>" + to_string_with_leading_zero(getTmData(infos[i].lastModified, TM_YEAR)) + "-");
-		retHtml.append(to_string_with_leading_zero(getTmData(infos[i].lastModified, TM_MON)) + "-");
-		retHtml.append(to_string_with_leading_zero(getTmData(infos[i].lastModified, TM_MDAY)) + " ");
-		retHtml.append(to_string_with_leading_zero(getTmData(infos[i].lastModified, TM_HOUR)) + ":");
-		retHtml.append(to_string_with_leading_zero(getTmData(infos[i].lastModified, TM_MIN)) + "</td>");
+		retHtml.append("<td>" + toStringWithLeadingZero(getTmData(infos[i].lastModified, TM_YEAR)) + "-");
+		retHtml.append(toStringWithLeadingZero(getTmData(infos[i].lastModified, TM_MON)) + "-");
+		retHtml.append(toStringWithLeadingZero(getTmData(infos[i].lastModified, TM_MDAY)) + " ");
+		retHtml.append(toStringWithLeadingZero(getTmData(infos[i].lastModified, TM_HOUR)) + ":");
+		retHtml.append(toStringWithLeadingZero(getTmData(infos[i].lastModified, TM_MIN)) + "</td>");
 		retHtml.append("<td>" + to_string(infos[i].fileSize) + "</td></tr>\n");
 	}
 	retHtml.append("</table>\n");
@@ -439,10 +441,12 @@ void RequestHandler::makeResponseAutoindex(const LocationDirective& location, co
 	dir = opendirWrap(location.root + uri, responseCode);
 	if (dir == NULL)
 		return makeResponseCode(responseCode, location.error_page);
-	infos = readDirectoryInfo(dir, location.root + uri);
+	infos = readDirectoryInfo(dir, location.root + uri, responseCode);
+    if (responseCode != 0)
+		return makeResponseCode(responseCode, location.error_page);
 	deleteSecretDirectory(infos);
 	if (closedir(dir) == -1)
-		std::runtime_error("closedir: " + std::string(std::strerror(errno)));
+		return makeResponseCode(500, location.error_page);
 	for (size_t i = 0; i < infos.size(); ++i)
 	{
 		if (uri[uri.size() - 1] != '/')
