@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Functions.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
+/*   By: emukamada <emukamada@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 14:07:13 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/18 14:11:24 by sotanaka         ###   ########.fr       */
+/*   Updated: 2024/03/22 15:40:25 by emukamada        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,13 @@ namespace webserv
 {
 
 template<typename T>
+inline bool isUnsigned() {return false;};
+
+template<>
+inline bool isUnsigned<uint64>() {return true;};
+
+
+template<typename T>
 std::string to_string(const T& value)
 {
     std::ostringstream os;
@@ -34,6 +41,9 @@ std::vector<Byte>   to_vector(const std::string& str);
 template<typename T>
 bool is(const std::string& str)
 {
+    if (isUnsigned<T>() && str.find('-') != std::string::npos)
+        return false;
+
     std::istringstream	iss(str);
     T val;
     iss >> val;
@@ -42,7 +52,7 @@ bool is(const std::string& str)
         return false;
 
     while (iss.eof() == false && std::strchr(" \t\r\n\v\0", (char)iss.get()));
-        
+
     return iss.eof();
 }
 

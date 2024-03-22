@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIParser.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: emukamada <emukamada@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 18:35:15 by ekamada           #+#    #+#             */
-/*   Updated: 2024/03/17 10:36:44 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/22 14:06:00 by emukamada        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ CGIParser::CGIParser()
       m_headerParser(m_header),
       m_bodyParser(m_body),
       m_contentLength(0),
-      m_status(_header), 
+      m_status(_header),
       m_idx(0)
 {
 }
@@ -56,10 +56,13 @@ void CGIParser::parse(uint32 len) {
                         std::map<std::string, std::string>::iterator it = m_header.find("content-length");
                         if (it != m_header.end())
                         {
-                            if (!isInt(m_header["content-length"]))
+                            if (!is<uint64>(m_header["content-length"]))
                                 m_status = _badRequest;
-                            m_contentLength = convertStrToType<uint64>(m_header["content-length"], isInt);
-                            m_bodyParser.setContentLength(m_contentLength);
+                            else
+                            {
+                                m_contentLength = to<uint64>(m_header["content-length"]);
+                                m_bodyParser.setContentLength(m_contentLength);
+                            }
                         }
                     }
 
