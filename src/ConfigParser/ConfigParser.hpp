@@ -6,6 +6,8 @@
 # include <map>
 # include <iostream>
 
+#include "Utils/Utils.hpp"
+
 # define SPECIAL_CHARS "\'\"|()^$*+?=\\"
 # define DELIMITER_CHARS "{};"
 
@@ -133,6 +135,16 @@ std::vector<ServerConfig>	parseServerConfig(const int ac, const char **av);
 /*************
  * Exceptions
  * *************/
+class ConfigException : public std::exception
+{
+public:
+	ConfigException(const std::string& level, const size_t& lineNo, const std::string& description, const std::string& token);
+	inline ~ConfigException(void) throw() {};
+	inline virtual const char*	what() const throw() {return (m_msg.c_str());};
+
+private:
+	std::string	m_msg;
+};
 
 /*************
  * Template

@@ -2,7 +2,6 @@
 #include <sys/stat.h>
 #include <fstream>
 #include <dirent.h>
-#include <iostream> // debug
 #include <cstring>
 
 bool	isDirectory(const std::string& path)
@@ -13,7 +12,7 @@ bool	isDirectory(const std::string& path)
 	if (stat(path.c_str(), &statBuf) == -1)
 	{
 		errorMsg = path + ": " + std::strerror(errno);
-		throw (std::runtime_error(errorMsg));
+		throw (ConfigException("error", 0, errorMsg, ""));
 	}
 	if (S_ISDIR(statBuf.st_mode))
 		return (true);
@@ -29,7 +28,7 @@ DIR*	openDirectory(const std::string& path)
 	if (dir == NULL)
 	{
 		errorMsg = path + ": " + strerror(errno);
-		throw (std::runtime_error(errorMsg));
+		throw (ConfigException("error", 0, errorMsg, ""));
 	}
 	return (dir);
 }
@@ -42,13 +41,13 @@ bool	isFileAccessible(const std::string& filePath)
 	if (!ifs.is_open())
 	{
 		errorMsg = filePath + ": " + strerror(errno);
-		throw (std::runtime_error(errorMsg));
+		throw (ConfigException("error", 0, errorMsg, ""));
 	}
 	if (isDirectory(filePath))
 	{
 		errorMsg = std::string(filePath) + ": is directory";
 		ifs.close();
-		throw (std::runtime_error(errorMsg));
+		throw (ConfigException("error", 0, errorMsg, ""));
 	}
 	ifs.close();
 	return (true);
@@ -98,12 +97,6 @@ bool	isSizet(const std::string& literal)
 	iss >> val;
 
 	return (iss && isPositiveNum(literal));
-}
-
-void	throwIf(bool condition, const std::string& errorMsg)
-{
-	if (condition)
-		throw (std::runtime_error(errorMsg));
 }
 
 bool	isCharInSet(const char c, const char* set)

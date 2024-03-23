@@ -5,41 +5,12 @@
 #include <cstdlib>
 #include <algorithm>
 #include <unistd.h>
-#include "Utils/Utils.hpp"
 // #include <iostream> /*debug*/
 
 
 /**************
  * Debug utils
 ************/
-
-// void	printSimpleDirective(const SimpleDirective& simple)
-// {
-// 	std::cout << simple.name << ": ";
-// 	printVector<std::string>(simple.parameters);
-// };
-
-// void	printBlockDirective(const BlockDirective& block)
-// {
-// 	std::cout << "-----" << block.nameContext << ": " << block.parameter << std::endl;
-// 	for (size_t i = 0; i < block.directives.size(); ++i)
-// 		printSimpleDirective(block.directives[i]);
-// 	for (size_t i = 0; i < block.blockDirectives.size(); ++i)
-// 		printBlockDirective(block.blockDirectives[i]);
-// };
-
-// void	printMainDirective(const MainDirective& main)
-// {
-// 	std::cout << "--- Main directives ---" << std::endl;
-// 	for (size_t i = 0; i < main.directives.size(); ++i)
-// 		printSimpleDirective(main.directives[i]);
-// 	for (size_t i = 0; i < main.blocks.size(); ++i)
-// 	{
-// 		std::cout << "--- HTTP Blocks ---" << std::endl;
-// 		printBlockDirective(main.blocks[i]);
-// 	}
-// };
-
 // void	printServerConfig(const ServerConfig& sConf)
 // {
 // 	std::cout << "------ ServerConfig" << std::endl;
@@ -90,14 +61,17 @@ static std::string	readFileToString(const char *filePath)
 /**************
  * Tokenize in Lexing
 ************/
-static bool	ignoreComment(const char& c, bool& isComment)
+static bool	ignoreComment(const char& c, bool& isComment, size_t& line)
 {
 	if (c == '#')
 		isComment = true;
 	if (isComment)
 	{
 		if (c == '\n' || c == '\0')
+		{
 			isComment = false;
+			++line;
+		}
 		return (true);
 	}
 	return (false);
@@ -124,12 +98,12 @@ static std::vector<Token>	tokenize(const std::string& str)
 	for (size_t i = 0; i < str.length(); ++i)
 	{
 		c = str[i];
+		if (ignoreComment(c, isComment, line))
+			continue;
+		if (isCharInSet(c, SPECIAL_CHARS))
+			throw (ConfigException("error", line, "Can't usable", std::string(1, c)));
 		if (c == '\n')
 			++line;
-		if (ignoreComment(c, isComment))
-			continue;
-		throwIf(isCharInSet(c, SPECIAL_CHARS),
-			"[Error] line#" + webserv::to_string(line) + ": '" + c + "' can't usable.");
 		if (std::isspace(c) || isCharInSet(c, DELIMITER_CHARS))
 		{
 			if (!token.empty())
@@ -217,8 +191,8 @@ static void	incrementIndex(const std::vector<Token>& tokens, int& index)
 	if (static_cast<uint64>(index) == tokens.size())
 	{
 		--index;
-		throw (std::runtime_error("[Error] line#" + webserv::to_string(tokens[index].line)
-			+ ": Unexpected line ending with: " + tokens[index].value));
+		throw (ConfigException("error" , tokens[index].line
+			, "Unexpected line ending with", tokens[index].value));
 	}
 }
 
@@ -235,16 +209,16 @@ static bool	isValidErrorPage(const std::vector<Token>& tokens,
 	{
 		tmp = tokens[index].value;
 		errorCode = convertStrToType<int>(tmp, isNumericLiteral);
-		throwIf(errorCode < 200 || 599 < errorCode,
-			"[Error] line#" + webserv::to_string(tokens[index].line) + ": invalid error code: " + tmp);
+		if (errorCode < 200 || 599 < errorCode)
+			throw (ConfigException("error", tokens[index].line, "invalid error code", tmp));
 		tmp.clear();
 		incrementIndex(tokens, index);
 		hasNumber = true;
 	}
 	if (isCharInSet(tokens[index + 1].value[0], DELIMITER_CHARS) && hasNumber)
 		return (true);
-	throwIf(!hasNumber, 
-		"[Error] line#" + webserv::to_string(tokens[index].line) + ": invalid number of argumentes 'error_page'");
+	if (!hasNumber)
+		throw (ConfigException("error", tokens[index].line, "invalid number of argumentes 'error_page'", ""));
 	return (false);
 };
 
@@ -258,8 +232,8 @@ static bool	isValidAcceptedCgiExtension(const std::vector<Token>& tokens,
 	incrementIndex(tokens, index);
 	if (access(tokens[index].value.c_str(), X_OK) == 0)
 		return (true);
-	throw (std::runtime_error("[Error] line#" +webserv::to_string(tokens[index].line) 
-		+ ": access: " + webserv::to_string(tokens[index].value) + ": " + std::string(std::strerror(errno))));
+	throw (ConfigException("error",  tokens[index].line
+		, "access(): " + std::string(std::strerror(errno)), webserv::to_string(tokens[index].value)));
 };
 
 static bool	isValidAcceptedMethods(const std::vector<Token>& tokens,
@@ -279,8 +253,7 @@ static bool	isValidAcceptedMethods(const std::vector<Token>& tokens,
 			incrementIndex(tokens, index);
 		}
 		else
-			throw (std::runtime_error("[Error] Invalid method: line#" + webserv::to_string(tokens[index].line)
-					+ ": " + tmp));
+			throw (ConfigException("error", tokens[index].line, "Invalid method", tmp));
 	}
 	return (false);
 };
@@ -406,8 +379,8 @@ static void	addBlockToStruct(const std::string& parentContext,
 	{
 		blockDir.nameContext = locationName.value;
 		blockDir.parameter = name.value;
-		throwIf(isCharInSet(name.value[0], DELIMITER_CHARS),
-			"[Error] line#" + webserv::to_string(name.line) + ": invalid location name: " + name.value);
+		if (isCharInSet(name.value[0], DELIMITER_CHARS))
+			throw (ConfigException("error", name.line, "invalid location name", name.value));
 	}
 	else
 	{
@@ -441,8 +414,7 @@ static bool	isSimpleDirective(const std::vector<Token>& tokens,
 				return (true);
 			}
 		}
-		throw (std::runtime_error("[Error] line#" + webserv::to_string(tokens[index].line)
-				+ ": Unexpected token: " + tokens[index].value));
+		throw (ConfigException("error", tokens[index].line, "Unexpected token", tokens[index].value));
 	}
 	return (false);
 };
@@ -462,8 +434,7 @@ static bool	isBlockDirective(const std::vector<Token>& tokens,
 			++index;
 			return (true);
 		}
-		throw (std::runtime_error("[Error] line#" + webserv::to_string(tokens[index].line)
-				+ ": Unexpected token: " + tokens[index].value));
+		throw (ConfigException("error", tokens[index].line, "Unexpected token", tokens[index].value));
 	}
 	return (false);
 };
@@ -479,8 +450,7 @@ static bool	isEndOfBlock(const std::vector<Token>& tokens,
 		resetParentContext(parentContext);
 		return (true);
 	}
-		throw (std::runtime_error("[Error] line#" + webserv::to_string(tokens[index].line)
-				+ ": Unexpected token: " + tokens[index].value));
+	throw (ConfigException("error", tokens[index].line, "Unexpected token", tokens[index].value));
 	return (false);
 }
 
@@ -495,8 +465,8 @@ static bool	makeTmpStruct(const std::vector<Token>& tokens,
 		++hasItem;
 	if (static_cast<uint64>(index) == tokens.size())
 	{
-		throwIf(hasItem == 0 || searchContextName(parentContext) != MAIN,
-			"Error: Block is not closed or empty");
+		if (hasItem == 0 || searchContextName(parentContext) != MAIN)
+			throw (ConfigException("error", 0, "Block is not closed or empty", ""));
 		return (true);
 	}
 	return (makeTmpStruct(tokens, mainDir, parentContext, index, hasItem));
@@ -532,22 +502,22 @@ static bool hasUniqMultiParameter(const int& nameId, const std::vector<std::stri
 
 	if (nameId == LISTEN)
 	{
-		throwIf(isGradualVectorDuplicate(multiple.listen, params),
-			"Error: Duplication listen's port");
+		if (isGradualVectorDuplicate(multiple.listen, params))
+			throw (ConfigException("error", 0, "Duplication listen's port", ""));
 		return (true);
 	}
 	else if (nameId == SERVER_NAME)
 	{
-		throwIf(isGradualVectorDuplicate(multiple.serverName, params),
-			"Error: Duplication server's name");
+		if (isGradualVectorDuplicate(multiple.serverName, params))
+			throw (ConfigException("error", 0, "Duplication server's name", ""));
 		return (true);
 	}
 	else if (nameId == ERROR_PAGE)
 	{
 		std::vector<std::string>	tmp(params);
 		tmp.erase(tmp.end() - 1);
-		throwIf(isGradualVectorDuplicate(multiple.errorPage, tmp),
-			"Error: Duplication error_page's code");
+		if (isGradualVectorDuplicate(multiple.errorPage, tmp))
+			throw (ConfigException("error", 0, "Duplication error_page's code", ""));
 		return (true);
 	}
 	else if (nameId == ACCEPTED_CGI_EXTENSION)
@@ -555,8 +525,8 @@ static bool hasUniqMultiParameter(const int& nameId, const std::vector<std::stri
 		std::vector<std::string>	tmp(params);
 		if (tmp.size() == 2)
 			tmp.erase(tmp.end() - 1);
-		throwIf(isGradualVectorDuplicate(multiple.cgiPath, tmp),
-			"Error: Duplication cgi extentions");
+		if (isGradualVectorDuplicate(multiple.cgiPath, tmp))
+			throw (ConfigException("error", 0, "Duplication cgi extentions", ""));
 		return (true);
 	}
 	return (false);
@@ -576,9 +546,10 @@ static bool	isUniqSimpleDirective(const std::vector<SimpleDirective>& directives
 				continue;
 		}
 		else if (directives[i].name == SIMPLE_DIRECTIVES[ACCEPTED_METHODS])
-			throwIf(hasDuplicate(directives[i].parameters), "Error: Duplication accepted_method parameter");
+			if (hasDuplicate(directives[i].parameters))
+				throw (ConfigException("error", 0, "Duplication accepted_method parameter", ""));
 		if (std::find(names.begin(), names.end(), directives[i].name) != names.end())
-			throw (std::runtime_error("Error: Duplication '" + directives[i].name + "'"));
+			throw (ConfigException("error", 0, "Duplication '" + directives[i].name + "'", ""));
 		names.push_back(directives[i].name);
 	}
 	clearMultipleParameter();
@@ -592,7 +563,8 @@ static const std::vector<BlockDirective>*	getServerBlocks(const MainDirective& m
 
 static bool	isNoDuplication(const MainDirective& mainDir)
 {
-	throwIf(1 < mainDir.blocks.size(), "Error: Multiple HTTP blocks");
+	if (1 < mainDir.blocks.size())
+		throw (ConfigException("error", 0, "Multiple HTTP blocks", ""));
 	isUniqSimpleDirective(mainDir.directives);
 	isUniqSimpleDirective(mainDir.blocks[0].directives);
 	for (size_t i = 0; i < getServerBlocks(mainDir)->size(); ++i)
@@ -606,8 +578,8 @@ static bool	isNoDuplication(const MainDirective& mainDir)
 		for (size_t j = 0; j < (*getServerBlocks(mainDir))[i].directives.size(); ++j)
 		{
 			if ((*getServerBlocks(mainDir))[i].directives[j].name == SIMPLE_DIRECTIVES[SERVER_NAME])
-				throwIf(isGradualVectorDuplicate(serverName, (*getServerBlocks(mainDir))[i].directives[j].parameters),
-					"Error: Duplication sever_name between server Context");
+				if (isGradualVectorDuplicate(serverName, (*getServerBlocks(mainDir))[i].directives[j].parameters))
+					throw (ConfigException("error", 0, "Duplication sever_name between server Context", ""));
 		}
 		for (size_t j = 0; j < (*getServerBlocks(mainDir))[i].blockDirectives.size(); ++j)
 		{
@@ -615,7 +587,7 @@ static bool	isNoDuplication(const MainDirective& mainDir)
 			{
 				location.push_back((*getServerBlocks(mainDir))[i].blockDirectives[j].parameter);
 				if (hasDuplicate(location))
-					throw (std::runtime_error("Error: Duplication location between location Context"));
+					throw (ConfigException("error", 0, "Duplication location between location Context", ""));
 			}
 		}
 		location.clear();
@@ -779,7 +751,8 @@ static void	getDefinedParam(const MainDirective& mainDir, ServerConfig& sConf)
 
 static void	setUndefinedParam(ServerConfig& sConf)
 {
-	throwIf(sConf.server_names.size() == 0, "Error: server_name is not defined");
+	if (sConf.server_names.size() == 0)
+		throw (ConfigException("error", 0, "server_name is not defined", ""));
 	if (sConf.error_log.empty())
 		sConf.error_log = "log/webserv.log";
 	if (sConf.listens.empty())
@@ -814,18 +787,45 @@ static void	setParamEachServer(const MainDirective& mainDir, std::vector<ServerC
 
 std::vector<ServerConfig>	parseServerConfig(const int ac, const char **av)
 {
-	std::string					fileContents;
-	std::vector<Token>		 	tokens;
-	MainDirective				mainDir;
-	std::vector<ServerConfig>	sConfs;
+	try
+	{
+		std::string					fileContents;
+		std::vector<Token>		 	tokens;
+		MainDirective				mainDir;
+		std::vector<ServerConfig>	sConfs;
 
-	throwIf(ac != 2, "Usage: " + std::string(av[0]) + " <config file>");
-	fileContents = readFileToString(av[1]);
-	tokens = tokenize(fileContents);
-	throwIf(!tokens.size(), "[error] Configuration hasn't element.");
-	makeTmpStruct(tokens, mainDir, "main", 0, 0);
-	isNoDuplication(mainDir);
-	setParamEachServer(mainDir, sConfs);
-	// printServerConfig(sConfs[0]);
-	return (sConfs);
+		if (ac != 2)
+			throw (ConfigException("error", 0, "Usage: " + std::string(av[0]) + " <config file>", ""));//will change when default config fixed
+		fileContents = readFileToString(av[1]);
+		tokens = tokenize(fileContents);
+		if (!tokens.size())
+			throw (ConfigException("error", 0, "Configuration hasn't element.", ""));
+		makeTmpStruct(tokens, mainDir, "main", 0, 0);
+		isNoDuplication(mainDir);
+		setParamEachServer(mainDir, sConfs);
+		// printServerConfig(sConfs[0]);
+		return (sConfs);
+	}
+	catch(const ConfigException& e)
+	{
+		throw ;
+	}
+	catch(const std::exception& e)
+	{
+		throw (ConfigException("error", 0, std::string(e.what()), ""));
+	}
 }
+
+/**************
+ * Exception
+************/
+ConfigException::ConfigException(const std::string& level,
+	const size_t& lineNo, const std::string& description, const std::string& token)
+	:m_msg("[" + level + "] ")
+{
+	if (lineNo != 0)
+		m_msg += "line#" + webserv::to_string<size_t>(lineNo) + " : ";
+	m_msg += description;
+	if (!token.empty())
+		m_msg += ": " + token;
+};

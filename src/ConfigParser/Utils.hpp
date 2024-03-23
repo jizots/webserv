@@ -6,12 +6,13 @@
 # include <set>
 # include <vector>
 
+# include "ConfigParser/ConfigParser.hpp"
+
 bool	isDirectory(const std::string& path);
 bool	isFileAccessible(const std::string& path);
 bool	isNumericLiteral(const std::string& str);
 bool	isInt(const std::string& literal);
 bool	isSizet(const std::string& literal);
-void	throwIf(bool condition, const std::string& errorMsg);
 bool	isCharInSet(const char c, const char* set);
 
 template <typename T>
@@ -25,7 +26,7 @@ T	convertStrToType(const std::string& str, bool (*func)(const std::string&))
 	if (!iss || !func(str))
 	{
 		errorMsg = "Invalid number: " + str;
-		throw (std::runtime_error(errorMsg));
+		throw (ConfigException("error", 0, errorMsg, ""));
 	}
 	return (val);
 };

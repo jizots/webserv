@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 13:34:28 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/10 17:43:02 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/21 18:47:12 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,11 @@ int main(int argc, const char* argv[])
 
         webserv::IOManager::terminate();
         webserv::Logger::terminate();
+    }
+    catch(const ConfigException& e)
+    {
+        std::cout << e.what() << std::endl;
+        return 2;
     }
     catch(const std::exception& e)
     {
