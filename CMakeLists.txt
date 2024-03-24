@@ -21,6 +21,7 @@ add_executable(webserv)
 file(GLOB_RECURSE sources "src/*.cpp" "src/*.tpp" "src/*.hpp")
 list(REMOVE_ITEM sources
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HTTP/test.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Utils/main.cpp
     )
 
 target_sources(webserv PRIVATE "${sources}")

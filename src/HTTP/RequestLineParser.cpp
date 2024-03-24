@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestLineParser.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: ekamada <ekamada@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:27:27 by ekamada           #+#    #+#             */
-/*   Updated: 2024/03/17 18:13:25 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/21 12:08:08 by ekamada          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ void RequestLineParser::checkCRLF(Byte c, int successStatus) {
 }
 
 void RequestLineParser::parse(Byte c) {
+    if (m_request.isBadRequest) return;
     switch(m_status){
             case _requestMethod:
                 if (m_request.method.size() == 0 && ( c == '\r' || c == '\n')) {
@@ -73,7 +74,7 @@ void RequestLineParser::parse(Byte c) {
                     m_status = _badRequest;
                 break;
             case _slash:
-                if (c == '/') 
+                if (c == '/')
                 {
                     m_request.uri += '/';
                     m_status = _uri;
@@ -136,6 +137,7 @@ void RequestLineParser::parse(Byte c) {
                 checkCRLF(c, _parseComplete);
                 break;
     }
+    if (m_status == _badRequest) m_request.isBadRequest = true;
 }
 
 }

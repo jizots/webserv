@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ekamada <ekamada@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 18:32:54 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/21 14:57:23 by sotanaka         ###   ########.fr       */
+/*   Updated: 2024/03/24 13:10:12 by ekamada          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ static LocationDirective findBestLocation(const ServerConfig& config, const std:
 
     log << "requested URI: \"" << uri << "\"\n";
 
-    for (std::vector<LocationDirective>::const_iterator curr = config.locations.begin(); curr != config.locations.end(); ++curr) 
+    for (std::vector<LocationDirective>::const_iterator curr = config.locations.begin(); curr != config.locations.end(); ++curr)
     {
         if (curr->location == uri.substr(0, curr->location.size()))
         {
@@ -86,7 +86,7 @@ void RequestHandler::processHeaders(const HTTPRequest& request)
             else
                 return processHeaders(HTTPRequest(request, true));
         }
-            
+
         makeResponse(request);
     }
 
@@ -96,6 +96,9 @@ void RequestHandler::processHeaders(const HTTPRequest& request)
 
 void RequestHandler::handleRequest(const HTTPRequest& request)
 {
+    if (request.isBadRequest == true) {
+        m_shouldEndConnection = true;
+    }
     if (m_response->isComplete)
     {
         IOManager::shared().insertWriteTask(new ClientSocketWriteTask(m_clientSocket, m_response));
@@ -153,7 +156,7 @@ void RequestHandler::makeResponse(const HTTPRequest& request)
         }
 
         log << "checking index\n";
-        if ((m_requestedResource = Resource(RMV_LAST_SLASH(location.root) + request.uri + location.index))) 
+        if ((m_requestedResource = Resource(RMV_LAST_SLASH(location.root) + request.uri + location.index)))
         {
             log << "internal redirection to \"" << request.uri + location.index << "\"\n";
             m_internalRedirectionCount += 1;
@@ -188,7 +191,7 @@ void RequestHandler::makeResponse(const HTTPRequest& request)
         m_response->headers["Location"] = request.uri + '/';
         return makeResponseCode(301, location.error_page);
     }
-    
+
     m_requestedResource.computeIsCGI(location.accepted_cgi_extension);
     if (m_requestedResource.isCGI())
     {
@@ -253,7 +256,7 @@ void RequestHandler::makeResponseCode(int code, const std::map<int, std::string>
 void RequestHandler::makeEnvp(const HTTPRequest& request, std::vector<std::string>& envp)
 {
     // TODO envp.push_back("AUTH_TYPE=");
-    
+
     if (request.contentLength > 0)
         envp.push_back("CONTENT_LENGTH=" + to_string(request.contentLength));
 
