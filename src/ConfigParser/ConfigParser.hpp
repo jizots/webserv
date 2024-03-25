@@ -43,6 +43,7 @@ enum eSimpleDirective {
 	REDIRECT,
 	ACCEPTED_CGI_EXTENSION,
 	ACCEPTED_METHODS,
+	ALIAS,
 	DIRECTIVE_ENUM_SIZE,
 };
 
@@ -59,6 +60,7 @@ const std::string	SIMPLE_DIRECTIVES[DIRECTIVE_ENUM_SIZE] = {
 	"redirect",
 	"accepted_cgi_extension",
 	"accepted_methods",
+	"alias",
 };
 
 /*************
@@ -108,10 +110,12 @@ struct LocationDirective {
 	std::map<int, std::string>			error_page;
 	bool								autoindex;
 	bool								isSetAutoindex;
-	int									client_max_body_size;
+	uint64								client_max_body_size;
+	bool								isSetMaxBody;
 	std::string							index;
 	std::vector<std::string>			accepted_methods;
 	std::map<std::string, std::string>	accepted_cgi_extension;
+	std::string							alias;
 };
 
 /*
@@ -120,7 +124,7 @@ struct LocationDirective {
 struct ServerConfig {
 	int								serverID;
 	std::string						error_log;
-	std::vector<int>				listens;
+	std::vector<uint16>				listens;
 	std::vector<std::string>		server_names;
 	std::string						upload_path;
 	std::vector<LocationDirective>	locations;

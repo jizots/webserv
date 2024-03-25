@@ -161,7 +161,7 @@ static bool	isValidDirective(const Token& name, const std::string& parentContext
 			&& (LISTEN <= nameID && nameID <= ACCEPTED_CGI_EXTENSION))
 		return (true);
 	else if (parentID == LOCATION
-			&& (ROOT <= nameID && nameID <= ACCEPTED_METHODS))
+			&& (ROOT <= nameID && nameID <= ALIAS))
 		return (true);
 	return (false);
 };
@@ -263,8 +263,6 @@ static bool	isValidParam(const std::vector<Token>& tokens,
 {
 	std::string	param = tokens[index].value;
 	int		nameID = searchDirectiveName(tokens[index - 1].value);
-	int 	port;
-	int		size;
 
 	if (isCharInSet(param[0], DELIMITER_CHARS))
 		return (false);
@@ -274,11 +272,14 @@ static bool	isValidParam(const std::vector<Token>& tokens,
 			return (true);
 		case LISTEN:
 			if (param == "xxx") //for test
-				return (true);	
-			port = convertStrToType<int>(param, isNumericLiteral);
-			if (port < 0 || port > 65535)
+				return (true);
+			try{
+				webserv::to<uint16>(param);
+				return (true);
+			}
+			catch(...){
 				return (false);
-			return (true);
+			}
 		case SERVER_NAME:
 			return (true);
 		case UPLOAD_PATH:
@@ -294,10 +295,13 @@ static bool	isValidParam(const std::vector<Token>& tokens,
 				return (false);
 			return (true);
 		case CLIENT_MAX_BODY_SIZE:
-			size = convertStrToType<int>(param, isNumericLiteral);
-			if (size < 0)
+			try{
+				webserv::to<uint64>(param);
+				return (true);
+			}
+			catch(...){
 				return (false);
-			return (true);
+			}
 		case INDEX:
 			return (true);
 		case REDIRECT:
@@ -309,6 +313,8 @@ static bool	isValidParam(const std::vector<Token>& tokens,
 		case ACCEPTED_METHODS:
 			if (!isValidAcceptedMethods(tokens, index))
 				return (false);
+			return (true);
+		case ALIAS:
 			return (true);
 		case -1:
 			return (false);
@@ -643,8 +649,10 @@ static void	setToLocationLevel(LocationDirective& lDir,
 			lDir.isSetAutoindex = true;
 		break;
 	case CLIENT_MAX_BODY_SIZE:
-		if (lDir.client_max_body_size == -1)
-			lDir.client_max_body_size = convertStrToType<int>(src[0], isNumericLiteral);
+		if (lDir.isSetMaxBody == true)
+			break;
+		lDir.client_max_body_size = webserv::to<uint64>(src[0]);
+		lDir.isSetMaxBody = true;
 		break;
 	case REDIRECT:
 		if (lDir.redirect.empty())
@@ -656,6 +664,11 @@ static void	setToLocationLevel(LocationDirective& lDir,
 	case ACCEPTED_METHODS:
 		if (lDir.accepted_methods.size() == 0)
 			lDir.accepted_methods = src;
+		break;
+	case ALIAS:
+		if (lDir.alias.empty())
+			lDir.alias = src[0];
+		break;
 	default:
 		break;
 	}
@@ -673,7 +686,7 @@ static void	setToServerLevel(ServerConfig& sConf, const eSimpleDirective& target
 		if (src[0] == "xxx") //for test
 			sConf.listens.push_back(portRand);
 		else
-			sConf.listens.push_back(convertStrToType<int>(src[0], isNumericLiteral));
+			sConf.listens.push_back(webserv::to<uint16>(src[0]));
 		break;
 	case SERVER_NAME:
 		sConf.server_names.push_back(src[0]);
@@ -693,7 +706,8 @@ static void	getFromLocationContext(const BlockDirective& server, ServerConfig& s
 	for (size_t i = 0; i <= server.blockDirectives.size(); ++i)
 	{
 		sConf.locations.push_back(tmp);
-		sConf.locations[i].client_max_body_size = -1;
+		sConf.locations[i].client_max_body_size = 1000000;
+		sConf.locations[i].isSetMaxBody = false;
 		if (i == server.blockDirectives.size())
 			return ;
 		sConf.locations[i].location = server.blockDirectives[i].parameter;
@@ -765,8 +779,6 @@ static void	setUndefinedParam(ServerConfig& sConf)
 			sConf.locations[i].root = "www/html";
 		if (sConf.locations[i].index.empty())
 			sConf.locations[i].index = "index.html";
-		if (sConf.locations[i].client_max_body_size == -1)
-			sConf.locations[i].client_max_body_size = 1000000;
 		if (sConf.locations[i].accepted_methods.size() == 0)
 			sConf.locations[i].accepted_methods.push_back("GET");
 	}

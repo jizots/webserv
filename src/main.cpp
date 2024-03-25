@@ -6,7 +6,7 @@
 /*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 13:34:28 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/21 18:47:12 by sotanaka         ###   ########.fr       */
+/*   Updated: 2024/03/24 18:31:31 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ int main(int argc, const char* argv[])
 
         for (std::vector<ServerConfig>::const_iterator confCurr = configs.begin(); confCurr != configs.end(); ++confCurr)
         {
-            for (std::vector<int>::const_iterator lisCurr = confCurr->listens.begin(); lisCurr != confCurr->listens.end(); ++lisCurr)
+            for (std::vector<uint16>::const_iterator lisCurr = confCurr->listens.begin(); lisCurr != confCurr->listens.end(); ++lisCurr)
             {
                 std::map<uint16, MasterSocketPtr>::iterator it = IOManager::shared().masterSockets().find((uint16)*lisCurr);
                 if (it == IOManager::shared().masterSockets().end())
