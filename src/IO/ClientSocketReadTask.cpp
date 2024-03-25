@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:04:36 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/17 10:42:20 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/25 14:26:40 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ namespace webserv
 {
 
 ClientSocketReadTask::ClientSocketReadTask(const ClientSocketPtr& clientSocket)
-    : m_clientSocket(clientSocket), m_parser(), m_handler(clientSocket), m_status(requestLine)
+    : IReadTask(Duration::seconds(5)), m_clientSocket(clientSocket), m_parser(), m_handler(clientSocket), m_status(requestLine)
 {
 }
 
@@ -31,6 +31,8 @@ int ClientSocketReadTask::fd()
 
 void ClientSocketReadTask::read()
 {
+    updateTimestamp();
+    
     ssize_t recvLen = ::recv(fd(), m_parser.getBuffer(), BUFFER_SIZE, 0);
 
     if (recvLen < 0)
@@ -78,9 +80,6 @@ void ClientSocketReadTask::read()
         log << "EOF received on fd: " << fd() << '\n';
 
     IOManager::shared().eraseReadTask(this);
-
-    
-    
 }
 
 }

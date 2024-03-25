@@ -15,6 +15,8 @@
 #include <sys/select.h>
 #include <cstring>
 
+#include "IO/StdinReadTask.hpp"
+
 namespace webserv
 {
 
@@ -64,7 +66,12 @@ void IOManager::selectIOs(std::set<MasterSocketPtr>& masterSockets, std::set<IRe
         biggestFd = std::max(biggestFd, (*curr)->fd());
     }
 
-    if (select(biggestFd + 1, &readableFdSet, &writableFdSet, NULL, NULL) < 0)
+    struct timeval timeVal;
+
+    timeVal.tv_sec = 0;
+    timeVal.tv_usec = 250000;
+
+    if (select(biggestFd + 1, &readableFdSet, &writableFdSet, NULL, &timeVal) < 0)
         throw std::runtime_error("select: " + std::string(std::strerror(errno)));
 
     for (std::map<uint16, MasterSocketPtr>::iterator curr = m_masterSockets.begin(); curr != m_masterSockets.end(); ++curr)
@@ -73,16 +80,42 @@ void IOManager::selectIOs(std::set<MasterSocketPtr>& masterSockets, std::set<IRe
             masterSockets.insert(curr->second);
     }
 
-    for (std::set<IReadTaskPtr>::iterator curr = m_readTasks.begin(); curr != m_readTasks.end(); ++curr)
+    for (std::set<IReadTaskPtr>::iterator curr = m_readTasks.begin(); curr != m_readTasks.end();)
     {
         if (FD_ISSET((*curr)->fd(), &readableFdSet))
+        {
             readTasks.insert(*curr);
+            ++curr;
+        }
+        else if (SharedPtr<StdinReadTask> stdinReadTask = (*curr).dynamicCast<StdinReadTask>())
+            ++curr;
+        else if ((*curr)->isTimeout())
+        {
+            log << "task timeout, deleting\n";
+            std::set<IReadTaskPtr>::iterator pos = curr;
+            ++curr;
+            m_readTasks.erase(pos);
+        }
+        else
+            ++curr;
     }
 
-    for (std::set<IWriteTaskPtr>::iterator curr = m_writeTasks.begin(); curr != m_writeTasks.end(); ++curr)
+    for (std::set<IWriteTaskPtr>::iterator curr = m_writeTasks.begin(); curr != m_writeTasks.end();)
     {
         if (FD_ISSET((*curr)->fd(), &writableFdSet))
+        {
             writeTasks.insert(*curr);
+            ++curr;
+        }
+        else if ((*curr)->isTimeout())
+        {
+            log << "task timeout, deleting\n";
+            std::set<IWriteTaskPtr>::iterator pos = curr;
+            ++curr;
+            m_writeTasks.erase(pos);
+        }
+        else
+            ++curr;
     }
 }
 

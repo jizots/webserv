@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 15:09:19 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/09 14:18:19 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/24 17:32:03 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,3 +17,4 @@
 #include "Utils/SharedPtr.hpp"
 #include "Utils/Functions.hpp"
 #include "Utils/ContentType.hpp"
+#include "Utils/Time.hpp"

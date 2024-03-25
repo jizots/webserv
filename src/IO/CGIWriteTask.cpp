@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:16:53 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/11 14:39:28 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/24 16:44:51 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ int CGIWriteTask::fd()
 
 void CGIWriteTask::write()
 {
+    updateTimestamp();
+    
     uint32 writeLen = m_buffer.size() - m_idx > BUFFER_SIZE ? BUFFER_SIZE : m_buffer.size() - m_idx;
 
     if (::write(m_writeFd, &m_buffer[m_idx], writeLen) != writeLen)

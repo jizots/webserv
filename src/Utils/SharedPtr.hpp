@@ -28,16 +28,17 @@ template<typename Y> friend class SharedPtr;
 public:
     SharedPtr();
     SharedPtr(const SharedPtr&);
-    // template<typename Y> SharedPtr(const SharedPtr<Y>&);
 
     SharedPtr(T* ptr);
 
     void clear();
-    // template<typename Y> SharedPtr<Y> dynamicCast();
+    template<typename Y> SharedPtr<Y> dynamicCast() const;
     
     ~SharedPtr();
 
 protected:
+    template<typename Y> SharedPtr(const SharedPtr<Y>&);
+    
     T** m_pointer;
     uint32* m_refCount;
 

@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:08:53 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/09 14:21:11 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/24 16:44:47 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ int FileReadTask::fd()
 
 void FileReadTask::read()
 {
+    updateTimestamp();
+    
     ssize_t readLen = ::read(m_fd, m_response->body.data(), m_response->body.size());
 
     if (readLen < 0 || static_cast<uint64>(readLen) != m_response->body.size())

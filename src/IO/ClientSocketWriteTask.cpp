@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:15:37 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/06 17:39:07 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/24 16:44:40 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ int ClientSocketWriteTask::fd()
 
 void ClientSocketWriteTask::write()
 {
+    updateTimestamp();
+    
     uint32 sendLen = m_buffer.size() - m_idx > BUFFER_SIZE ? BUFFER_SIZE : m_buffer.size() - m_idx;
 
     if (::send(m_clientSocket->fileDescriptor(), &m_buffer[m_idx], sendLen, 0) != sendLen)

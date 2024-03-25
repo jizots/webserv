@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIReadTask.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:14:10 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/18 14:05:42 by sotanaka         ###   ########.fr       */
+/*   Updated: 2024/03/24 16:44:58 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ int CGIReadTask::fd()
 
 void CGIReadTask::read()
 {
+    updateTimestamp();
+    
     ssize_t readLen = ::read(m_readFd, m_parser.getBuffer(), BUFFER_SIZE);
 
     if (readLen < 0)
