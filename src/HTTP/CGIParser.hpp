@@ -17,50 +17,45 @@
 #include <vector>
 #include <sstream>
 
-// #include "Utils/Utils.hpp"
+#include "Utils/Utils.hpp"
 #include "HTTP/BodyParser.hpp"
 #include "HTTP/HeaderParser.hpp"
 
 namespace webserv
 {
 
-
 class CGIParser
 {
 private:
-    // enum class was c++11 extension
-    enum status{
+    enum status
+    {
         _header          = 0,
         _headerParseDone = 1,
         _requestBody     = 2,
         _parseComplete   = 3,
         _badRequest      = 4,
     };
+
 public:
-    CGIParser();
+    CGIParser(std::map<std::string, std::string>& headers, std::vector<Byte>& body);
 
     Byte* getBuffer();
     void parse(uint32 len);
-
-    inline const std::map<std::string, std::string>& header() {return m_header;}
-    inline const std::vector<Byte>& body() {return m_body; }
-    inline uint64 contentLength() { return m_contentLength; }
 
     inline bool isComplete() { return (m_status >= _parseComplete); };
     inline bool isBadRequest() { return m_status == _badRequest; };
 
 private:
-    std::map<std::string, std::string> m_header;
-    std::vector<Byte> m_body;
+    const std::map<std::string, std::string>& m_headers;
 
     HeaderParser m_headerParser;
     BodyParser m_bodyParser;
     
-    uint64 m_contentLength;
+    std::vector<Byte> m_buffer;
+
     int m_status;
     uint64 m_idx;
     std::string m_hex;
-    std::vector<Byte> m_buffer;
 };
 
 }

@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 16:57:24 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/06 17:07:05 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/21 12:23:50 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ ClientSocket::~ClientSocket()
 {
     if (close(m_fileDescriptor) < 0)
         throw std::runtime_error("close: " + std::string(std::strerror(errno)));
-    log << "ClientSocket with file descriptor " << m_fileDescriptor << " closed\n";
+    log << "Connection with client " << ipAddress() << " closed (fd: " << m_fileDescriptor << ")\n";
 }
 
 }

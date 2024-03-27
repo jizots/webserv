@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ContentType.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ekamada <ekamada@student.42.fr>            +#+  +:+       +#+        */
+/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:11:47 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/18 18:41:24 by ekamada          ###   ########.fr       */
+/*   Updated: 2024/03/25 15:28:51 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,8 @@ public:
     enum Id {
 		ico, gzip, pdf, bmp,
 		gif, tiff, zip, rtf,
-		png, jpeg, html, xml, none
+		png, jpeg, html, xml, 
+        none
 	};
 
 public:
@@ -43,7 +44,8 @@ private:
 public:
     ContentType& operator = (const ContentType& rhs);
     ContentType& operator = (const Id& id);
-    inline bool operator == (const ContentType& rhs) { return m_id == rhs.m_id; }
+    inline bool operator == (const ContentType& rhs) const { return m_id == rhs.m_id; }
+    inline bool operator != (const ContentType& rhs) const { return !(*this == rhs); }
     inline operator const std::string& () const { return m_str; }
 };
 

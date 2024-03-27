@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:31:49 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/11 13:28:14 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/23 17:36:17 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,18 +49,28 @@ void HTTPResponse::setStatusCode(uint32 code)
     case 500:
         statusDescription = "Internal Server Error";
         break;
+    case 502:
+        statusDescription = "Bad Gateway";
+        break;
+    case 505:
+        statusDescription = "HTTP Version Not Supported";
+        break;
     default:
         statusDescription = "Unkown Error";
         break;
     }
 }
 
-void HTTPResponse::makeBuiltInBody()
+void HTTPResponse::makeBuiltInResponse(uint32 code)
 {
+    setStatusCode(code);
     std::string bodyStr = BUILT_IN_ERROR_PAGE(statusCode, statusDescription);
     body.reserve(bodyStr.size());
     for (std::string::const_iterator c = bodyStr.begin(); c != bodyStr.end(); ++c)
         body.push_back(*c);
+    headers["Content-Type"] = "text/html";
+    headers["Content-Length"] = to_string(body.size());
+    isComplete = true;
 }
 
 void HTTPResponse::getRaw(std::vector<Byte>& raw) const

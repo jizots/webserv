@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ekamada <ekamada@student.42.fr>            +#+  +:+       +#+        */
+/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:25:33 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/17 15:50:50 by ekamada          ###   ########.fr       */
+/*   Updated: 2024/03/23 17:29:10 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,26 +25,10 @@ struct HTTPRequest : public HTTPBase
           contentLength(0),
           isBadRequest(false) {};
 
-    inline HTTPRequest(const HTTPRequest& cp, const std::string& method, const std::string& uri)
-        : HTTPBase(cp),
-          method(method),
-          uri(uri),
-          host(cp.host),
-          contentLength(cp.contentLength),
-          isBadRequest(cp.isBadRequest) {};
-
-    inline HTTPRequest(const HTTPRequest& cp, bool isBadRequest)
-        : HTTPBase(cp),
-          method(cp.method),
-          uri(cp.uri),
-          host(cp.host),
-          contentLength(cp.contentLength),
-          isBadRequest(isBadRequest) {};
-
     std::string method;
     std::string uri;
     std::string query;
-    std::string params;
+    std::string params; // ?
     std::string host;
     uint64 contentLength;
 

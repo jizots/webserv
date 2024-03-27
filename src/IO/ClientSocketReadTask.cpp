@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:04:36 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/25 14:26:40 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/25 19:29:44 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,9 @@ namespace webserv
 {
 
 ClientSocketReadTask::ClientSocketReadTask(const ClientSocketPtr& clientSocket)
-    : IReadTask(Duration::seconds(5)), m_clientSocket(clientSocket), m_parser(), m_handler(clientSocket), m_status(requestLine)
+    : IReadTask(Duration::seconds(5)), m_clientSocket(clientSocket),
+      m_request(new HTTPRequest()), m_parser(m_request), m_handler(new RequestHandler(m_request, m_clientSocket)),
+      m_status(requestLine)
 {
 }
 
@@ -35,48 +37,70 @@ void ClientSocketReadTask::read()
     
     ssize_t recvLen = ::recv(fd(), m_parser.getBuffer(), BUFFER_SIZE, 0);
 
-    if (recvLen < 0)
-        throw std::runtime_error("recv: " + std::string(std::strerror(errno)));
-
     if (recvLen > 0)
     {
         log << recvLen << " Bytes read on fd: " << fd() << '\n';
+
         m_parser.parse(static_cast<uint32>(recvLen));
 
-        switch (m_status)
+        while (true)
         {
-        case requestLine:
-            if (m_parser.isRequestLineComplete() == false)
-                return;
-            log << "processing requestLine\n";
-            m_handler.processRequestLine(m_parser.request());
-            if (m_parser.request().isBadRequest)
-                break;
-            m_status = header;
-            /* fall through */
+            switch (m_status)
+            {
+            case requestLine:
+                if (m_parser.isRequestLineComplete() == false)
+                    return;
 
-        case header:
-            if (m_parser.isHeaderComplete() == false)
+                if (int error = m_handler->processRequestLine())
+                {
+                    m_handler->makeErrorResponse(error);
+                    break;
+                }
+
+                m_status = header;
+                /* fall through */
+
+            case header:
+                if (m_parser.isHeaderComplete() == false)
+                    return;
+                
+                if (int error = m_handler->processHeaders())
+                {
+                    m_handler->makeErrorResponse(error);
+                    break;
+                }
+                
+                m_handler->makeResponse();
+
+                if (m_handler->needBody() == false)
+                    break;
+
+                m_status = body;
+                /* fall through */
+                
+            case body:
+                if (m_parser.isBodyComplete() == false)
+                    return;
+            }
+
+            m_handler->runTasks(m_handler);
+
+            if (m_handler->shouldEndConnection() == false)
+            {
+                m_request = HTTPRequestPtr(new HTTPRequest());
+                m_parser.nextRequest(m_request);
+                m_handler = RequestHandlerPtr(new RequestHandler(m_request, m_clientSocket));
+                m_status = requestLine;
+            }
+            else
+            {
+                IOManager::shared().eraseReadTask(this);
                 return;
-            log << "processing headers\n";
-            m_handler.processHeaders(m_parser.request());
-            if (m_handler.needBody() == false)
-                break;
-            m_status = body;
-            /* fall through */
-            
-        case body:
-            if (m_parser.isBodyComplete() == false)
-                return;
+            }
         }
-
-        log << "Handling request\n";
-        m_handler.handleRequest(m_parser.request());
-
-        if (m_handler.shouldEndConnection() == false)
-            IOManager::shared().insertReadTask(new ClientSocketReadTask(m_clientSocket));
     }
-    else
+
+    if (recvLen == 0)
         log << "EOF received on fd: " << fd() << '\n';
 
     IOManager::shared().eraseReadTask(this);

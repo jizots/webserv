@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:27:06 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/11 13:09:31 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/23 17:09:28 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ struct HTTPResponse : public HTTPBase
     bool isComplete;
 
     void setStatusCode(uint32 code);
-    void makeBuiltInBody();
+    void makeBuiltInResponse(uint32 code);
     void getRaw(std::vector<Byte>&) const;
 };
 typedef SharedPtr<HTTPResponse> HTTPResponsePtr;

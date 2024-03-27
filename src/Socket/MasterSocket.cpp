@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 15:46:39 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/10 17:39:16 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/21 12:21:54 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 namespace webserv
 {
 
-MasterSocket::MasterSocket(uint16 port) : m_fileDescriptor(socket(AF_INET, SOCK_STREAM, 0))
+MasterSocket::MasterSocket(uint16 port) : m_fileDescriptor(socket(AF_INET, SOCK_STREAM, 0)), m_port(port)
 {
     if (m_fileDescriptor < 0)
         throw std::runtime_error("socket: " + std::string(std::strerror(errno)));
@@ -43,14 +43,17 @@ MasterSocket::MasterSocket(uint16 port) : m_fileDescriptor(socket(AF_INET, SOCK_
 
 ClientSocketPtr MasterSocket::acceptNewClient(const MasterSocketPtr& _this) const
 {
-    int newClientFd = ::accept(m_fileDescriptor, NULL, NULL);
+    struct sockaddr address;
+    socklen_t len;
+
+    int newClientFd = ::accept(m_fileDescriptor, &address, &len);
 
     if (newClientFd < 0)
         throw std::runtime_error("accept: " + std::string(std::strerror(errno)));
 
-    log << "New client accepted and assigned to fd: " << newClientFd << '\n';
-
-    return new ClientSocket(newClientFd, _this);
+    ClientSocket* clientSocket = new ClientSocket(newClientFd, _this, (struct sockaddr_in&)address);
+    log << "Connection from ip " << clientSocket->ipAddress() << " accepted and assigned to fd: " << newClientFd << '\n';
+    return clientSocket;
 }
 
 const ServerConfig& MasterSocket::configForHost(const std::string& hostname) const

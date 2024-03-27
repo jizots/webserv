@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 14:31:09 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/02/24 15:00:00 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/20 18:09:50 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,18 @@ namespace webserv
 template<typename T>
 class UniPointer
 {
+template<typename Y> friend class UniPointer;
 public:
     UniPointer();
     UniPointer(const UniPointer& mv);
+    template<typename Y> UniPointer(const UniPointer<Y>& mv);
     UniPointer(T* ptr);
 
     static inline UniPointer null() { return UniPointer(NULL); }
 
     inline T* ref() { return m_pointer; }
+
+    template<typename Y> UniPointer<Y> dynamicCast();
 
     ~UniPointer();
 

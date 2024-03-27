@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:14:10 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/24 16:44:58 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/25 19:27:34 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,25 +16,27 @@
 
 #include "IO/IOManager.hpp"
 #include "IO/ClientSocketWriteTask.hpp"
+#include "RequestHandler/RequestHandler.hpp"
 
 namespace webserv
 {
 
-CGIReadTask::CGIReadTask(int readFd, IWriteTask* cgiWritetask, const ClientSocketPtr& clientSocket, const HTTPResponsePtr& response)
-    : m_readFd(readFd), m_cgiWritetask(cgiWritetask), m_clientSocket(clientSocket), m_response(response)
+CGIReadTask::CGIReadTask(CGIProgramPtr cgiProgram, IWriteTask* cgiWriteTask, const ClientSocketPtr& clientSocket, const HTTPResponsePtr& response, const RequestHandlerPtr& redirectionHandler)
+    : m_cgiProgram(cgiProgram), m_cgiWriteTask(cgiWriteTask), m_clientSocket(clientSocket), m_response(response), m_redirectionHandler(redirectionHandler),
+      m_parser(m_headers, m_body)
 {
 }
 
 int CGIReadTask::fd()
 {
-    return m_readFd;
+    return m_cgiProgram->readFd();
 }
 
 void CGIReadTask::read()
 {
     updateTimestamp();
     
-    ssize_t readLen = ::read(m_readFd, m_parser.getBuffer(), BUFFER_SIZE);
+    ssize_t readLen = ::read(fd(), m_parser.getBuffer(), BUFFER_SIZE);
 
     if (readLen < 0)
         throw std::runtime_error("read: " + std::string(std::strerror(errno)));
@@ -50,14 +52,34 @@ void CGIReadTask::read()
         return;
 
     if (m_parser.isBadRequest())
-        goto badResponse;
+    {
+        m_redirectionHandler->makeErrorResponse(502);
+        m_redirectionHandler->runTasks(m_redirectionHandler);
+        goto erase;
+    }
+    
+    if (m_headers.size() == 1)
+    {
+        std::map<std::string, std::string>::const_iterator it = m_headers.find("location");
+        if (it != m_headers.end())
+        {
+            m_redirectionHandler->internalRedirection("GET", it->second, ""); // TODO parse location
+            m_redirectionHandler->runTasks(m_redirectionHandler);
+            goto erase;
+        }
+            
+    }
 
-    for (std::map<std::string, std::string>::const_iterator it = m_parser.header().begin(); it != m_parser.header().end(); ++it)
+    for (std::map<std::string, std::string>::const_iterator it = m_headers.begin(); it != m_headers.end(); ++it)
     {
         if (it->first == "status")
         {
             if (is<uint16>(it->second.substr(0, it->second.find_first_of(' '))) == false || to<uint16>(it->second.substr(0, it->second.find_first_of(' '))) > 599)
-                goto badResponse;
+            {
+                m_redirectionHandler->makeErrorResponse(502);
+                m_redirectionHandler->runTasks(m_redirectionHandler);
+                goto erase;
+            }
 
             m_response->setStatusCode(to<uint16>(it->second.substr(0, it->second.find_first_of(' '))));
         }
@@ -66,30 +88,22 @@ void CGIReadTask::read()
     }
 
     if (m_response->headers.find("content-length") == m_response->headers.end())
-        m_response->headers["content-length"] = to_string(m_parser.body().size());
+        m_response->headers["content-length"] = to_string(m_body.size());
 
-    m_response->body = m_parser.body();
-    goto send;
+    std::swap(m_response->body, m_body);
 
-badResponse:
-    m_response->headers.clear();
-    m_response->setStatusCode(502);
-    m_response->makeBuiltInBody();
-    m_response->headers["Content-Type"] = "text/html";
-    m_response->headers["Content-Length"] = to_string(m_response->body.size());
-
-send:
     m_response->isComplete = true;
     if (m_clientSocket->nextResponse() == m_response)
         IOManager::shared().insertWriteTask(new ClientSocketWriteTask(m_clientSocket, m_clientSocket->nextResponse()));
 
+erase:
     IOManager::shared().eraseReadTask(this);
-    IOManager::shared().eraseWriteTask(m_cgiWritetask);
+    IOManager::shared().eraseWriteTask(m_cgiWriteTask);
 }
 
 CGIReadTask::~CGIReadTask()
 {
-    close(m_readFd);
+    m_cgiProgram->closeReadFd();
 }
 
 

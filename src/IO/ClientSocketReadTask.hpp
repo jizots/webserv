@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:02:41 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/11 15:27:36 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/25 17:23:53 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,11 @@ private:
     enum Status { requestLine, header, body };
 
     ClientSocketPtr m_clientSocket;
+
+    HTTPRequestPtr m_request;
     HTTPRequestParser m_parser;
-    RequestHandler m_handler;
+    RequestHandlerPtr m_handler;
+
     Status m_status;
 };
 

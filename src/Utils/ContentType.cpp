@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ContentType.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: emukamada <emukamada@student.42.fr>        +#+  +:+       +#+        */
+/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:12:54 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/19 14:24:19 by emukamada        ###   ########.fr       */
+/*   Updated: 2024/03/25 16:04:05 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,51 +21,62 @@ ContentType::ContentType(Id id_) : m_id(none)
 }
 
 
-ContentType::ContentType(const std::string& filePath): m_id(none){
-    *this = m_id;
+ContentType::ContentType(const std::string& filePath): m_id(none)
+{
     std::ifstream inputFile(filePath.c_str(), std::ios::binary);
     if (!inputFile)
         return ;
 
-    std::map<std::string, int> magicNumber;
-    magicNumber["000001"] = ico;
-    magicNumber["1F8B08"] = gzip;
-    magicNumber["25504446"] = pdf;
-    magicNumber["424D"] = bmp;
-    magicNumber["47494638"] = gif;
-    magicNumber["49492A00"] = tiff;
-    magicNumber["504B0304"] = zip;
+    std::map<std::string, Id> magicNumber;
+
+    magicNumber["000001"]     = ico;
+    magicNumber["1F8B08"]     = gzip;
+    magicNumber["25504446"]   = pdf;
+    magicNumber["424D"]       = bmp;
+    magicNumber["47494638"]   = gif;
+    magicNumber["49492A00"]   = tiff;
+    magicNumber["504B0304"]   = zip;
     magicNumber["7B5C727466"] = rtf;
-    magicNumber["89504E47"] = png;
-    magicNumber["FFD8FFE0"] = jpeg;
+    magicNumber["89504E47"]   = png;
+    magicNumber["FFD8FFE0"]   = jpeg;
 
     char buffer;
     std::stringstream out;
     for (int i = 0; inputFile.read(&buffer, 1) && i < 8; i++)
         out << std::hex << std::setw(2) << std::setfill('0') << (0xff & static_cast<int>(buffer));
+    
     inputFile.close();
 
-    std::string result = out.str();
-    for (int i = 0; result[i]; i++) result[i] = std::toupper(result[i]);
+    for (int i = 0; out.str()[i]; i++) out.str()[i] = std::toupper(out.str()[i]);
 
-    for (std::map<std::string, int>::iterator it = magicNumber.begin(); it != magicNumber.end(); it++)
+    for (std::map<std::string, Id>::iterator it = magicNumber.begin(); it != magicNumber.end(); it++)
     {
-        if (result.compare(0, it->first.size(), it->first) == 0){
-            *this = (Id)it->second;
+        if (out.str().compare(0, it->first.size(), it->first) == 0)
+        {
+            *this = it->second;
             return ;
         }
     }
 
     size_t ext_pos = filePath.rfind('.');
-    std::string ext;
-    if (ext_pos != std::string::npos) {
-        ext = filePath.substr(ext_pos+1, filePath.size()-ext_pos);
-        if (ext == "html")
-            *this = html;
-        else if (ext == "xml")
-            *this = xml;
-    }
+    if (ext_pos != std::string::npos)
+    {
+        std::string ext = filePath.substr(ext_pos, filePath.size() - ext_pos);
 
+        if (ext == ".html")
+        {
+            *this = html;
+            return;
+        }
+
+        if (ext == ".xml")
+        {
+            *this = xml;
+            return;
+        }
+    }
+    
+    *this = none;
 }
 
 ContentType& ContentType::operator = (const ContentType& rhs)
@@ -80,64 +91,62 @@ ContentType& ContentType::operator = (const ContentType& rhs)
 
 ContentType& ContentType::operator = (const Id& id)
 {
-    if (m_id != id)
+    m_id = id;
+    switch (m_id)
     {
-        m_id = id;
-        switch (m_id)
-        {
-        case ico:
-            m_str = "image/vnd.microsoft.icon";
-            break;
+    case ico:
+        m_str = "image/vnd.microsoft.icon";
+        break;
 
-        case gzip:
-            m_str = "application/gzip";
-            break;
+    case gzip:
+        m_str = "application/gzip";
+        break;
 
-        case pdf:
-            m_str = "application/pdf";
-            break;
+    case pdf:
+        m_str = "application/pdf";
+        break;
 
-        case bmp:
-            m_str = "image/bmp";
-            break;
+    case bmp:
+        m_str = "image/bmp";
+        break;
 
-        case gif:
-            m_str = "image/gif";
-            break;
+    case gif:
+        m_str = "image/gif";
+        break;
 
-        case tiff:
-            m_str = "image/tiff";
-            break;
+    case tiff:
+        m_str = "image/tiff";
+        break;
 
-        case zip:
-            m_str = "application/zip";
-            break;
+    case zip:
+        m_str = "application/zip";
+        break;
 
-        case rtf:
-            m_str = "application/rtf";
-            break;
+    case rtf:
+        m_str = "application/rtf";
+        break;
 
-        case png:
-            m_str = "image/png";
-            break;
+    case png:
+        m_str = "image/png";
+        break;
 
-        case jpeg:
-            m_str = "image/jpeg";
-            break;
+    case jpeg:
+        m_str = "image/jpeg";
+        break;
 
-        case html:
-            m_str = "text/html";
-            break;
+    case html:
+        m_str = "text/html";
+        break;
 
-        case xml:
-            m_str = "application/xml";
-            break;
+    case xml:
+        m_str = "application/xml";
+        break;
 
-        default:
-            m_str = "";
-            break;
-        }
+    default:
+        m_str = "text/plain";
+        break;
     }
+    
     return *this;
 }
 

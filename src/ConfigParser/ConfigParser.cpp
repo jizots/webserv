@@ -797,6 +797,32 @@ static void	setParamEachServer(const MainDirective& mainDir, std::vector<ServerC
 	}
 };
 
+const LocationDirective& ServerConfig::bestLocation(const std::string& uri)
+{
+    if (m_lastUri == uri)
+        return locations[m_lastLocationIdx];
+    
+    m_lastUri = uri;
+
+    std::map<uint32, std::vector<LocationDirective>::size_type> map;
+
+    log << "requested URI: \"" << uri << "\"\n";
+
+    for (std::vector<LocationDirective>::size_type i = 0; i != locations.size(); i++) 
+    {
+        if (uri.compare(0, locations[i].location.size() > uri.size() ? uri.size() : locations[i].location.size(), locations[i].location) == 0)
+        {   
+            map[locations[i].location.size()] = i;
+            log << "matching location: \"" << locations[i].location << "\"\n";
+        }
+    }
+
+    m_lastLocationIdx = (--map.end())->second;
+    
+    log << "using location: \"" << locations[(--map.end())->second].location << "\"\n";
+    return locations[(--map.end())->second];
+}
+
 std::vector<ServerConfig>	parseServerConfig(const int ac, const char **av)
 {
 	try

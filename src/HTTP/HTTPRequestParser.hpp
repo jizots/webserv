@@ -21,7 +21,6 @@
 #include "HTTP/HTTPRequest.hpp"
 #include "HTTP/BodyParser.hpp"
 #include "HTTP/HeaderParser.hpp"
-#include "HTTP/RequestLineParser.hpp"
 
 namespace webserv
 {
@@ -29,36 +28,54 @@ namespace webserv
 class HTTPRequestParser
 {
 private:
-    enum status{
-        _requestLine     = 1 ,
-        _header          = 2 ,
-        _requestBody     = 4 ,
-        _parseComplete   = 5 ,
-        _badRequest      = 6 ,
+    enum status
+    {
+        _requestMethod  = 1,
+        _slash          = 2,
+        _uri            = 3,
+        _params         = 4,
+        _query          = 5,
+        _HTTP           = 6,
+        _verMajor       = 7,
+        _dot            = 8,
+        _verMinor       = 9,
+        _requestLineEnd = 10,
+        _header         = 11,
+        _requestBody    = 12,
+        _parseComplete  = 13,
+        _badRequest     = 14,
     };
 
 public:
-    HTTPRequestParser();
+    HTTPRequestParser(const HTTPRequestPtr& request);
 
     Byte* getBuffer();
     void parse(uint32 len);
-    inline HTTPRequest& request() { return m_request; };
 
-    inline bool isRequestLineComplete() { return (m_status > _requestLine); };
-    inline bool isHeaderComplete()      { return (m_status > _header);      };
-    inline bool isBodyComplete()        { return (m_status > _requestBody); };
+    void nextRequest(const HTTPRequestPtr& request);
+
+    inline bool isRequestLineComplete() { return (m_status > _requestLineEnd); };
+    inline bool isHeaderComplete()      { return (m_status > _header);         };
+    inline bool isBodyComplete()        { return (m_status > _requestBody);    };
 
 private:
-    HTTPRequest m_request;
+    void requestLineParse(Byte c);
 
-    RequestLineParser m_requestLineParser;
+    void checkCRLF(Byte c, int successStatus);
+    void decodeHex(Byte c, std::string& dst);
+
+    HTTPRequestPtr m_request;
+
     HeaderParser m_headerParser;
     BodyParser m_bodyParser;
     
-    int m_status;
-    uint64 m_idx;
-    std::string m_hex;
     std::vector<Byte> m_buffer;
+    uint64 m_idx;
+
+    int m_status;
+    std::string m_hex;
+    bool m_foundCR;
+    std::string m_protocol;
 };
 
 }

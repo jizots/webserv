@@ -128,6 +128,12 @@ struct ServerConfig {
 	std::vector<std::string>		server_names;
 	std::string						upload_path;
 	std::vector<LocationDirective>	locations;
+
+    const LocationDirective& bestLocation(const std::string& uri);
+
+private:
+    std::string m_lastUri;
+    std::vector<LocationDirective>::size_type m_lastLocationIdx;
 };
 
 /*************

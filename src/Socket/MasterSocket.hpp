@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:45:53 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/10 17:40:05 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/21 12:01:44 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,16 +33,19 @@ public:
     MasterSocket(uint16 port);
     
     inline int fileDescriptor() const { return m_fileDescriptor; }
+    inline uint16 port() { return m_port; }
 
     inline void addServerConfig(const ServerConfig& config) { m_serverConfigs.push_back(config); }
 
     ClientSocketPtr acceptNewClient(const MasterSocketPtr& _this) const;
     const ServerConfig& configForHost(const std::string& hostname) const;
+    const ServerConfig& defaultConfig() const { return m_serverConfigs.front(); };
 
     ~MasterSocket();
 
 private:
     const int m_fileDescriptor;
+    const uint16 m_port;
     std::vector<ServerConfig> m_serverConfigs;
 };
 

@@ -37,10 +37,11 @@ public:
     ~SharedPtr();
 
 protected:
-    template<typename Y> SharedPtr(const SharedPtr<Y>&);
-    
     T** m_pointer;
     uint32* m_refCount;
+
+private:
+    template<typename Y> SharedPtr(const SharedPtr<Y>&);
 
 public:
     SharedPtr& operator = (const SharedPtr&);

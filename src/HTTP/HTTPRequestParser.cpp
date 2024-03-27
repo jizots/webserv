@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPRequestParser.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: emukamada <emukamada@student.42.fr>        +#+  +:+       +#+        */
+/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 18:35:15 by ekamada           #+#    #+#             */
-/*   Updated: 2024/03/22 14:05:34 by emukamada        ###   ########.fr       */
+/*   Updated: 2024/03/25 18:10:53 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,10 @@
 namespace webserv
 {
 
-HTTPRequestParser::HTTPRequestParser()
-    : m_request(),
-      m_requestLineParser(m_request),
-      m_headerParser(m_request.headers),
-      m_bodyParser(m_request.body),
-      m_status(_requestLine),
-      m_idx(0)
+HTTPRequestParser::HTTPRequestParser(const HTTPRequestPtr& request)
+    : m_request(request),
+      m_headerParser(m_request->headers), m_bodyParser(m_request->body),
+      m_idx(0), m_status(_requestMethod), m_foundCR(false)
 {
 }
 
@@ -33,46 +30,44 @@ Byte* HTTPRequestParser::getBuffer()
 
 void HTTPRequestParser::parse(uint32 len)
 {
+    m_buffer.resize((m_buffer.size() - BUFFER_SIZE) + len);
 
-    m_buffer.resize(m_buffer.size() + len - BUFFER_SIZE);
-
-    while (m_idx < m_buffer.size() && m_status != _parseComplete && m_status != _badRequest)
+    while (m_idx < m_buffer.size() && m_status < _parseComplete)
     {
         int idx = m_idx++;
 
+        if (isRequestLineComplete() == false)
+        {
+            requestLineParse(m_buffer[idx]);
+            continue;
+        }
+
         switch (m_status)
         {
-            case _requestLine:
-                m_requestLineParser.parse(m_buffer[idx]);
-
-                if (m_requestLineParser.isComplete())
-                    m_status = _header;
-
-                else if (m_request.isBadRequest)
-                    m_status = _badRequest;
-
-                break;
-
             case _header:
                 m_headerParser.parse(m_buffer[idx]);
 
                 if (m_headerParser.isComplete())
                 {
-                    m_status = _requestBody;
+                    m_status = _parseComplete;
 
-                    if (m_request.headers.find("host") == m_request.headers.end())
+                    std::map<std::string, std::string>::iterator it = m_request->headers.find("host");
+                    if (it == m_request->headers.end())
                         m_status = _badRequest;
                     else
                     {
-                        std::map<std::string, std::string>::iterator it = m_request.headers.find("content-length");
-                        if (it != m_request.headers.end())
+                        m_request->host = it->second;
+
+                        it = m_request->headers.find("content-length");
+                        if (it != m_request->headers.end())
                         {
-                            if (!is<uint64>(m_request.headers["content-length"]))
+                            if (!is<uint64>(it->second))
                                 m_status = _badRequest;
                             else
                             {
-                                m_request.contentLength = to<uint64>(m_request.headers["content-length"]);
-                                m_bodyParser.setContentLength(m_request.contentLength);
+                                m_request->contentLength = to<uint64>(it->second);
+                                m_bodyParser.setContentLength(m_request->contentLength);
+                                m_status = _requestBody;
                             }
                         }
                     }
@@ -95,7 +90,25 @@ void HTTPRequestParser::parse(uint32 len)
     }
 
     if (m_status == _badRequest)
-        m_request.isBadRequest = true;
+      m_request->isBadRequest = true;
+}
+
+void HTTPRequestParser::nextRequest(const HTTPRequestPtr& request)
+{
+    m_request = request;
+    m_headerParser = HeaderParser(m_request->headers);
+    m_bodyParser = BodyParser(m_request->body);
+
+    std::vector<Byte> newBuffer(m_buffer.begin() + m_idx, m_buffer.end());
+    std::swap(m_buffer, newBuffer);
+    m_idx = 0;
+
+    m_status = _requestMethod;
+    m_hex.clear();
+    m_foundCR = false;
+    m_protocol.clear();
+
+    parse(BUFFER_SIZE);
 }
 
 }
