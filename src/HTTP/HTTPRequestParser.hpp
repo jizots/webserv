@@ -76,6 +76,7 @@ private:
     std::string m_hex;
     bool m_foundCR;
     std::string m_protocol;
+    bool m_isChunk;
 };
 
 }

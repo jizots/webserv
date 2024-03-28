@@ -31,7 +31,8 @@ private:
     {
         _requestBody   = 1,
         _parseComplete = 2,
-        _badRequest    = 3
+        _badRequest    = 3,
+		_endUnchunk    = 4,
     };
 
 public:
@@ -40,6 +41,7 @@ public:
     void setContentLength(uint64 len);
 
     void parse(Byte c);
+    void parseChunk(Byte c);
 
     inline bool isComplete()   { return (m_status == _parseComplete); }
     inline bool isBadRequest() { return (m_status == _badRequest);    }
@@ -47,8 +49,16 @@ public:
 private:
 	std::vector<Byte>* m_body;
 
-    int m_status;
+	int m_status;
 	uint64 m_contentLength;
+	bool m_foundCR;
+	bool m_isChunkLen;
+	std::string m_chunkLenStr;
+
+private:
+	void checkCRLF(Byte c, int successStatus);
+    uint64 hexStringToUint64(const std::string& str);
+
 };
 
 }
