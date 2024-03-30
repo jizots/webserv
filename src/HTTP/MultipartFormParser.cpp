@@ -100,7 +100,7 @@ std::vector<MultipartFormData>	MultipartFormParser::parse(const std::string& req
 
 	while (m_idx < requestBody.size() && !m_isEndFlag && !m_isBadRequest)
 	{
-		if (searchBoundary(requestBody, boundary) == false)
+		if (searchBoundary(requestBody, "--" + boundary) == false)
 		{
 			m_isBadRequest = true;
 			log << "[error] MultipartFormParser: Expected boudary dosen't exist";
@@ -108,7 +108,7 @@ std::vector<MultipartFormData>	MultipartFormParser::parse(const std::string& req
 		}
 		if (m_idx + 1 < requestBody.size() && std::strncmp(&requestBody[m_idx], "--", 2) == 0)
 			m_isEndFlag = true;
-		nextBoundaryStartPos = m_idx - boundary.size();
+		nextBoundaryStartPos = m_idx - boundary.size() - 2;//-2 is '--' of head of boundary
 		if (isCRLF(requestBody))
 			m_idx += 2;
 		if (m_idx < requestBody.size() && dataStartPos)
