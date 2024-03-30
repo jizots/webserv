@@ -18,7 +18,6 @@
 #include <sstream>
 
 #include "Utils/Utils.hpp"
-#include "HTTP/BodyParser.hpp"
 #include "HTTP/HeaderParser.hpp"
 
 namespace webserv
@@ -41,21 +40,19 @@ public:
 
     Byte* getBuffer();
     void parse(uint32 len);
+    void continueParsing();
 
     inline bool isComplete() { return (m_status >= _parseComplete); };
     inline bool isBadRequest() { return m_status == _badRequest; };
 
 private:
     const std::map<std::string, std::string>& m_headers;
+    std::vector<Byte>& m_body;
+    uint64 m_contentLength;
 
     HeaderParser m_headerParser;
-    BodyParser m_bodyParser;
-    
     std::vector<Byte> m_buffer;
-
     int m_status;
-    uint64 m_idx;
-    std::string m_hex;
 };
 
 }

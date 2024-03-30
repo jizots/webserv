@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/20 16:45:29 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/23 17:26:50 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/30 05:52:55 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,10 +39,9 @@ public:
     virtual ~Resource();
 
 protected:
-    Resource(const std::string& path, const struct stat& stat);
+    Resource(const std::string& path);
 
     std::string m_path;
-    struct stat m_stat;
 
     int m_readFd;
     int m_writeFd;
@@ -61,7 +60,7 @@ public:
     inline ~CGIProgram() /*override*/ {}
 
 private:
-    CGIProgram(const std::string& program, const struct stat& stat, const std::string& script, const std::map<std::string, std::string>& envp);
+    CGIProgram(const std::string& program, const std::string& script, const std::map<std::string, std::string>& envp);
 
     std::string m_script;
     std::map<std::string, std::string> m_envp;
@@ -84,9 +83,25 @@ public:
 private:
     DiskResource(const std::string& path, const struct stat& stat);
 
+    struct stat m_stat;
     ContentType m_contentType;
 };
 typedef SharedPtr<DiskResource> DiskResourcePtr;
+
+class NewFileResource : public Resource
+{
+public:
+    static SharedPtr<NewFileResource> create(const std::string& dir, const std::string& filename);
+
+    int open() /*override*/;
+
+    inline ~NewFileResource() /*override*/ {}
+
+private:
+    NewFileResource(const std::string& path);
+
+};
+typedef SharedPtr<NewFileResource> NewFileResourcePtr;
 
 }
 

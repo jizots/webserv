@@ -2,7 +2,7 @@ build/*
 .vscode/*
 **/*.log
 .cache/*
-.clang-format
 **/a.out
 **/.DS_Store
 configs/*-local.conf
+www/uploads/*

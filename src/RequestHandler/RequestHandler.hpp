@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 15:24:37 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/25 18:18:03 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/29 20:20:56 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 #include "Socket/ClientSocket.hpp"
 #include "RequestHandler/Resource.hpp"
 
-#include <map>
+#include <vector>
 
 namespace webserv
 {
@@ -39,13 +39,14 @@ public:
     void makeErrorResponse(int code);
     void makeRedirectionResponse(int code, const std::string& location);
     void makeResponseAutoindex(const std::string& uri);
+    void makeUploadResponse();
 
     void runTasks(const RequestHandlerPtr& _this);
 
     void internalRedirection(const std::string& method, const std::string& uri, const std::string& query);
 
-    inline bool needBody() { return m_responseResource.dynamicCast<CGIProgram>() && m_request->contentLength > 0; }
-    inline bool shouldEndConnection() { return m_shouldEndConnection || (m_response->headers.find("connection") != m_response->headers.end() && m_response->headers["connection"] == "close"); }
+    inline bool needBody() { return m_needBody; }
+    inline bool shouldEndConnection() { return m_shouldEndConnection; }
 
 private:
     HTTPRequestPtr m_request;
@@ -55,8 +56,9 @@ private:
     LocationDirective m_location;
 
     HTTPResponsePtr m_response;
-    ResourcePtr m_responseResource;
+    std::vector<ResourcePtr> m_resources;
 
+    bool m_needBody;
     bool m_shouldEndConnection;
     uint32 m_internalRedirectionCount;
 };

@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:27:20 by ekamada           #+#    #+#             */
-/*   Updated: 2024/03/25 17:17:23 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/30 12:57:01 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ void HeaderParser::parse(Byte c)
 			break;
 
 		case _headerValue:
-			c = tolower(c);
+			// c = tolower(c);
 
 			if (c == ' ' || isPrintableAscii(c)) m_value += c;
 

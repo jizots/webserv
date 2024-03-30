@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 13:26:07 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/25 19:16:36 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/30 05:53:05 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@
 namespace webserv
 {
 
-Resource::Resource(const std::string& path, const struct stat& stat)
-    : m_path(path), m_stat(stat), m_readFd(-1), m_writeFd(-1)
+Resource::Resource(const std::string& path)
+    : m_path(path), m_readFd(-1), m_writeFd(-1)
 {
 }
 
@@ -103,7 +103,7 @@ SharedPtr<Resource> CGIProgram::create(const std::string& program, const std::st
        return NULL;
     }
 
-    return new CGIProgram(program, stat1, script, envp);
+    return new CGIProgram(program, script, envp);
 }
 
 void CGIProgram::completeEnvp(const HTTPRequest& request, const std::string& method, const std::string& query, const ClientSocketPtr& clientSocket, const ServerConfig& config)
@@ -237,8 +237,8 @@ int CGIProgram::open()
     return -1;
 }
 
-CGIProgram::CGIProgram(const std::string& program, const struct stat& stat, const std::string& script, const std::map<std::string, std::string>& envp)
-    : Resource(program, stat), m_script(script), m_envp(envp)
+CGIProgram::CGIProgram(const std::string& program, const std::string& script, const std::map<std::string, std::string>& envp)
+    : Resource(program), m_script(script), m_envp(envp)
 {
     m_envp["GATEWAY_INTERFACE"] = "CGI/1.1";
     m_envp["SERVER_SOFTWARE"] = "webserv/1.1";
@@ -276,7 +276,35 @@ int DiskResource::open()
 }
 
 DiskResource::DiskResource(const std::string& path, const struct stat& stat)
-    : Resource(path, stat), m_contentType(path)
+    : Resource(path), m_stat(stat), m_contentType(path)
+{
+}
+
+SharedPtr<NewFileResource> NewFileResource::create(const std::string& dir, const std::string& filename)
+{
+    if (access(RMV_LAST_SLASH(dir).c_str(), F_OK) != 0)
+        return log << "Directory does not exist: " << dir << '\n', SharedPtr<NewFileResource>(NULL);
+    
+    if (access(RMV_LAST_SLASH(dir).c_str(), W_OK) != 0)
+        return log << "No write access to directory: " << dir << '\n', SharedPtr<NewFileResource>(NULL);
+    
+    return new NewFileResource(RMV_LAST_SLASH(dir) + "/" + filename);
+}
+
+int NewFileResource::open()
+{
+    m_writeFd = ::open(m_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    if (m_writeFd < 0)
+    {
+        log << "open(): " << std::strerror(errno) << '\n';
+        return -1;
+    }
+    log << "File " << m_path << " opened for writing (fd: " << m_writeFd << ")\n"; 
+    return 0;
+}
+
+NewFileResource::NewFileResource(const std::string& path)
+    : Resource(path)
 {
 }
 

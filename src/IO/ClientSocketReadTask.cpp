@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:04:36 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/25 19:29:44 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/30 12:43:16 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,12 +50,19 @@ void ClientSocketReadTask::read()
             case requestLine:
                 if (m_parser.isRequestLineComplete() == false)
                     return;
-
+                    
+                if (m_parser.isBadRequest())
+                {
+                    m_handler->makeErrorResponse(400);
+                    break;
+                }
                 if (int error = m_handler->processRequestLine())
                 {
                     m_handler->makeErrorResponse(error);
                     break;
                 }
+
+                m_parser.continueParsing();
 
                 m_status = header;
                 /* fall through */
@@ -63,14 +70,22 @@ void ClientSocketReadTask::read()
             case header:
                 if (m_parser.isHeaderComplete() == false)
                     return;
-                
+
+                if (m_parser.isBadRequest())
+                {
+                    m_handler->makeErrorResponse(400);
+                    break;
+                }
                 if (int error = m_handler->processHeaders())
                 {
                     m_handler->makeErrorResponse(error);
                     break;
                 }
                 
-                m_handler->makeResponse();
+                m_parser.continueParsing();
+
+                if (m_request->isMultipart == false)
+                    m_handler->makeResponse();
 
                 if (m_handler->needBody() == false)
                     break;
@@ -81,16 +96,25 @@ void ClientSocketReadTask::read()
             case body:
                 if (m_parser.isBodyComplete() == false)
                     return;
+
+                if (m_parser.isBadRequest())
+                {
+                    m_handler->makeErrorResponse(400);
+                    break;
+                }
+
+                if (m_request->isMultipart == true)
+                    m_handler->makeResponse();
             }
 
             m_handler->runTasks(m_handler);
 
-            if (m_handler->shouldEndConnection() == false)
+            if (m_parser.isBadRequest() == false && m_handler->shouldEndConnection() == false)
             {
                 m_request = HTTPRequestPtr(new HTTPRequest());
-                m_parser.nextRequest(m_request);
                 m_handler = RequestHandlerPtr(new RequestHandler(m_request, m_clientSocket));
                 m_status = requestLine;
+                m_parser.nextRequest(m_request);
             }
             else
             {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Functions.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: emukamada <emukamada@student.42.fr>        +#+  +:+       +#+        */
+/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 14:07:13 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/22 15:40:25 by emukamada        ###   ########.fr       */
+/*   Updated: 2024/03/28 19:32:30 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,15 @@ std::string to_string(const T& value)
     os << value;
     return os.str();
 }
+
+template<>
+std::string to_string(const std::vector<Byte>& value);
+
 std::vector<Byte>   to_vector(const std::string& str);
+
+std::vector<std::string>    splitByChars(const std::string& src, const std::string& chars);
+std::string	dequote(const std::string& str);
+
 
 template<typename T>
 bool is(const std::string& str)

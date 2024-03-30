@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 18:35:15 by ekamada           #+#    #+#             */
-/*   Updated: 2024/03/23 16:46:18 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/28 18:04:47 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,22 +16,18 @@ namespace webserv
 {
 
 CGIParser::CGIParser(std::map<std::string, std::string>& headers, std::vector<Byte>& body)
-	: m_headers(headers),
-      m_headerParser(headers), m_bodyParser(body),
-      m_status(_header), m_idx(0)
+    : m_headers(headers), m_body(body), m_headerParser(headers), m_status(_header)
 {
 }
 
 Byte* CGIParser::getBuffer()
 {
-	m_buffer.resize(m_buffer.size() + BUFFER_SIZE);
-	return &m_buffer[m_buffer.size() - BUFFER_SIZE];
+    m_buffer.resize(BUFFER_SIZE);
+    return m_buffer.data();
 }
 
 void CGIParser::parse(uint32 len)
 {
-	m_buffer.resize(m_buffer.size() + len - BUFFER_SIZE);
-
     if (len == 0)
     {
         if (m_status < _requestBody)
@@ -39,48 +35,44 @@ void CGIParser::parse(uint32 len)
         else
             m_status = m_status == _badRequest ? _badRequest : _parseComplete;
     }
-    else
+        
+    m_buffer.resize(len);
+    continueParsing();
+
+}
+
+void CGIParser::continueParsing()
+{
+    for (std::vector<Byte>::const_iterator it = m_buffer.begin(); it != m_buffer.end(); ++it)
     {
-        while (m_idx < m_buffer.size() && m_status != _parseComplete && m_status != _badRequest) {
-            int idx = m_idx++;
-            switch (m_status)
-            {
-                case _header:
-                    m_headerParser.parse(m_buffer[idx]);
+        switch (m_status)
+        {
+            case _header:
+                m_headerParser.parse(*it);
 
-                    if (m_headerParser.isComplete())
-                    {
+                if (m_headerParser.isComplete() == false)
+                    continue;
+
+                if (m_headerParser.isBadRequest())
+                    m_status = _badRequest;
+                else
+                {
+                    std::map<std::string, std::string>::const_iterator contentLengthIt = m_headers.find("content-length");
+                    if (contentLengthIt != m_headers.end() && is<uint64>(contentLengthIt->second))
+                        m_contentLength = to<uint64>(contentLengthIt->second);
+                    else
                         m_status = _requestBody;
-                        std::map<std::string, std::string>::const_iterator it = m_headers.find("content-length");
-                        if (it != m_headers.end())
-                        {
-                            if (!is<uint64>(it->second))
-                                m_status = _badRequest;
-                            else
-                                m_bodyParser.setContentLength(to<uint64>(it->second));
-                        }
-                    }
+                }
 
-                    else if (m_headerParser.isBadRequest())
-                        m_status = _badRequest;
+                break;
 
-                    break;
-
-                case _requestBody:
-                    m_bodyParser.parse(m_buffer[idx]);
-
-                    if (m_bodyParser.isComplete())
-                        m_status = _parseComplete;
-
-                    else if (m_bodyParser.isBadRequest())
-                        m_status = _badRequest;
-
-                    break;
-            }
+            case _requestBody:
+                if (m_contentLength > 0 && m_body.size() >= m_contentLength)
+				    m_status = _parseComplete;
+                else
+                    m_body.push_back(*it);
         }
     }
 }
 
-
-
-}
+} // namespace webserv

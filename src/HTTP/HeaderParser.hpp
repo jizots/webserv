@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:27:23 by ekamada           #+#    #+#             */
-/*   Updated: 2024/03/25 17:03:14 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/03/28 15:13:59 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ public:
 
     void parse(Byte c);
 
-    inline bool isComplete()   { return (m_status == _parseComplete); }
+    inline bool isComplete()   { return (m_status >= _parseComplete); }
     inline bool isBadRequest() { return (m_status == _badRequest);    }
 
 private:

@@ -1,0 +1,34 @@
+
+ColumnLimit: 0
+IndentWidth: 4
+AccessModifierOffset: -4
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterEnum: true
+  AfterStruct: true
+  BeforeCatch: true
+  BeforeElse: true
+InsertBraces: false
+InsertNewlineAtEOF: true
+EmptyLineBeforeAccessModifier: Always
+ConstructorInitializerIndentWidth: 4
+SpaceAfterCStyleCast: false
+SpaceAfterTemplateKeyword: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeInheritanceColon: true
+SpaceInEmptyBlock: false
+UseTab: Never
+PointerAlignment: Left
+IndentPPDirectives: BeforeHash
+SortIncludes: Never
+IndentCaseLabels: true
+# AlignConsecutiveAssignments:
+#   Enabled: true
+#   AcrossEmptyLines: false
+#   AcrossComments: false
+AllowShortEnumsOnASingleLine: true
