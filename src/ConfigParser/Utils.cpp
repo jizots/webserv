@@ -4,12 +4,15 @@
 #include <dirent.h>
 #include <cstring>
 
+namespace webserv
+{
+
 bool	isDirectory(const std::string& path)
 {
 	struct stat	statBuf;
 	std::string	errorMsg;
 
-	if (stat(path.c_str(), &statBuf) == -1)
+	if (::stat(path.c_str(), &statBuf) == -1)
 	{
 		errorMsg = path + ": " + std::strerror(errno);
 		throw (ConfigException("error", 0, errorMsg, ""));
@@ -24,10 +27,10 @@ DIR*	openDirectory(const std::string& path)
 	DIR*			dir;
 	std::string		errorMsg;
 
-	dir = opendir(path.c_str());
+	dir = ::opendir(path.c_str());
 	if (dir == NULL)
 	{
-		errorMsg = path + ": " + strerror(errno);
+		errorMsg = path + ": " + ::strerror(errno);
 		throw (ConfigException("error", 0, errorMsg, ""));
 	}
 	return (dir);
@@ -40,7 +43,7 @@ bool	isFileAccessible(const std::string& filePath)
 
 	if (!ifs.is_open())
 	{
-		errorMsg = filePath + ": " + strerror(errno);
+		errorMsg = filePath + ": " + ::strerror(errno);
 		throw (ConfigException("error", 0, errorMsg, ""));
 	}
 	if (isDirectory(filePath))
@@ -105,3 +108,5 @@ bool	isCharInSet(const char c, const char* set)
 		return (false);
 	return (std::strchr(set, c));
 };
+
+}

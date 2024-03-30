@@ -5,44 +5,46 @@
 #include <cstdlib>
 #include <algorithm>
 #include <unistd.h>
-// #include <iostream> /*debug*/
+#include <iostream> /*debug*/
 
-
+namespace webserv
+{
+	
 /**************
  * Debug utils
 ************/
-// void	printServerConfig(const ServerConfig& sConf)
-// {
-// 	std::cout << "------ ServerConfig" << std::endl;
-// 	std::cout << "error_log: " << sConf.error_log << std::endl;
-// 	std::cout << "listens: ";
-// 	printVector<int>(sConf.listens);
-// 	std::cout << "server_names: ";
-// 	printVector<std::string>(sConf.server_names);
-// 	std::cout << "upload_path: " << sConf.upload_path << std::endl;
-// 	for (size_t i = 0; i < sConf.locations.size(); ++i)
-// 	{
-// 		std::cout << "------ location: ";
-// 		std::cout << sConf.locations[i].location << std::endl;
-// 		std::cout << "root: " << sConf.locations[i].root << std::endl;
-// 		std::cout << "index: " << sConf.locations[i].index << std::endl;
-// 		std::cout << "error_page: ";
-// 		for (std::map<int, std::string>::const_iterator it = sConf.locations[i].error_page.begin(); it != sConf.locations[i].error_page.end(); ++it)
-// 			std::cout << it->first << " => " << it->second << ", ";
-// 		std::cout << std::endl;
-// 		std::cout << "autoindex: " << sConf.locations[i].autoindex << std::endl;
-// 		std::cout << "client_max_body_size: " << sConf.locations[i].client_max_body_size << std::endl;
-// 		std::cout << "redirect: " << sConf.locations[i].redirect << std::endl;
-// 		std::cout << "accepted_cgi_extension: ";
-// 		for (std::map<std::string, std::string>::const_iterator it = sConf.locations[i].accepted_cgi_extension.begin(); it != sConf.locations[i].accepted_cgi_extension.end(); ++it)
-// 			std::cout << it->first << " => " << it->second << ", ";		
-// 		std::cout << std::endl;
-// 		std::cout << "accepted_methods: ";
-// 		printVector<std::string>(sConf.locations[i].accepted_methods);
-// 		std::cout << std::endl;
-// 	}
-// };
-
+std::ostream&				operator<<(std::ostream& os, const std::vector<ServerConfig>& servers)
+{
+	for (size_t j = 0; j < servers.size(); ++j)
+	{
+		os << "------ ServerConfig#" << servers[j].serverID << std::endl;
+		os << "error_log: " << servers[j].error_log << std::endl;
+		os << "listens: "; printVector<uint16>(servers[j].listens);
+		os << "server_names: "; printVector<std::string>(servers[j].server_names);
+		os << "upload_path: " << servers[j].upload_path << std::endl;
+		for (size_t i = 0; i < servers[j].locations.size(); ++i)
+		{
+			os << "------ location: ";
+			os << servers[j].locations[i].location << std::endl;
+			os << "root: " << servers[j].locations[i].root << std::endl;
+			os << "redirect: " << servers[j].locations[i].redirect << std::endl;
+			os << "error_page: ";
+			for (std::map<int, std::string>::const_iterator it = servers[j].locations[i].error_page.begin(); it != servers[j].locations[i].error_page.end(); ++it)
+				os << it->first << " => " << it->second << ", ";
+			os << std::endl;
+			os << "autoindex: " << servers[j].locations[i].autoindex << std::endl;
+			os << "client_max_body_size: " << servers[j].locations[i].client_max_body_size << std::endl;
+			os << "index: " << servers[j].locations[i].index << std::endl;
+			os << "accepted_methods: "; printVector<std::string>(servers[j].locations[i].accepted_methods);
+			os << "accepted_cgi_extension: ";
+			for (std::map<std::string, std::string>::const_iterator it = servers[j].locations[i].accepted_cgi_extension.begin(); it != servers[j].locations[i].accepted_cgi_extension.end(); ++it)
+				os << it->first << " => " << it->second << ", ";
+			os << std::endl;
+			os << "alias: " << servers[j].locations[i].alias << std::endl;
+		}
+	}
+	return (os);
+};
 
 /**************
  * readFileToString
@@ -208,7 +210,10 @@ static bool	isValidErrorPage(const std::vector<Token>& tokens,
 		&& (index < 0 || static_cast<uint64>(index) < tokens.size() - 1))
 	{
 		tmp = tokens[index].value;
-		errorCode = convertStrToType<int>(tmp, isNumericLiteral);
+		if (is<int>(tmp))
+			errorCode = to<int>(tmp);
+		else
+			throw (ConfigException("error", tokens[index].line, "invalid error code", tmp));
 		if (errorCode < 200 || 599 < errorCode)
 			throw (ConfigException("error", tokens[index].line, "invalid error code", tmp));
 		tmp.clear();
@@ -233,7 +238,7 @@ static bool	isValidAcceptedCgiExtension(const std::vector<Token>& tokens,
 	if (access(tokens[index].value.c_str(), X_OK) == 0)
 		return (true);
 	throw (ConfigException("error",  tokens[index].line
-		, "access(): " + std::string(std::strerror(errno)), webserv::to_string(tokens[index].value)));
+		, "access(): " + std::string(std::strerror(errno)), to_string(tokens[index].value)));
 };
 
 static bool	isValidAcceptedMethods(const std::vector<Token>& tokens,
@@ -273,17 +278,15 @@ static bool	isValidParam(const std::vector<Token>& tokens,
 		case LISTEN:
 			if (param == "xxx") //for test
 				return (true);
-			try{
-				webserv::to<uint16>(param);
+			if (is<uint16>(param))
 				return (true);
-			}
-			catch(...){
-				return (false);
-			}
+			return (false);
 		case SERVER_NAME:
 			return (true);
 		case UPLOAD_PATH:
-			return (true);
+			if (param[param.size() - 1] == '/')
+				return (true);
+			throw (ConfigException("error", tokens[index].line, "upload_path must end with slash(/)", param));
 		case ROOT:
 			return (true);
 		case ERROR_PAGE:
@@ -295,13 +298,9 @@ static bool	isValidParam(const std::vector<Token>& tokens,
 				return (false);
 			return (true);
 		case CLIENT_MAX_BODY_SIZE:
-			try{
-				webserv::to<uint64>(param);
+			if (is<uint64>(param))
 				return (true);
-			}
-			catch(...){
-				return (false);
-			}
+			return (false);
 		case INDEX:
 			return (true);
 		case REDIRECT:
@@ -614,7 +613,7 @@ static void	setErrorPage(std::map<int, std::string>& errorMap, const std::vector
 {
 	for (size_t i = 0; i < src.size() - 1; ++i)
 	{
-		errorMap.insert(std::make_pair(convertStrToType<int>(src[i], isNumericLiteral), src[src.size() - 1]));
+		errorMap.insert(std::make_pair(to<int>(src[i]), src[src.size() - 1]));
 	}
 }
 
@@ -651,7 +650,7 @@ static void	setToLocationLevel(LocationDirective& lDir,
 	case CLIENT_MAX_BODY_SIZE:
 		if (lDir.isSetMaxBody == true)
 			break;
-		lDir.client_max_body_size = webserv::to<uint64>(src[0]);
+		lDir.client_max_body_size = to<uint64>(src[0]);
 		lDir.isSetMaxBody = true;
 		break;
 	case REDIRECT:
@@ -686,7 +685,7 @@ static void	setToServerLevel(ServerConfig& sConf, const eSimpleDirective& target
 		if (src[0] == "xxx") //for test
 			sConf.listens.push_back(portRand);
 		else
-			sConf.listens.push_back(webserv::to<uint16>(src[0]));
+			sConf.listens.push_back(to<uint16>(src[0]));
 		break;
 	case SERVER_NAME:
 		sConf.server_names.push_back(src[0]);
@@ -772,7 +771,7 @@ static void	setUndefinedParam(ServerConfig& sConf)
 	if (sConf.listens.empty())
 		sConf.listens.push_back(8042);
 	if (sConf.upload_path.empty())
-		sConf.upload_path = "www/uploads";
+		sConf.upload_path = "www/uploads/";
 	for (size_t i = 0; i < sConf.locations.size(); ++i)
 	{
 		if (sConf.locations[i].root.empty())
@@ -841,7 +840,7 @@ std::vector<ServerConfig>	parseServerConfig(const int ac, const char **av)
 		makeTmpStruct(tokens, mainDir, "main", 0, 0);
 		isNoDuplication(mainDir);
 		setParamEachServer(mainDir, sConfs);
-		// printServerConfig(sConfs[0]);
+		// std::cout << sConfs;
 		return (sConfs);
 	}
 	catch(const ConfigException& e)
@@ -862,8 +861,10 @@ ConfigException::ConfigException(const std::string& level,
 	:m_msg("[" + level + "] ")
 {
 	if (lineNo != 0)
-		m_msg += "line#" + webserv::to_string<size_t>(lineNo) + " : ";
+		m_msg += "line#" + to_string<size_t>(lineNo) + " : ";
 	m_msg += description;
 	if (!token.empty())
 		m_msg += ": " + token;
 };
+
+}

@@ -11,6 +11,7 @@
 # define SPECIAL_CHARS "\'\"|()^$*+?=\\"
 # define DELIMITER_CHARS "{};"
 
+namespace webserv{
 /*************
  * Constants syntax
  * *************/
@@ -140,7 +141,7 @@ private:
  * Functions
  * *************/
 std::vector<ServerConfig>	parseServerConfig(const int ac, const char **av);
-
+std::ostream&				operator<<(std::ostream& os, const std::vector<ServerConfig>& servers);
 
 /*************
  * Exceptions
@@ -165,5 +166,7 @@ void	printVector(const std::vector<T> vec)
 	for (size_t i = 0; i < vec.size(); ++i)
 		std::cout << vec[i] << std::endl;
 };
+
+}
 
 #endif
