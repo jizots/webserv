@@ -141,7 +141,7 @@ static int	getTmData(const struct tm tm, const int flag)
 
 static std::string makeResponseBody(const std::vector<DirecInfo>& infos, const std::string& requestUri)
 {
-	std::string	retHtml;
+	std::string retHtml;
 
 	retHtml.append("<html>\n");
 	retHtml.append("<head>\n");
@@ -156,12 +156,13 @@ static std::string makeResponseBody(const std::vector<DirecInfo>& infos, const s
 	retHtml.append("a { color: #0000FF; text-decoration: none; }\n");
 	retHtml.append(".directory-icon { display: inline-block; width: 16px; height: 16px; background-image: url(/img/folder.gif); }\n");
 	retHtml.append(".file-icon { display: inline-block; width: 16px; height: 16px; background-image: url(/img/text.gif); }\n");
+	retHtml.append(".delete-button { display: inline-block; padding: 4px 8px; background-color: #FF0000; color: #FFFFFF; text-decoration: none; }\n");
 	retHtml.append("</style>\n");
 	retHtml.append("</head>\n");
 	retHtml.append("<body>\n");
 	retHtml.append("<h1>Index of " + requestUri + "</h1>\n");
 	retHtml.append("<table>\n");
-	retHtml.append("<tr><th>Name</th><th>Last Modified</th><th>Size</th></tr>\n");
+	retHtml.append("<tr><th>Name</th><th>Last Modified</th><th>Size</th><th>Action</th></tr>\n");
 	for (size_t i = 0; i < infos.size(); ++i)
 	{
 		retHtml.append("<tr><td>");
@@ -175,12 +176,43 @@ static std::string makeResponseBody(const std::vector<DirecInfo>& infos, const s
 		retHtml.append(toStringWithLeadingZero(getTmData(infos[i].lastModified, TM_MDAY)) + " ");
 		retHtml.append(toStringWithLeadingZero(getTmData(infos[i].lastModified, TM_HOUR)) + ":");
 		retHtml.append(toStringWithLeadingZero(getTmData(infos[i].lastModified, TM_MIN)) + "</td>");
-		retHtml.append("<td>" + to_string(infos[i].fileSize) + "</td></tr>\n");
+		retHtml.append("<td>" + to_string(infos[i].fileSize) + "</td>");
+		if (infos[i].retPath[infos[i].retPath.size() - 1] != '/')
+			retHtml.append("<td><button class='delete-button' data-path='" + infos[i].retPath + "'>Delete</button></td>");
+		retHtml.append("</tr>\n");
 	}
 	retHtml.append("</table>\n");
+	retHtml.append("<script>\n");
+	retHtml.append("document.addEventListener('DOMContentLoaded', () => {\n");
+	retHtml.append("    document.querySelectorAll('.delete-button').forEach(button => {\n");
+	retHtml.append("        button.addEventListener('click', function(e) {\n");
+	retHtml.append("            e.preventDefault();\n");
+	retHtml.append("            const filePath = this.getAttribute('data-path');\n");
+	retHtml.append("            fetch(filePath, {\n");
+	retHtml.append("                method: 'DELETE'\n");
+	retHtml.append("            })\n");
+	retHtml.append("            .then(response => {\n");
+	retHtml.append("                if (response.ok) {\n");
+	retHtml.append("                    console.log('File deleted successfully');\n");
+	retHtml.append("                    location.reload();\n");
+	retHtml.append("                } else {\n");
+	retHtml.append("                    console.log('File deletion failed, status:', response.status);\n");
+	retHtml.append("                    response.text().then(text => {\n");
+	retHtml.append("                        console.log('Error response body:', text);\n");
+	retHtml.append("                        document.body.innerHTML = text;\n");
+	retHtml.append("                    })\n");
+	retHtml.append("                }\n");
+	retHtml.append("            })\n");
+	retHtml.append("            .catch(error => {\n");
+	retHtml.append("                console.error('Error:', error);\n");
+	retHtml.append("            });\n");
+	retHtml.append("        });\n");
+	retHtml.append("    });\n");
+	retHtml.append("});\n");
+	retHtml.append("</script>\n");
 	retHtml.append("</body>\n");
 	retHtml.append("</html>\n");
-	return (retHtml);
+	return retHtml;
 }
 
 void RequestHandler::makeResponseAutoindex(const std::string& uri)
