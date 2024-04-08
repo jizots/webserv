@@ -1,14 +1,14 @@
-/* ************************************************************************** */
+/******************************************************************************/
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: hotph <hotph@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 15:24:37 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/29 20:20:56 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/08 13:42:20 by hotph            ###   ########.fr       */
 /*                                                                            */
-/* ************************************************************************** */
+/******************************************************************************/
 
 #ifndef REQUESTHANDLER_HPP
 # define REQUESTHANDLER_HPP
@@ -23,6 +23,13 @@
 
 namespace webserv
 {
+
+struct FindValName
+{
+    const std::string m_valName;
+    inline FindValName(const std::string& valName) : m_valName(valName) {};
+    bool operator()(const HTTPFieldValue& fieldVal) const { return (fieldVal.valName == m_valName); };
+};
 
 class RequestHandler;
 typedef SharedPtr<RequestHandler> RequestHandlerPtr;
@@ -50,6 +57,8 @@ public:
 
 private:
     HTTPRequestPtr m_request;
+    static const std::string m_InvalidFieldVal;
+
     ClientSocketPtr m_clientSocket;
 
     ServerConfig m_config;
@@ -61,6 +70,24 @@ private:
     bool m_needBody;
     bool m_shouldEndConnection;
     uint32 m_internalRedirectionCount;
+
+private:
+    int parseHeaderValue(const std::string& fieldLine, int (RequestHandler::*func)(const std::string&))
+    {
+        if (hasCommonCharacter(fieldLine, m_InvalidFieldVal))
+        {
+            log << "parseHeaderValue(): Invalid field value: " << fieldLine << "\n";
+            return (400);
+        }
+        return ((this->*func)(fieldLine));
+    }
+    int parseHost(const std::string& fieldLine);
+    int parseContentLength(const std::string& fieldLine);
+    int parseContentType(const std::string& fieldLine);
+    int parseTransferEncoding(const std::string& fieldLine);
+    int parseConnection(const std::string& fieldLine) { return (parseTransferEncoding(fieldLine)); };
+    HTTPFieldValue              parseSingleFieldVal(const std::string& fieldVal);
+    std::vector<HTTPFieldValue> parseMultiFieldVal(const std::string& fieldVals);
 };
 
 }

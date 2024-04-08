@@ -1,14 +1,14 @@
-/* ************************************************************************** */
+/******************************************************************************/
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   HTTPRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: hotph <hotph@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:25:33 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/30 13:03:40 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/08 11:34:50 by hotph            ###   ########.fr       */
 /*                                                                            */
-/* ************************************************************************** */
+/******************************************************************************/
 
 #ifndef HTTPREQUEST_HPP
 # define HTTPREQUEST_HPP
@@ -17,6 +17,16 @@
 
 namespace webserv
 {
+
+struct HTTPHostValue{
+    std::string hostname;
+    uint16      port;
+};
+
+struct HTTPFieldValue{
+    std::string                         valName;
+    std::map<std::string, std::string>  parameters;
+};
 
 struct MultipartFormData
 {
@@ -37,8 +47,10 @@ struct HTTPRequest : public HTTPBase
     std::string query;
     std::string params; // ?
     std::vector<MultipartFormData> m_multipartFormDatas;
+    HTTPFieldValue              m_HTTPFieldValue;
+    std::vector<HTTPFieldValue> m_HTTPFieldValues;
 
-    std::string host;
+    HTTPHostValue host;
     uint64 contentLength;
     bool isChunk;
     bool isMultipart;

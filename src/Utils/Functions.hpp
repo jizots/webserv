@@ -45,6 +45,9 @@ std::vector<Byte>   to_vector(const std::string& str);
 std::vector<std::string>    splitByChars(const std::string& src, const std::string& chars);
 std::string	dequote(const std::string& str);
 
+bool    hasCommonCharacter(const std::string& s1, const std::string& s2);
+std::string	stringToLower(const std::string& str);
+bool	compStringCaseInsensitive(const std::string& s1, const std::string& s2);
 
 template<typename T>
 bool is(const std::string& str)

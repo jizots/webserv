@@ -57,4 +57,25 @@ std::string	dequote(const std::string& str)
 	return (str);
 }
 
+bool    hasCommonCharacter(const std::string& s1, const std::string& s2)
+{
+	return (s1.find_first_of(s2) != std::string::npos);
+};
+
+std::string	stringToLower(const std::string& str)
+{
+	std::string	result(str);
+
+	for (std::string::size_type i = 0; i < str.size(); ++i)
+		result[i] = std::tolower(static_cast<int>(result[i]));
+	return (result);
+};
+
+bool	compStringCaseInsensitive(const std::string& s1, const std::string& s2)
+{
+	if (stringToLower(s1) == stringToLower(s2))
+		return (true);
+	return (false);
+};
+
 }

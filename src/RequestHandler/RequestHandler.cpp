@@ -1,14 +1,14 @@
-/* ************************************************************************** */
+/******************************************************************************/
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: hotph <hotph@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 18:32:54 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/30 13:17:58 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/08 13:34:35 by hotph            ###   ########.fr       */
 /*                                                                            */
-/* ************************************************************************** */
+/******************************************************************************/
 
 #include "RequestHandler/RequestHandler.hpp"
 
@@ -20,6 +20,7 @@
 #include "IO/CGIReadTask.hpp"
 #include "IO/FileReadTask.hpp"
 #include "IO/FileWriteTask.hpp"
+#include "RequestHandler/RequestHandler.hpp"
 
 namespace webserv
 {
@@ -49,62 +50,67 @@ int RequestHandler::processHeaders()
     std::map<std::string, std::string>::const_iterator hostIt = m_request->headers.find("host");
     if (hostIt == m_request->headers.end())
         return 400;
-    m_request->host = hostIt->second;
-    
-    m_config = m_clientSocket->masterSocket()->configForHost(m_request->host);
+    if (int error = parseHeaderValue(hostIt->second, &RequestHandler::parseHost))
+        return error;
+
+    m_config = m_clientSocket->masterSocket()->configForHost(m_request->host.hostname);
     m_location = m_config.bestLocation(m_request->uri);
     
-    std::map<std::string, std::string>::const_iterator connectionTt = m_request->headers.find("connection");
-    if (connectionTt != m_request->headers.end())
+    std::map<std::string, std::string>::const_iterator connectionIt = m_request->headers.find("connection");
+    if (connectionIt != m_request->headers.end())
     {
-        if (connectionTt->second == "close")
+        parseHeaderValue(connectionIt->second, &RequestHandler::parseConnection);
+        if (int error = parseHeaderValue(connectionIt->second, &RequestHandler::parseConnection))
+            return error;
+        std::vector<HTTPFieldValue>::const_iterator it = std::find_if(m_request->m_HTTPFieldValues.begin(), m_request->m_HTTPFieldValues.end(), FindValName("close"));
+        if (it != m_request->m_HTTPFieldValues.end())
         {
             m_response->headers["connection"] = "close";
             m_shouldEndConnection = true;
         }
-
-        else if (connectionTt->second == "keep-alive")
-        {
-            m_response->headers["connection"] = "keep-alive";
-            m_shouldEndConnection = false;
-        }
-
         else
-            return 400;
+        {
+            it = std::find_if(m_request->m_HTTPFieldValues.begin(), m_request->m_HTTPFieldValues.end(), FindValName("keep-alive"));
+            if (it != m_request->m_HTTPFieldValues.end())
+            {
+                m_response->headers["connection"] = "keep-alive";
+                m_shouldEndConnection = false;
+            }
+            else
+                return 400;
+        }
     }
 
     std::map<std::string, std::string>::const_iterator contentLength = m_request->headers.find("content-length");
     if (contentLength != m_request->headers.end())
     {
-        if (is<uint64>(contentLength->second) == false)
-            return 400;
-        m_request->contentLength = to<uint64>(contentLength->second);
+        if (int error = parseHeaderValue(contentLength->second, &RequestHandler::parseContentLength))
+            return error;
     }
 
     std::map<std::string, std::string>::const_iterator transferEncoding = m_request->headers.find("transfer-encoding");
     if (transferEncoding != m_request->headers.end())
-        m_request->isChunk = transferEncoding->second == "chunked";
+    {
+        if (int error = parseHeaderValue(transferEncoding->second, &RequestHandler::parseTransferEncoding))
+            return error;
+        std::vector<HTTPFieldValue>::const_iterator it = std::find_if(m_request->m_HTTPFieldValues.begin(), m_request->m_HTTPFieldValues.end(), FindValName("chunked"));
+        if (it != m_request->m_HTTPFieldValues.end())
+            m_request->isChunk = true;
+    }
 
     std::map<std::string, std::string>::const_iterator contentType = m_request->headers.find("content-type");
     if (contentType != m_request->headers.end())
     {
-        std::vector<std::string> splittedStr = splitByChars(contentType->second, "; ");
-        if (splittedStr.size() > 1 && splittedStr[0] == "multipart/form-data")
+        if (int error = parseHeaderValue(contentType->second, &RequestHandler::parseContentType))
+            return error;
+        if (m_request->m_HTTPFieldValue.valName == "multipart/form-data")
         {
-            for (size_t i = 1; i < splittedStr.size(); ++i)
-            {
-                std::vector<std::string> params = splitByChars(splittedStr[i], "=");
-                if (params[0] == "boundary")
-                {
-                    if (params.size() < 2)
-                        return 400;
-                    m_request->boundary = dequote(params[1]);
-                    m_request->isMultipart = true;
-                    m_needBody = true;
-                    break;
-                }
-            }
-
+            std::map<std::string, std::string>::const_iterator boundaryIt = m_request->m_HTTPFieldValue.parameters.find("boundary");
+            if (boundaryIt == m_request->m_HTTPFieldValue.parameters.end())
+                return 400;
+            m_request->boundary = boundaryIt->second;
+            m_request->isMultipart = true;
+            m_needBody = true;
         }
     }
 

@@ -1,14 +1,14 @@
-/* ************************************************************************** */
+/******************************************************************************/
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   Resource.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: hotph <hotph@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 13:26:07 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/30 05:53:05 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/05 11:29:40 by hotph            ###   ########.fr       */
 /*                                                                            */
-/* ************************************************************************** */
+/******************************************************************************/
 
 #include "RequestHandler/RequestHandler.hpp"
 
@@ -126,7 +126,7 @@ void CGIProgram::completeEnvp(const HTTPRequest& request, const std::string& met
     // ? m_envp["REMOTE_HOST"] = clientSocket->ipAddress();
     // ? REMOTE_IDENT
 
-    std::vector<std::string>::const_iterator it2 = std::find(config.server_names.begin(), config.server_names.end(), request.host);
+    std::vector<std::string>::const_iterator it2 = std::find(config.server_names.begin(), config.server_names.end(), request.host.hostname);
     m_envp["SERVER_NAME"] = it2 != config.server_names.end() ? *it2 : config.server_names.front();
 
     m_envp["SERVER_PORT"] = to_string(clientSocket->masterSocket()->port());
