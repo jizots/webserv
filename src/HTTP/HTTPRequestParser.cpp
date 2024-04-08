@@ -1,14 +1,14 @@
-/* ************************************************************************** */
+/******************************************************************************/
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   HTTPRequestParser.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: hotph <hotph@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 18:35:15 by ekamada           #+#    #+#             */
-/*   Updated: 2024/03/30 13:03:26 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/07 17:11:07 by hotph            ###   ########.fr       */
 /*                                                                            */
-/* ************************************************************************** */
+/******************************************************************************/
 
 #include "HTTPRequestParser.hpp"
 #include "MultipartFormParser.hpp"
@@ -38,7 +38,7 @@ void HTTPRequestParser::parseMultipart(void)
 {
 	MultipartFormParser mfp;
 
-	m_request->m_multipartFormDatas = mfp.parse(std::string(reinterpret_cast<char *>(m_request->body.data()), m_request->body.size()), m_request->boundary);//must updeta arg Byte to std::string
+	m_request->m_multipartFormDatas = mfp.parse(m_request->body, m_request->boundary);
 	if (mfp.isBadRequest())
 		m_status = _badRequest;
 }

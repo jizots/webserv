@@ -15,7 +15,7 @@ class MultipartFormParser
 public:
 	MultipartFormParser(void);
 	inline ~MultipartFormParser(void){};
-	std::vector<MultipartFormData> parse(const std::string& requestBody, const std::string& boundary);
+	std::vector<MultipartFormData> parse(const std::vector<Byte>& requestBody, const std::string& boundary);
 	inline bool isBadRequest(void) {return (m_isBadRequest);};
 
 private:
@@ -25,9 +25,10 @@ private:
 	std::vector<MultipartFormData>	m_data;
 
 private:
-	bool isCRLF(const std::string& requestBody);
-	bool searchBoundary(const std::string& requestBody, const std::string boundary);
-	void parseHeader(const std::string& requestBody);
+	bool isCRLF(const std::vector<Byte>& requestBody);
+	bool searchBoundary(const std::vector<Byte>& requestBody, const std::string boundary);
+	bool searchStrFormByteVec(const std::vector<Byte>& byteVec, const std::string& little);
+	void parseHeader(const std::vector<Byte>& requestBody);
 	void setDataInfo(const size_t potentialDataPos, const size_t boundarySize);
 	void checkDatas(void);
 };

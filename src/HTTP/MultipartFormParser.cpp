@@ -10,13 +10,32 @@ MultipartFormParser::MultipartFormParser(void)
 	m_isEndFlag(false)
 {};
 
-bool MultipartFormParser::searchBoundary(const std::string& requestBody, const std::string boundary)
+bool MultipartFormParser::searchStrFormByteVec(const std::vector<Byte>& byteVec, const std::string& little)
 {
-	std::string::size_type	find = requestBody.find(boundary, m_idx);
+    size_t  foundingPos = 0;
 
-	if (find == std::string::npos)
+    if (byteVec.size() < little.size() || little.size() == 0)
+        return (false);
+    while (foundingPos <= byteVec.size() - little.size())
+	{
+		if (std::memcmp(&byteVec[m_idx + foundingPos], little.c_str(), little.size()) == 0)
+		{
+			m_idx += foundingPos + little.size();
+			return (true);
+		}
+		++foundingPos;
+	}
+    return (false);
+};
+
+bool MultipartFormParser::searchBoundary(const std::vector<Byte>& byteVec, const std::string boundary)
+{
+	if (searchStrFormByteVec(byteVec, boundary) == false)
+	{
+		m_isBadRequest = true;
+		log << "[error] MultipartFormParser: Expected boudary dosen't exist";
 		return (false);
-	m_idx = find + boundary.size();
+	}
 	return (true);
 };
 
@@ -28,7 +47,7 @@ void	MultipartFormParser::setDataInfo(const std::string::size_type dataStartPos,
 	m_data.back().lenData = dataEndPos - dataStartPos;
 };
 
-void	MultipartFormParser::parseHeader(const std::string& requestBody)
+void	MultipartFormParser::parseHeader(const std::vector<Byte>& requestBody)
 {
 	std::map<std::string, std::string>	header;
 	webserv::HeaderParser		headerParser(header);
@@ -36,7 +55,7 @@ void	MultipartFormParser::parseHeader(const std::string& requestBody)
 
 	while (m_idx < requestBody.size() && !headerParser.isComplete() && !headerParser.isBadRequest())
 	{
-		headerParser.parse(static_cast<Byte>(requestBody[m_idx]));
+		headerParser.parse(requestBody[m_idx]);
 		if (headerParser.isBadRequest())
 		{
 			m_isBadRequest = true;
@@ -72,7 +91,7 @@ void	MultipartFormParser::parseHeader(const std::string& requestBody)
 	m_data.push_back(newData);
 };
 
-bool	MultipartFormParser::isCRLF(const std::string& requestBody)
+bool	MultipartFormParser::isCRLF(const std::vector<Byte>& requestBody)
 {
 	if (m_idx + 1 < requestBody.size()
 		&& requestBody[m_idx] == '\r' && requestBody[m_idx + 1] == '\n')
@@ -93,7 +112,7 @@ void	MultipartFormParser::checkDatas(void)
 	}
 }
 
-std::vector<MultipartFormData>	MultipartFormParser::parse(const std::string& requestBody, const std::string& boundary)
+std::vector<MultipartFormData>	MultipartFormParser::parse(const std::vector<Byte>& requestBody, const std::string& boundary)
 {
 	std::string::size_type	dataStartPos = 0;
 	std::string::size_type	nextBoundaryStartPos = 0;
@@ -101,12 +120,8 @@ std::vector<MultipartFormData>	MultipartFormParser::parse(const std::string& req
 	while (m_idx < requestBody.size() && !m_isEndFlag && !m_isBadRequest)
 	{
 		if (searchBoundary(requestBody, "--" + boundary) == false)
-		{
-			m_isBadRequest = true;
-			log << "[error] MultipartFormParser: Expected boudary dosen't exist";
 			return (m_data);
-		}
-		if (m_idx + 1 < requestBody.size() && std::strncmp(&requestBody[m_idx], "--", 2) == 0)
+		if (m_idx + 1 < requestBody.size() && std::strncmp(reinterpret_cast<const char*>(&requestBody[m_idx]), "--", 2) == 0)
 			m_isEndFlag = true;
 		nextBoundaryStartPos = m_idx - boundary.size() - 2;//-2 is '--' of head of boundary
 		if (isCRLF(requestBody))
