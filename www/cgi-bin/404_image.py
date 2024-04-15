@@ -14,5 +14,5 @@ import random
 
 random.seed()
 
-print('Location: /img/' + str(random.randint(1, 6)) + '-sorry.gif\r\n'),
-print('\r\n'),
+print('Location: /img/' + str(random.randint(1, 6)) + '-sorry.gif\r')
+print('\r')

@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 13:34:28 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/24 18:31:31 by sotanaka         ###   ########.fr       */
+/*   Updated: 2024/04/08 18:28:51 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Utils/Utils.hpp"
 
-#include "ConfigParser/ConfigParser.hpp"
+#include "Parser/ConfigParser/ConfigParser.hpp"
 
 #include "IO/IOManager.hpp"
 #include "IO/StdinReadTask.hpp"

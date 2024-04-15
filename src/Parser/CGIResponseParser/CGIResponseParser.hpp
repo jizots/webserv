@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   CGIParser.hpp                                     :+:      :+:    :+:   */
+/*   CGIResponseParser.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -13,46 +13,46 @@
 #ifndef CGIPARSER_HPP
 # define CGIPARSER_HPP
 
+#include <map>
 #include <string>
 #include <vector>
-#include <sstream>
 
-#include "Utils/Utils.hpp"
-#include "HTTP/HeaderParser.hpp"
+#include "Utils/Types.hpp"
+#include "Parser/HTTPHeaderParser/HTTPHeaderParser.hpp"
 
 namespace webserv
 {
 
-class CGIParser
+class CGIResponseParser
 {
 private:
     enum status
     {
-        _header          = 0,
-        _headerParseDone = 1,
-        _requestBody     = 2,
-        _parseComplete   = 3,
-        _badRequest      = 4,
+        _headers       = 0,
+        _body          = 2,
+        _parseComplete = 3,
+        _badResponse   = 4,
     };
 
 public:
-    CGIParser(std::map<std::string, std::string>& headers, std::vector<Byte>& body);
+    CGIResponseParser(std::map<std::string, std::string>& headersDst, std::vector<Byte>& bodyDst);
 
     Byte* getBuffer();
     void parse(uint32 len);
     void continueParsing();
 
-    inline bool isComplete() { return (m_status >= _parseComplete); };
-    inline bool isBadRequest() { return m_status == _badRequest; };
+    inline bool isHeaderComplete() { return m_status  > _headers;       };
+    inline bool isComplete()       { return m_status >= _parseComplete; };
+    inline bool isBadResponse()    { return m_status == _badResponse;    };
 
 private:
-    const std::map<std::string, std::string>& m_headers;
     std::vector<Byte>& m_body;
-    uint64 m_contentLength;
-
-    HeaderParser m_headerParser;
-    std::vector<Byte> m_buffer;
     int m_status;
+
+    HTTPHeaderParser m_headerParser;
+
+    std::vector<Byte> m_buffer;
+    std::vector<Byte>::iterator m_curr;
 };
 
 }

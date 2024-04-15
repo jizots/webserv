@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/20 16:45:29 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/30 05:52:55 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/08 18:28:51 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define RESOURCE_HPP
 
 #include "HTTP/HTTPRequest.hpp"
-#include "ConfigParser/ConfigParser.hpp"
+#include "Parser/ConfigParser/ConfigParser.hpp"
 #include "Socket/ClientSocket.hpp"
 
 #include <sys/stat.h>

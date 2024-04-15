@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:45:53 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/21 12:01:44 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/08 18:28:51 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <string>
 
 #include "Utils/Utils.hpp"
-#include "ConfigParser/ConfigParser.hpp"
+#include "Parser/ConfigParser/ConfigParser.hpp"
 
 namespace webserv
 {

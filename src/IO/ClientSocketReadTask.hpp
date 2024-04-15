@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:02:41 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/25 17:23:53 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/08 18:29:21 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include "IO/IOTask.hpp"
 
 #include "Socket/ClientSocket.hpp"
-#include "HTTP/HTTPRequestParser.hpp"
+#include "Parser/HTTPRequestParser/HTTPRequestParser.hpp"
 #include "RequestHandler/RequestHandler.hpp"
 
 namespace webserv

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   HeaderParser.hpp                                   :+:      :+:    :+:   */
+/*   HTTPHeaderParser.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:27:23 by ekamada           #+#    #+#             */
-/*   Updated: 2024/03/28 15:13:59 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/06 18:38:39 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,18 +14,14 @@
 #define HEADERPARSER_HPP
 
 #include <map>
-#include <vector>
 #include <string>
 
 #include "Utils/Utils.hpp"
-#include "HTTPUtils.hpp"
-#include "HTTP/HTTPRequest.hpp"
 
 namespace webserv
 {
 
-
-class HeaderParser
+class HTTPHeaderParser
 {
 private:
     enum status
@@ -37,7 +33,7 @@ private:
     };
 
 public:
-    HeaderParser(std::map<std::string, std::string>& header);
+    HTTPHeaderParser(std::map<std::string, std::string>& header);
 
     void parse(Byte c);
 

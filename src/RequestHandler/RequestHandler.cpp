@@ -1,14 +1,14 @@
-/******************************************************************************/
+/* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hotph <hotph@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 18:32:54 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/08 13:34:35 by hotph            ###   ########.fr       */
+/*   Updated: 2024/04/08 18:51:17 by tchoquet         ###   ########.fr       */
 /*                                                                            */
-/******************************************************************************/
+/* ************************************************************************** */
 
 #include "RequestHandler/RequestHandler.hpp"
 
@@ -37,7 +37,7 @@ int RequestHandler::processRequestLine()
 {
     log << "processing requestLine\n";
 
-    if (m_request->httpVersionMajor != 1 || m_request->httpVersionMinor != 1)
+    if (m_request->verMajor != 1 || m_request->verMinor != 1)
         return m_shouldEndConnection = true, 505;
 
     return 0;

@@ -1,26 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   HeaderParser.cpp                                   :+:      :+:    :+:   */
+/*   HTTPHeaderParser.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:27:20 by ekamada           #+#    #+#             */
-/*   Updated: 2024/03/30 12:57:01 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/06 18:38:43 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "HeaderParser.hpp"
+#include "Parser/HTTPHeaderParser/HTTPHeaderParser.hpp"
 
 namespace webserv
 {
 
-HeaderParser::HeaderParser(std::map<std::string, std::string>& header)
+HTTPHeaderParser::HTTPHeaderParser(std::map<std::string, std::string>& header)
     : m_header(&header), m_status(_headerKey), m_foundCR(false)
 {
 }
 
-void HeaderParser::parse(Byte c)
+void HTTPHeaderParser::parse(Byte c)
 {
 	switch (m_status)
     {
@@ -33,7 +33,7 @@ void HeaderParser::parse(Byte c)
 			else if (c == ':')
                 m_status = _headerValue;
 
-			else if (!isToken(c))
+			else if (!IS_TOKEN(c))
 				m_status = _badRequest;
 
 			else m_key += c;
@@ -41,9 +41,8 @@ void HeaderParser::parse(Byte c)
 			break;
 
 		case _headerValue:
-			// c = tolower(c);
-
-			if (c == ' ' || isPrintableAscii(c)) m_value += c;
+			if (c == ' ' || IS_PRINTABLE_ASCII(c))
+                m_value += c;
 
 			else if (c == '\r' || c == '\n')
                 checkCRLF(c, _headerKey);
@@ -55,30 +54,32 @@ void HeaderParser::parse(Byte c)
 	};
 }
 
-void HeaderParser::checkCRLF(Byte c, int successStatus)
+void HTTPHeaderParser::checkCRLF(Byte c, int successStatus)
 {
-	if (c == '\r' && !m_foundCR) m_foundCR = true;
-	else if (c == '\n' && m_foundCR) {
-		m_status = successStatus;
-		if (m_key + m_value != ""){
+	if (c == '\r' && !m_foundCR)
+        m_foundCR = true;
+
+	else if (c == '\n' && m_foundCR)
+    {
+		if (m_key + m_value != "")
+        {
 			if (m_header->find(m_key) != m_header->end())
 			{
 				m_status = _badRequest;
 				return ;
 			}
-			(*m_header)[m_key] = trimOptionalSpace(m_value);
+
+			(*m_header)[m_key] = trimCharacters(m_value, " \t");
 		}
-		clearKeyValue();
+        
+		m_key = "";
+        m_value = "";
+        m_foundCR = false;
+
+		m_status = successStatus;
 	}
 	else
 		m_status = _badRequest;
-}
-
-void HeaderParser::clearKeyValue()
-{
-    m_key = "";
-    m_value = "";
-    m_foundCR = false;
 }
 
 }

@@ -27,7 +27,7 @@ responseBody=\
 
 time.sleep(10)
 
-print('Status: 200 OK\r\n'),
-print('Content-Type: text/html\r\n'),
-print('\r\n'),
-print(responseBody),
+print('Status: 200 OK\r')
+print('Content-Type: text/html\r')
+print('\r')
+print(responseBody)

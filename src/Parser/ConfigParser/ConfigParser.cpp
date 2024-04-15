@@ -1,5 +1,4 @@
 #include "ConfigParser.hpp"
-#include "Utils.hpp"
 #include <fstream>
 #include <sys/stat.h>
 #include <cstdlib>

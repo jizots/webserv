@@ -1,20 +1,20 @@
-/******************************************************************************/
+/* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hotph <hotph@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 15:24:37 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/08 13:42:20 by hotph            ###   ########.fr       */
+/*   Updated: 2024/04/08 18:28:51 by tchoquet         ###   ########.fr       */
 /*                                                                            */
-/******************************************************************************/
+/* ************************************************************************** */
 
 #ifndef REQUESTHANDLER_HPP
 # define REQUESTHANDLER_HPP
 
 #include "Utils/Utils.hpp"
-#include "ConfigParser/ConfigParser.hpp"
+#include "Parser/ConfigParser/ConfigParser.hpp"
 #include "HTTP/HTTPRequest.hpp"
 #include "Socket/ClientSocket.hpp"
 #include "RequestHandler/Resource.hpp"

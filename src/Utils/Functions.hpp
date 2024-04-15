@@ -6,12 +6,12 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 14:07:13 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/28 19:32:30 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/08 18:17:02 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FUNCTIONS_HPP
-# define FUNCTIONS_HPP
+#define FUNCTIONS_HPP
 
 #include <string>
 #include <sstream>
@@ -21,65 +21,57 @@
 
 namespace webserv
 {
+    
+std::vector<Byte> to_vector(const std::string& str);
 
-template<typename T>
-inline bool isUnsigned() {return false;};
+std::vector<std::string> splitByChars(const std::string& src, const std::string& chars);
 
-template<>
-inline bool isUnsigned<uint64>() {return true;};
+std::string dequote(const std::string& str);
 
+bool isDirectory(const std::string& path);
 
-template<typename T>
-std::string to_string(const T& value)
-{
-    std::ostringstream os;
-    os << value;
-    return os.str();
-}
+bool isFileAccessible(const std::string& path);
 
-template<>
-std::string to_string(const std::vector<Byte>& value);
+bool isNumericLiteral(const std::string& str);
 
-std::vector<Byte>   to_vector(const std::string& str);
+bool isInt(const std::string& literal);
 
-std::vector<std::string>    splitByChars(const std::string& src, const std::string& chars);
-std::string	dequote(const std::string& str);
+bool isSizet(const std::string& literal);
+
+bool	isCharInSet(const char c, const char* set);
+
+std::string trimCharacters(const std::string& str, const std::string& charSet);
 
 bool    hasCommonCharacter(const std::string& s1, const std::string& s2);
 std::string	stringToLower(const std::string& str);
 bool	compStringCaseInsensitive(const std::string& s1, const std::string& s2);
 
 template<typename T>
-bool is(const std::string& str)
-{
-    if (isUnsigned<T>() && str.find('-') != std::string::npos)
-        return false;
+inline bool isUnsigned() { return false; };
 
-    std::istringstream	iss(str);
-    T val;
-    iss >> val;
-
-    if (iss.fail())
-        return false;
-
-    while (iss.eof() == false && std::strchr(" \t\r\n\v\0", (char)iss.get()));
-
-    return iss.eof();
-}
+template<>
+inline bool isUnsigned<uint64>() { return true; };
 
 template<typename T>
-T to(const std::string& str)
-{
-    std::istringstream	iss(str);
-    T val;
+std::string to_string(const T& value);
 
-    if (is<T>(str) == false)
-        throw std::runtime_error("conversion error");
+template<>
+std::string to_string(const std::vector<Byte>& value);
 
-    iss >> val;
-    return val;
-}
+template<typename T>
+bool is(const std::string& str);
 
-}
+template<typename T>
+T to(const std::string& str);
+
+template<typename T>
+bool hasDuplicate(const std::vector<T>& vec);
+
+
+} // namespace webserv
+
+#ifndef FUNCTIONS_TPP
+    #include "Utils/Functions.tpp"
+#endif // FUNCTIONS_TPP
 
 #endif // FUNCTIONS_HPP
