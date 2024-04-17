@@ -549,9 +549,12 @@ static bool	isUniqSimpleDirective(const std::vector<SimpleDirective>& directives
 			if (hasUniqMultiParameter(nameId, directives[i].parameters))
 				continue;
 		}
-		else if (directives[i].name == SIMPLE_DIRECTIVES[ACCEPTED_METHODS])
-			if (hasDuplicate(directives[i].parameters))
-				throw (ConfigException("error", 0, "Duplication accepted_method parameter", ""));
+		else if (nameId == ACCEPTED_METHODS && hasDuplicate(directives[i].parameters))
+			throw (ConfigException("error", 0, "Duplication accepted_method parameter", ""));
+		else if (nameId == ROOT && std::find(names.begin(), names.end(), "alias") != names.end())
+			throw (ConfigException("error", 0, "alias directive is difined earlier", "root " + directives[i].parameters[0]));
+		else if (nameId == ALIAS && std::find(names.begin(), names.end(), "root") != names.end())
+			throw (ConfigException("error", 0, "root directive is difined earlier", "alias " + directives[i].parameters[0]));
 		if (std::find(names.begin(), names.end(), directives[i].name) != names.end())
 			throw (ConfigException("error", 0, "Duplication '" + directives[i].name + "'", ""));
 		names.push_back(directives[i].name);
