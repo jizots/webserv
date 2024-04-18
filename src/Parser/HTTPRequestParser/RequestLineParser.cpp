@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestLineParser.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:27:27 by ekamada           #+#    #+#             */
-/*   Updated: 2024/04/06 18:39:15 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/17 19:09:27 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@ namespace webserv
 {
 
 HTTPRequestParser::RequestLineParser::RequestLineParser(std::string& methodDst, std::string& uriDst, std::string& paramsDst, std::string& queryDst, uint8& verMajorDst, uint8& verMinorDst)
-    : m_method(&methodDst), m_uri(&uriDst), m_params(&paramsDst), m_query(&queryDst), m_verMajor(&verMajorDst), m_verMinor(&verMinorDst),
-      m_status(_requestMethod), m_foundCR(false)
+    : m_uriParser(UriParser(uriDst, paramsDst, queryDst)), m_method(&methodDst), m_uri(&uriDst),
+      m_verMajor(&verMajorDst), m_verMinor(&verMinorDst), m_status(_requestMethod), m_foundCR(false)
 {
 }
 
@@ -53,43 +53,11 @@ void HTTPRequestParser::RequestLineParser::parse(Byte c)
             break;
 
         case _uri:
-            c = tolower(c);
-            if (c == '%' || !m_hex.empty())
-                decodeHex(c, *m_uri);
-            else if (c == '?')
-                m_status = _query;
-            else if (c == ';')
-                m_status = _params;
-            else if (c == ' ')
-                m_status = _HTTP;
-            else if (IS_PCHAR(c))
-                *m_uri += c;
-            else
+            m_uriParser.parse(c);
+            if (m_uriParser.isBadRequest())
                 m_status = _badRequest;
-            break;
-
-        case _params:
-            if (c == '%' || !m_hex.empty())
-                decodeHex(c, *m_params);
-            else if (c == '?')
-                m_status = _query;
-            else if (c == ' ')
+            else if (m_uriParser.isComplete())
                 m_status = _HTTP;
-            else if (IS_PCHAR(c) || c == '/')
-                *m_params += c;
-            else
-                m_status = _badRequest;
-            break;
-
-        case _query:
-            if (c == '%' || !m_hex.empty()) 
-                decodeHex(c, *m_query);
-            else if (c == ' ')
-                m_status = _HTTP;
-            else if (IS_UN_RESERVED(c) || IS_RESERVED(c))
-                *m_query += c;
-            else
-                m_status = _badRequest;
             break;
 
         case _HTTP:
@@ -134,37 +102,6 @@ void HTTPRequestParser::RequestLineParser::parse(Byte c)
         default:
             break;
     }
-}
-
-void HTTPRequestParser::RequestLineParser::decodeHex(Byte c, std::string& dst)
-{
-    if (m_hex.empty() && c == '%')
-        m_hex += "%";
-    else if (m_hex == "%")
-    {
-        m_hex = "";
-        if (c >= '2' && c <= '7')
-            m_hex += c;
-        else
-            m_status = _badRequest;
-    }
-    else if (isdigit(c) || (c >= 'a' && c <= 'z'))
-    {
-        m_hex += c;
-        std::stringstream ss;
-        ss << std::hex << m_hex;
-        int result = 0;
-        ss >> result;
-        if (IS_PRINTABLE_ASCII(static_cast<char>(result)))
-        {
-            dst += static_cast<char>(result);
-            m_hex = "";
-        }
-        else
-            m_status = _badRequest;
-    }
-    else
-        m_status = _badRequest;
 }
 
 void HTTPRequestParser::RequestLineParser::checkCRLF(Byte c, status successStatus)

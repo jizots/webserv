@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPRequestParser.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/15 15:53:02 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/08 19:08:32 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/17 19:05:53 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include "Utils/Utils.hpp"
 #include "HTTP/HTTPRequest.hpp"
 #include "Parser/HTTPHeaderParser/HTTPHeaderParser.hpp"
+#include "Parser/UriParser/UriPaser.hpp"
 
 namespace webserv
 {
@@ -35,8 +36,8 @@ private:
             _requestMethod  = 1,
             _slash          = 2,
             _uri            = 3,
-            _params         = 4,
-            _query          = 5,
+            // _params         = 4,
+            // _query          = 5,
             _HTTP           = 6,
             _verMajor       = 7,
             _dot            = 8,
@@ -55,13 +56,12 @@ private:
         inline bool isBadRequest() { return m_status == _badRequest;    }
 
     private:
-        void decodeHex(Byte c, std::string& dst);
         void checkCRLF(Byte c, status successStatus);
 
+        UriParser m_uriParser;
+    
         std::string* m_method;
         std::string* m_uri;
-        std::string* m_params;
-        std::string* m_query;
         uint8* m_verMajor;
         uint8* m_verMinor;
 
