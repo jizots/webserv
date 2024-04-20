@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPHeaderParser.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: ekamada <ekamada@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:27:20 by ekamada           #+#    #+#             */
-/*   Updated: 2024/04/06 18:38:43 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/20 15:46:28 by ekamada          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Parser/HTTPHeaderParser/HTTPHeaderParser.hpp"
+#include "HTTPHeaderParser.hpp"
 
 namespace webserv
 {
@@ -41,45 +41,44 @@ void HTTPHeaderParser::parse(Byte c)
 			break;
 
 		case _headerValue:
-			if (c == ' ' || IS_PRINTABLE_ASCII(c))
-                m_value += c;
+			// c = tolower(c);
+
+			if (c == ' ' || IS_PRINTABLE_ASCII(c)) m_value += c;
 
 			else if (c == '\r' || c == '\n')
                 checkCRLF(c, _headerKey);
 
 			else
 				m_status = _badRequest;
-            
+
 			break;
 	};
 }
 
 void HTTPHeaderParser::checkCRLF(Byte c, int successStatus)
 {
-	if (c == '\r' && !m_foundCR)
-        m_foundCR = true;
-
-	else if (c == '\n' && m_foundCR)
-    {
-		if (m_key + m_value != "")
-        {
+	if (c == '\r' && !m_foundCR) m_foundCR = true;
+	else if (c == '\n' && m_foundCR) {
+		m_status = successStatus;
+		if (m_key + m_value != ""){
 			if (m_header->find(m_key) != m_header->end())
 			{
 				m_status = _badRequest;
 				return ;
 			}
-
-			(*m_header)[m_key] = trimCharacters(m_value, " \t");
+			(*m_header)[m_key] = trimCharacters(m_value, " ");
 		}
-        
-		m_key = "";
-        m_value = "";
-        m_foundCR = false;
-
-		m_status = successStatus;
+		clearKeyValue();
 	}
 	else
 		m_status = _badRequest;
+}
+
+void HTTPHeaderParser::clearKeyValue()
+{
+    m_key = "";
+    m_value = "";
+    m_foundCR = false;
 }
 
 }

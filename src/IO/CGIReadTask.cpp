@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIReadTask.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: ekamada <ekamada@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:14:10 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/08 18:49:39 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/20 15:52:23 by ekamada          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ namespace webserv
 
 CGIReadTask::CGIReadTask(CGIProgramPtr cgiProgram, IWriteTask* cgiWriteTask, const ClientSocketPtr& clientSocket, const HTTPResponsePtr& response, const RequestHandlerPtr& redirectionHandler)
     : m_cgiProgram(cgiProgram), m_cgiWriteTask(cgiWriteTask), m_clientSocket(clientSocket), m_response(response), m_redirectionHandler(redirectionHandler),
-      m_parser(m_headers, m_response->body)
+      m_parser(m_headers, m_response->body), m_status(header)
 {
 }
 
@@ -35,7 +35,7 @@ int CGIReadTask::fd()
 void CGIReadTask::read()
 {
     updateTimestamp();
-    
+
     ssize_t readLen = ::read(fd(), m_parser.getBuffer(), BUFFER_SIZE);
 
     if (readLen >= 0)
@@ -69,7 +69,7 @@ void CGIReadTask::read()
                         m_redirectionHandler->runTasks(m_redirectionHandler);
                         goto erase;
                     }
-                        
+
                 }
 
                 for (std::map<std::string, std::string>::const_iterator it = m_headers.begin(); it != m_headers.end(); ++it)
@@ -88,12 +88,12 @@ void CGIReadTask::read()
                     else
                         m_response->headers[it->first] = it->second;
                 }
-                
+
                 m_parser.continueParsing();
 
                 m_status = body;
                 /* fall through */
-                
+
             case body:
                 if (m_parser.isComplete() == false)
                     return;

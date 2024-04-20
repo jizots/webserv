@@ -3,23 +3,28 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPHeaderParser.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: ekamada <ekamada@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:27:23 by ekamada           #+#    #+#             */
-/*   Updated: 2024/04/06 18:38:39 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/20 15:45:38 by ekamada          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef HEADERPARSER_HPP
-#define HEADERPARSER_HPP
+#ifndef HTTPHEADERPARSER_HPP
+#define HTTPHEADERPARSER_HPP
 
 #include <map>
+#include <vector>
 #include <string>
 
 #include "Utils/Utils.hpp"
+#include "HTTP/HTTPRequest.hpp"
+#include "Utils/Macros.hpp"
+#include "Utils/Functions.hpp"
 
 namespace webserv
 {
+
 
 class HTTPHeaderParser
 {
