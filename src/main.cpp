@@ -6,17 +6,18 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 13:34:28 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/08 18:28:51 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/20 13:53:28 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Utils/Utils.hpp"
+#include "Utils/Logger.hpp"
+#include "Utils/Functions.hpp"
 
 #include "Parser/ConfigParser/ConfigParser.hpp"
 
 #include "IO/IOManager.hpp"
-#include "IO/StdinReadTask.hpp"
-#include "IO/ClientSocketReadTask.hpp"
+#include "IO/IOTask/ReadTask/StdinReadTask.hpp"
+#include "IO/IOTask/ReadTask/ClientSocketReadTask.hpp"
 
 using namespace webserv;
 
@@ -24,38 +25,48 @@ using namespace webserv;
     #ifdef __APPLE__
         #include <unistd.h>
         #include <cstdlib>
+
+        pid_t pid = getpid();
         
         __attribute__((destructor))
         static void	destructor(void)
         {
-            std::system(std::string("leaks -q " + to_string(getpid())).c_str());
+            if (getpid() == pid)
+                std::system(std::string("leaks -q " + to_string(getpid())).c_str());
         }
     #endif
 #endif // NDEBUG
 
 int main(int argc, const char* argv[])
 {
+    int returnCode = 0;
+    
     try
     {
+        IOManager::init();
+
         std::vector<ServerConfig> configs = parseServerConfig(argc, argv);
+        Logger::init(configs[0].error_log);
+        IOManager::shared().loadConfigs(configs);
+        goto loop;
 
-        webserv::Logger::init(configs[0].error_log);
-        webserv::IOManager::init();
-
-        for (std::vector<ServerConfig>::const_iterator confCurr = configs.begin(); confCurr != configs.end(); ++confCurr)
+reload:
+        try
         {
-            for (std::vector<uint16>::const_iterator lisCurr = confCurr->listens.begin(); lisCurr != confCurr->listens.end(); ++lisCurr)
-            {
-                std::map<uint16, MasterSocketPtr>::iterator it = IOManager::shared().masterSockets().find((uint16)*lisCurr);
-                if (it == IOManager::shared().masterSockets().end())
-                    it = IOManager::shared().masterSockets().insert(std::make_pair(*lisCurr, new MasterSocket(*lisCurr))).first;
-                it->second->addServerConfig(*confCurr);
-            }
+            std::vector<ServerConfig> newConfig = parseServerConfig(argc, argv);
+            Logger::terminate();
+            Logger::init(configs[0].error_log);
+            IOManager::shared().loadConfigs(newConfig);
+        }
+        catch (const std::exception& e)
+        {
+            std::cout << e.what() << std::endl;
         }
 
-        IOManager::shared().insertReadTask(new StdinReadTask());
-
-        while(1)
+loop:
+        std::string cmd = "";
+        IOManager::shared().insertReadTask(new StdinReadTask(cmd));
+        while(cmd.empty())
         {
             std::set<MasterSocketPtr> masterSockets;
             std::set<IReadTaskPtr> readTasks;
@@ -64,34 +75,32 @@ int main(int argc, const char* argv[])
             IOManager::shared().selectIOs(masterSockets, readTasks, writeTasks);
 
             for (std::set<MasterSocketPtr>::iterator curr = masterSockets.begin(); curr != masterSockets.end(); ++curr)
-                IOManager::shared().insertReadTask(new ClientSocketReadTask((*curr)->acceptNewClient(*curr)));
+            {
+                if (ClientSocketPtr clientSocket = (*curr)->acceptNewClient(*curr))
+                    IOManager::shared().insertReadTask(new ClientSocketReadTask(clientSocket));
+            }
 
             for (std::set<IReadTaskPtr>::iterator curr = readTasks.begin(); curr != readTasks.end(); ++curr)
                 (*curr)->read();
 
             for (std::set<IWriteTaskPtr>::iterator curr = writeTasks.begin(); curr != writeTasks.end(); ++curr)
                 (*curr)->write();
-            
         }
 
-        webserv::IOManager::terminate();
-        webserv::Logger::terminate();
-    }
-    catch(const ConfigException& e)
-    {
-        std::cout << e.what() << std::endl;
-        return 2;
+        if (cmd == "reload")
+            goto reload;
+
+        if (cmd != "quit")
+            goto loop;
     }
     catch(const std::exception& e)
     {
         std::cout << e.what() << std::endl;
-        return 1;
+        returnCode = 1;
     }
-    catch(int code)
-    {
-        webserv::IOManager::terminate();
-        webserv::Logger::terminate();
-        return code;
-    }
-    return 0;
+
+    IOManager::terminate();
+    Logger::terminate();
+
+    return returnCode;
 }

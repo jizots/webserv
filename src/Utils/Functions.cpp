@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/01 14:59:13 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/08 18:51:48 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/08 17:30:13 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,6 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <fstream>
-
-#include "Parser/ConfigParser/ConfigParser.hpp"
 
 namespace webserv
 {
@@ -82,7 +80,8 @@ bool isDirectory(const std::string& path)
     if (::stat(path.c_str(), &statBuf) == -1)
     {
         errorMsg = path + ": " + std::strerror(errno);
-        throw(ConfigException("error", 0, errorMsg, ""));
+        // throw(ConfigException("error", 0, errorMsg, ""));
+        throw std::runtime_error(errorMsg);
     }
     if (S_ISDIR(statBuf.st_mode))
         return (true);
@@ -98,7 +97,8 @@ DIR* openDirectory(const std::string& path)
     if (dir == NULL)
     {
         errorMsg = path + ": " + ::strerror(errno);
-        throw(ConfigException("error", 0, errorMsg, ""));
+        // throw(ConfigException("error", 0, errorMsg, ""));
+        throw std::runtime_error(errorMsg);
     }
     return (dir);
 }
@@ -111,13 +111,15 @@ bool isFileAccessible(const std::string& filePath)
     if (!ifs.is_open())
     {
         errorMsg = filePath + ": " + ::strerror(errno);
-        throw(ConfigException("error", 0, errorMsg, ""));
+        // throw(ConfigException("error", 0, errorMsg, ""));
+        throw std::runtime_error(errorMsg);
     }
     if (isDirectory(filePath))
     {
         errorMsg = std::string(filePath) + ": is directory";
         ifs.close();
-        throw(ConfigException("error", 0, errorMsg, ""));
+        // throw(ConfigException("error", 0, errorMsg, ""));
+        throw std::runtime_error(errorMsg);
     }
     ifs.close();
     return (true);
@@ -169,13 +171,6 @@ bool isSizet(const std::string& literal)
     return (iss && isPositiveNum(literal));
 }
 
-bool isCharInSet(const char c, const char* set)
-{
-    if (set == NULL)
-        return (false);
-    return (std::strchr(set, c));
-};
-
 std::string trimCharacters(const std::string& str, const std::string& charSet)
 {
     const size_t start = str.find_first_not_of(charSet);
@@ -187,25 +182,25 @@ std::string trimCharacters(const std::string& str, const std::string& charSet)
     return str.substr(start, end - start + 1);
 }
 
-bool hasCommonCharacter(const std::string& s1, const std::string& s2)
+bool    hasCommonCharacter(const std::string& s1, const std::string& s2)
 {
-    return (s1.find_first_of(s2) != std::string::npos);
+	return (s1.find_first_of(s2) != std::string::npos);
 };
 
-std::string stringToLower(const std::string& str)
+std::string	stringToLower(const std::string& str)
 {
-    std::string result(str);
+	std::string	result(str);
 
-    for (std::string::size_type i = 0; i < str.size(); ++i)
-        result[i] = std::tolower(static_cast<int>(result[i]));
-    return (result);
+	for (std::string::size_type i = 0; i < str.size(); ++i)
+		result[i] = std::tolower(static_cast<int>(result[i]));
+	return (result);
 };
 
-bool compStringCaseInsensitive(const std::string& s1, const std::string& s2)
+bool	compStringCaseInsensitive(const std::string& s1, const std::string& s2)
 {
-    if (stringToLower(s1) == stringToLower(s2))
-        return (true);
-    return (false);
+	if (stringToLower(s1) == stringToLower(s2))
+		return (true);
+	return (false);
 };
 
 } // namespace webserv

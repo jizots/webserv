@@ -6,49 +6,42 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:16:53 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/25 19:28:28 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/09 00:47:01 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "IO/CGIWriteTask.hpp"
-
-#include <unistd.h>
+#include "IO/IOTask/WriteTask/CGIWriteTask.hpp"
 
 #include "IO/IOManager.hpp"
 
 namespace webserv
 {
 
-CGIWriteTask::CGIWriteTask(CGIProgramPtr cgiProgram, const HTTPRequestPtr& request)
-    : m_cgiProgram(cgiProgram), m_request(request), m_idx(0)
+CGIWriteTask::CGIWriteTask(const FileDescriptor& fd, const HTTPRequestPtr& request, const RequestHandlerPtr& handler)
+    : m_fd(fd), m_request(request), m_handler(handler), m_idx(0)
 {
-}
-
-int CGIWriteTask::fd()
-{
-    return m_cgiProgram->writeFd();
 }
 
 void CGIWriteTask::write()
 {
     updateTimestamp();
     
-    uint32 writeLen = m_request->body.size() - m_idx > BUFFER_SIZE ? BUFFER_SIZE : m_request->body.size() - m_idx;
-
-    if (::write(fd(), &m_request->body[m_idx], writeLen) != writeLen)
-        throw std::runtime_error("write: " + std::string(std::strerror(errno)));
+    ssize_t writeLen = webserv::write(fd(), m_request->body.data() + m_idx, m_request->body.size() - m_idx);
     
-    m_idx += writeLen;
-    if (m_idx == m_request->body.size())
+    if (writeLen <= 0)
     {
-        log << m_request->body.size() << " bytes send to cgi (fd: " << fd() << ")\n";
-        IOManager::shared().eraseWriteTask(this);
+        // log << "Error while writing to cgi (fd: " << fd() << "): " << std::strerror(errno) << '\n';
+        return;
     }
-}
+    else
+    {
+        log << writeLen << " bytes send to cgi (fd: " << fd() << ")\n";
+        m_idx += writeLen;
+        if (m_idx < m_request->body.size())
+            return;
+    }
 
-CGIWriteTask::~CGIWriteTask()
-{
-    m_cgiProgram->closeWriteFd();
+    IOManager::shared().eraseWriteTask(this);
 }
 
 }

@@ -6,18 +6,17 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:16:17 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/08 18:28:51 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/05 16:05:48 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CGIWRITETASK_HPP
 # define CGIWRITETASK_HPP
 
-#include "IO/IOTask.hpp"
+#include "IO/IOTask/IOTask.hpp"
 
 #include "HTTP/HTTPRequest.hpp"
-#include "Parser/ConfigParser/ConfigParser.hpp"
-#include "RequestHandler/Resource.hpp"
+#include "RequestHandler/RequestHandler.hpp"
 
 namespace webserv
 {
@@ -25,16 +24,15 @@ namespace webserv
 class CGIWriteTask : public IWriteTask
 {
 public:
-    CGIWriteTask(CGIProgramPtr cgiProgram, const HTTPRequestPtr& request);
+    CGIWriteTask(const FileDescriptor& fd, const HTTPRequestPtr& request, const RequestHandlerPtr& handler);
 
-    int fd() /*override*/;
+    inline const FileDescriptor& fd() /*override*/ { return m_fd; }
     void write() /*override*/;
 
-    ~CGIWriteTask() /*override*/;
-
 private:
-    CGIProgramPtr m_cgiProgram;
+    FileDescriptor m_fd;
     HTTPRequestPtr m_request;
+    RequestHandlerPtr m_handler;
     uint64 m_idx;
 };
 

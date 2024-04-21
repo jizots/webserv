@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 18:35:15 by ekamada           #+#    #+#             */
-/*   Updated: 2024/04/06 18:39:24 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/17 15:10:17 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,8 +77,6 @@ void HTTPRequestParser::continueParsing()
             {
                 if (m_request->isChunk)
                     m_bodyParser = new ChunkedBodyParser(m_request->body);
-                else if (m_request->isMultipart)
-                    m_bodyParser = new MultipartBodyParser(m_request->body, m_request->m_multipartFormDatas, m_request->contentLength, m_request->boundary);
                 else
                     m_bodyParser = new BodyParser(m_request->body, m_request->contentLength);
             }

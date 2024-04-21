@@ -1,28 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Types.hpp                                          :+:      :+:    :+:   */
+/*   BuiltinCGIUpload.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/11 17:17:41 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/31 18:41:18 by tchoquet         ###   ########.fr       */
+/*   Created: 2024/04/17 15:58:40 by tchoquet          #+#    #+#             */
+/*   Updated: 2024/04/18 14:05:12 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef TYPES_HPP
-# define TYPES_HPP
+#ifndef BUILTINCGIUPLOAD_HPP
+# define BUILTINCGIUPLOAD_HPP
 
+# include <map>
+# include <string>
 namespace webserv
 {
 
-typedef unsigned char  uint8;
-typedef unsigned short uint16;
-typedef unsigned int   uint32;
-typedef unsigned long  uint64;
-
-typedef uint8 Byte;
+void builtinCGIUpload(const std::map<std::string, std::string>&);
 
 }
 
-#endif // TYPES_HPP
+#endif // BUILTINCGIUPLOAD_HPP

@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 14:07:13 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/08 18:17:02 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/08 17:29:43 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,6 @@ bool isNumericLiteral(const std::string& str);
 bool isInt(const std::string& literal);
 
 bool isSizet(const std::string& literal);
-
-bool	isCharInSet(const char c, const char* set);
 
 std::string trimCharacters(const std::string& str, const std::string& charSet);
 

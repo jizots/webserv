@@ -6,21 +6,22 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:13:31 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/08 18:38:57 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/05 18:41:45 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CGIREADTASK_HPP
 # define CGIREADTASK_HPP
 
-#include "IO/IOTask.hpp"
+#include "IO/IOTask/IOTask.hpp"
 
-#include "Socket/ClientSocket.hpp"
+#include <map>
+#include <vector>
+
 #include "HTTP/HTTPResponse.hpp"
-#include "Parser/CGIResponseParser/CGIResponseParser.hpp"
-#include "Parser/ConfigParser/ConfigParser.hpp"
-#include "RequestHandler/Resource.hpp"
 #include "RequestHandler/RequestHandler.hpp"
+#include "Parser/CGIResponseParser/CGIResponseParser.hpp"
+#include "IO/IOTask/WriteTask/CGIWriteTask.hpp"
 
 namespace webserv
 {
@@ -28,25 +29,24 @@ namespace webserv
 class CGIReadTask : public IReadTask
 {
 public:
-    CGIReadTask(CGIProgramPtr cgiProgram, IWriteTask* cgiWriteTask, const ClientSocketPtr& clientSocket, const HTTPResponsePtr& response, const RequestHandlerPtr& redirectionHandler);
+    CGIReadTask(const FileDescriptor& fd, const HTTPResponsePtr& response, const RequestHandlerPtr& handler);
 
-    int fd() /*override*/;
+    inline const FileDescriptor& fd() /*override*/ { return m_fd; }
     void read() /*override*/;
 
-    ~CGIReadTask() /*override*/;
+    inline void setRelatedWriteTaskPtr(CGIWriteTask* ptr) { m_writeTaskPtr = ptr; }
 
 private:
     enum Status { header, body };
 
-    CGIProgramPtr m_cgiProgram;
-    IWriteTask* m_cgiWriteTask;
-    ClientSocketPtr m_clientSocket;
+    FileDescriptor m_fd;
     HTTPResponsePtr m_response;
-    RequestHandlerPtr m_redirectionHandler;
+    RequestHandlerPtr m_handler;
 
     CGIResponseParser m_parser;
     std::map<std::string, std::string> m_headers;
 
+    CGIWriteTask* m_writeTaskPtr;
     Status m_status;
 };
 

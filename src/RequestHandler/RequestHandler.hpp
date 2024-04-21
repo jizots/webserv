@@ -6,20 +6,23 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 15:24:37 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/08 18:28:51 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/20 13:43:42 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef REQUESTHANDLER_HPP
 # define REQUESTHANDLER_HPP
 
+#include <string>
+#include <vector>
+
 #include "Utils/Utils.hpp"
-#include "Parser/ConfigParser/ConfigParser.hpp"
 #include "HTTP/HTTPRequest.hpp"
 #include "Socket/ClientSocket.hpp"
-#include "RequestHandler/Resource.hpp"
-
-#include <vector>
+#include "RequestHandler/Resource/Resource.hpp"
+#include "RequestHandler/Resource/ReadFileResource.hpp"
+#include "RequestHandler/Resource/DirectoryResource.hpp"
+#include "RequestHandler/Resource/CGIResource.hpp"
 
 namespace webserv
 {
@@ -43,51 +46,39 @@ public:
     int processHeaders();
 
     inline void makeResponse() { internalRedirection(m_request->method, m_request->uri, m_request->query); }
+    void internalRedirection(const std::string& method, const std::string& uri, const std::string& query);
     void makeErrorResponse(int code);
     void makeRedirectionResponse(int code, const std::string& location);
-    void makeResponseAutoindex(const std::string& uri);
-    void makeUploadResponse();
+    void makeAutoindexResponse(const std::string& uri);
 
     void runTasks(const RequestHandlerPtr& _this);
 
-    void internalRedirection(const std::string& method, const std::string& uri, const std::string& query);
-
-    inline bool needBody() { return m_needBody; }
-    inline bool shouldEndConnection() { return m_shouldEndConnection; }
+    bool needBody();
+    bool shouldEndConnection();
 
 private:
-    HTTPRequestPtr m_request;
-    static const std::string m_InvalidFieldVal;
+    int processHostHeader();
+    int processConnectionHeader();
+    int processContentLengthHeader();
+    int processTransferEncodingHeader();
+    int processContentTypeHeader();
 
+    std::string uriTranslated(const std::string& uri);
+
+    void runIntermediateTasks(const RequestHandlerPtr& _this);
+    void runResponseTasks(const RequestHandlerPtr& _this);
+
+    HTTPRequestPtr m_request;
+    
     ClientSocketPtr m_clientSocket;
 
     ServerConfig m_config;
     LocationDirective m_location;
 
+    ResourcePtr m_responseResource;
     HTTPResponsePtr m_response;
-    std::vector<ResourcePtr> m_resources;
 
-    bool m_needBody;
-    bool m_shouldEndConnection;
     uint32 m_internalRedirectionCount;
-
-private:
-    int parseHeaderValue(const std::string& fieldLine, int (RequestHandler::*func)(const std::string&))
-    {
-        if (hasCommonCharacter(fieldLine, m_InvalidFieldVal))
-        {
-            log << "parseHeaderValue(): Invalid field value: " << fieldLine << "\n";
-            return (400);
-        }
-        return ((this->*func)(fieldLine));
-    }
-    int parseHost(const std::string& fieldLine);
-    int parseContentLength(const std::string& fieldLine);
-    int parseContentType(const std::string& fieldLine);
-    int parseTransferEncoding(const std::string& fieldLine);
-    int parseConnection(const std::string& fieldLine) { return (parseTransferEncoding(fieldLine)); };
-    HTTPFieldValue              parseSingleFieldVal(const std::string& fieldVal);
-    std::vector<HTTPFieldValue> parseMultiFieldVal(const std::string& fieldVals);
 };
 
 }

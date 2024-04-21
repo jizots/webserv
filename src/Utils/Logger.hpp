@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 15:51:43 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/24 18:03:56 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/20 15:13:55 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,10 @@
 
 #include "Utils/Time.hpp"
 
+#ifndef log
+    #define log webserv::Logger::shared()
+#endif // log
+
 namespace webserv
 {
 
@@ -31,16 +35,18 @@ public:
     static inline Logger& shared() { return *s_instance; }
     static void terminate();
 
+    inline void setIsChildProcess(bool val) { m_isChildProcess = val; } 
 
 private:
     Logger()/* = delete*/; 
     Logger(const Logger&)/* = delete*/;
-    inline Logger(const std::string& filepath) : m_filepath(filepath) {}
+    inline Logger(const std::string& filepath) : m_filepath(filepath), m_isChildProcess(false) {}
     inline ~Logger() {}
 
     static Logger* s_instance; 
     std::string m_filepath;
     std::stringstream m_lineStream;
+    bool m_isChildProcess;
 
 public:
     template<typename T> Logger& operator << (const T& data)
@@ -59,8 +65,8 @@ public:
 
             if (m_ofstream.good() == false)
                 throw std::runtime_error("unknow error");
-
-            m_ofstream << Time::shared().now() << " " << m_lineStream.str().substr(0, m_lineStream.str().find_first_of('\n')) << std::endl;
+            
+            m_ofstream << Time::shared().now() << (m_isChildProcess ? " [CHILD] " : " ") << m_lineStream.str().substr(0, m_lineStream.str().find_first_of('\n')) << std::endl;
             m_ofstream.close();
 
             m_lineStream.str(m_lineStream.str().substr(m_lineStream.str().find_first_of('\n') + 1));

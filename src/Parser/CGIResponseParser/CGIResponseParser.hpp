@@ -40,6 +40,7 @@ public:
     Byte* getBuffer();
     void parse(uint32 len);
     void continueParsing();
+    inline void clearBuffer() { m_buffer.clear(); }
 
     inline bool isHeaderComplete() { return m_status  > _headers;       };
     inline bool isComplete()       { return m_status >= _parseComplete; };

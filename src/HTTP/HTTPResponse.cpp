@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:31:49 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/30 13:22:00 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/17 13:02:26 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,9 @@ void HTTPResponse::setStatusCode(uint32 code)
         break;
     case 201:
         statusDescription = "Created";
+        break;
+    case 204:
+        statusDescription = "No Content";
         break;
     case 301:
         statusDescription = "Moved Permanently";

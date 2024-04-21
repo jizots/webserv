@@ -28,6 +28,7 @@ template<typename Y> friend class SharedPtr;
 public:
     SharedPtr();
     SharedPtr(const SharedPtr&);
+    template<typename Y> SharedPtr(const SharedPtr<Y>&);
 
     SharedPtr(T* ptr);
 
@@ -37,30 +38,28 @@ public:
     ~SharedPtr();
 
 protected:
-    T** m_pointer;
+    T* m_pointer;
     uint32* m_refCount;
 
 private:
-    template<typename Y> SharedPtr(const SharedPtr<Y>&);
 
 public:
     SharedPtr& operator = (const SharedPtr&);
-    SharedPtr& operator = (T* ptr);
 
-    inline T& operator  * () const { return **m_pointer; }
-    inline T* operator -> () const { return  *m_pointer; }
+    inline T& operator  * () const { return *m_pointer; }
+    inline T* operator -> () const { return  m_pointer; }
 
-    inline bool operator == (const SharedPtr& rhs) const { return *m_pointer == *rhs.m_pointer; }
-    inline bool operator == (T* rhs) const { return *m_pointer == rhs; }
-    inline bool operator != (const SharedPtr& rhs) const { return *m_pointer != *rhs.m_pointer; }
+    inline bool operator == (const SharedPtr& rhs) const { return m_pointer == rhs.m_pointer; }
+    inline bool operator == (T* rhs) const { return m_pointer == rhs; }
+    inline bool operator != (const SharedPtr& rhs) const { return m_pointer != rhs.m_pointer; }
 
-    inline bool operator < (const SharedPtr& rhs) const { return *m_pointer < *rhs.m_pointer; }
+    inline bool operator < (const SharedPtr& rhs) const { return m_pointer < rhs.m_pointer; }
 
-    inline operator bool () const { return *m_pointer != NULL; }
+    inline operator bool () const { return m_pointer != NULL; }
 
     friend std::ostream& operator << (std::ostream& os, const SharedPtr& ptr)
     {
-        os << (void*)*ptr.m_pointer << " | ref count: " << *ptr.m_refCount;
+        os << (void*)ptr.m_pointer << " | ref count: " << *ptr.m_refCount;
         return os;
     }
 };

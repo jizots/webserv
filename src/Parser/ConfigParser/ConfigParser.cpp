@@ -1,4 +1,7 @@
 #include "ConfigParser.hpp"
+#include "Utils/Functions.hpp"
+#include "Utils/Macros.hpp"
+#include "Utils/Logger.hpp"
 #include <fstream>
 #include <sys/stat.h>
 #include <cstdlib>
@@ -53,7 +56,14 @@ static std::string	readFileToString(const char *filePath)
 	std::ifstream	ifs(filePath);
 	std::string		fileContents;
 
-	isFileAccessible(filePath);
+    try
+    {
+	    isFileAccessible(filePath);
+    }
+    catch (std::exception& e)
+    {
+        throw(ConfigException("error", 0, e.what(), ""));
+    }
 	fileContents.assign((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
 	ifs.close();
 	return (fileContents);
@@ -101,15 +111,15 @@ static std::vector<Token>	tokenize(const std::string& str)
 		c = str[i];
 		if (ignoreComment(c, isComment, line))
 			continue;
-		if (isCharInSet(c, SPECIAL_CHARS))
+		if (IS_IN(SPECIAL_CHARS, c))
 			throw (ConfigException("error", line, "Can't usable", std::string(1, c)));
 		if (c == '\n')
 			++line;
-		if (std::isspace(c) || isCharInSet(c, DELIMITER_CHARS))
+		if (std::isspace(c) || IS_IN(DELIMITER_CHARS, c))
 		{
 			if (!token.empty())
 				addTokenToVector(tokens, token, line);
-			if (isCharInSet(c, DELIMITER_CHARS))
+			if (IS_IN(DELIMITER_CHARS, c))
 			{
 				token += c;
 				addTokenToVector(tokens, token, line);
@@ -204,7 +214,7 @@ static bool	isValidErrorPage(const std::vector<Token>& tokens,
 	int 		errorCode;
 	bool		hasNumber = false;
 
-	while (!isCharInSet(tokens[index + 1].value[0], DELIMITER_CHARS)
+	while (!(IS_IN(DELIMITER_CHARS, tokens[index + 1].value[0]))
 		&& tokens[index].value != ";"
 		&& (index < 0 || static_cast<uint64>(index) < tokens.size() - 1))
 	{
@@ -219,7 +229,7 @@ static bool	isValidErrorPage(const std::vector<Token>& tokens,
 		incrementIndex(tokens, index);
 		hasNumber = true;
 	}
-	if (isCharInSet(tokens[index + 1].value[0], DELIMITER_CHARS) && hasNumber)
+	if (IS_IN(DELIMITER_CHARS, tokens[index + 1].value[0]) && hasNumber)
 		return (true);
 	if (!hasNumber)
 		throw (ConfigException("error", tokens[index].line, "invalid number of argumentes 'error_page'", ""));
@@ -231,7 +241,7 @@ static bool	isValidAcceptedCgiExtension(const std::vector<Token>& tokens,
 {
 	if (tokens[index].value[0] != '.' || tokens[index].value.size() < 2)
 		return (false);
-	if (isCharInSet(tokens[index + 1].value[0], DELIMITER_CHARS))
+	if (IS_IN(DELIMITER_CHARS, tokens[index + 1].value[0]))
 		return (true);
 	incrementIndex(tokens, index);
 	if (access(tokens[index].value.c_str(), X_OK) == 0)
@@ -268,7 +278,7 @@ static bool	isValidParam(const std::vector<Token>& tokens,
 	std::string	param = tokens[index].value;
 	int		nameID = searchDirectiveName(tokens[index - 1].value);
 
-	if (isCharInSet(param[0], DELIMITER_CHARS))
+	if (IS_IN(DELIMITER_CHARS, param[0]))
 		return (false);
 	switch(nameID)
 	{
@@ -383,7 +393,7 @@ static void	addBlockToStruct(const std::string& parentContext,
 	{
 		blockDir.nameContext = locationName.value;
 		blockDir.parameter = name.value;
-		if (isCharInSet(name.value[0], DELIMITER_CHARS))
+		if (IS_IN(DELIMITER_CHARS, name.value[0]))
 			throw (ConfigException("error", name.line, "invalid location name", name.value));
 	}
 	else
@@ -547,7 +557,10 @@ static bool	isUniqSimpleDirective(const std::vector<SimpleDirective>& directives
 		if (nameId == LISTEN || nameId == SERVER_NAME || nameId == ERROR_PAGE || nameId == ACCEPTED_CGI_EXTENSION)
 		{
 			if (hasUniqMultiParameter(nameId, directives[i].parameters))
+            {
+                MultipleParameter::cgiPath.clear();
 				continue;
+            }
 		}
 		else if (nameId == ACCEPTED_METHODS && hasDuplicate(directives[i].parameters))
 			throw (ConfigException("error", 0, "Duplication accepted_method parameter", ""));
@@ -756,12 +769,9 @@ static void	getFromMainContext(const MainDirective& mainDir, ServerConfig& sConf
 
 static void	getDefinedParam(const MainDirective& mainDir, ServerConfig& sConf)
 {
-	static unsigned int i = 0;
-
-	getFromLocationContext(mainDir.blocks[0].blockDirectives[i], sConf);
-	getFromServerContext(mainDir.blocks[0].blockDirectives[i], sConf);
+	getFromLocationContext(mainDir.blocks[0].blockDirectives[sConf.serverID], sConf);
+	getFromServerContext(mainDir.blocks[0].blockDirectives[sConf.serverID], sConf);
 	getFromMainContext(mainDir, sConf);
-	++i;
 }
 
 static void	setUndefinedParam(ServerConfig& sConf)

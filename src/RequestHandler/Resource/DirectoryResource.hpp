@@ -1,41 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   StdinReadTask.cpp                                  :+:      :+:    :+:   */
+/*   DirectoryResource.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/06 16:12:27 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/06 17:30:24 by tchoquet         ###   ########.fr       */
+/*   Created: 2024/03/31 14:31:53 by tchoquet          #+#    #+#             */
+/*   Updated: 2024/04/05 15:31:06 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "IO/StdinReadTask.hpp"
+#ifndef DIRECTORYRESOURCE_HPP
+# define DIRECTORYRESOURCE_HPP
 
-#include <unistd.h>
+#include "RequestHandler/Resource/Resource.hpp"
+
+#include <string>
+
+#include "Utils/SharedPtr.hpp"
 
 namespace webserv
 {
 
-StdinReadTask::StdinReadTask()
+class DirectoryResource : public Resource
 {
-    std::cout << "webserv > " << std::flush;
-}
+public:
+    DirectoryResource(const std::string& path);
 
-int StdinReadTask::fd()
-{
-    return STDIN_FILENO;
-}
+    int open() /*override*/ { return 0; } // TODO
+};
+typedef SharedPtr<DirectoryResource> DirectoryResourcePtr;
 
-void StdinReadTask::read()
-{
-    std::string cmd;
-    
-    std::getline(std::cin, cmd);
-    if (cmd == "quit" || std::cin.eof())
-        throw 0;
-    else
-        std::cout << "webserv > " << std::flush;
-}
+} // namespace webserv
 
-}
+#endif // DIRECTORYRESOURCE_HPP

@@ -1,47 +1,42 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ClientSocketReadTask.hpp                           :+:      :+:    :+:   */
+/*   FileReadTask.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/06 16:02:41 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/08 18:29:21 by tchoquet         ###   ########.fr       */
+/*   Created: 2024/03/06 16:06:31 by tchoquet          #+#    #+#             */
+/*   Updated: 2024/04/08 23:33:51 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CLIENTSOCKETREADTASK_HPP
-# define CLIENTSOCKETREADTASK_HPP
+#ifndef FILEREADTASK_HPP
+# define FILEREADTASK_HPP
 
-#include "IO/IOTask.hpp"
+#include "IO/IOTask/IOTask.hpp"
 
-#include "Socket/ClientSocket.hpp"
-#include "Parser/HTTPRequestParser/HTTPRequestParser.hpp"
+#include "RequestHandler/Resource/ReadFileResource.hpp"
+#include "HTTP/HTTPResponse.hpp"
 #include "RequestHandler/RequestHandler.hpp"
 
 namespace webserv
 {
 
-class ClientSocketReadTask : public IReadTask
+class FileReadTask : public IReadTask
 {
 public:
-    ClientSocketReadTask(const ClientSocketPtr& clientSocket);
+    FileReadTask(const ReadFileResourcePtr& resource, const HTTPResponsePtr& response, const RequestHandlerPtr& handler);
 
-    int fd() /*override*/;
+    inline const FileDescriptor& fd() /*override*/ { return m_resource->fileDescriptor(); }
     void read() /*override*/;
 
 private:
-    enum Status { requestLine, header, body };
-
-    ClientSocketPtr m_clientSocket;
-
-    HTTPRequestPtr m_request;
-    HTTPRequestParser m_parser;
+    ReadFileResourcePtr m_resource;
+    HTTPResponsePtr m_response;
     RequestHandlerPtr m_handler;
-
-    Status m_status;
+    uint64 m_idx;
 };
 
 }
 
-#endif // CLIENTSOCKETREADTASK_HPP
+#endif // FILEREADTASK_HPP

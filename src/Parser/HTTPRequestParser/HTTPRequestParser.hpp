@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPRequestParser.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/15 15:53:02 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/17 19:05:53 by sotanaka         ###   ########.fr       */
+/*   Updated: 2024/04/20 13:11:28 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,28 +118,6 @@ private:
         bool m_endUnChunk;
     };
 
-    class MultipartBodyParser : public BodyParser
-    {
-    public:
-        MultipartBodyParser(std::vector<Byte>& bodyDst, std::vector<MultipartFormData>& multipartDatasDst, uint64 contentLength, const std::string& boundary);
-
-        void parse(Byte c) /*override*/;
-
-    private:
-        bool searchBoundary(const std::vector<Byte>& requestBody, const std::string boundary);
-	    bool searchStrFormByteVec(const std::vector<Byte>& byteVec, const std::string& little);
-        void setDataInfo(const size_t potentialDataPos, const size_t boundarySize);
-        void parseHeader(const std::vector<Byte>& requestBody);
-        bool isCRLF(const std::vector<Byte>& requestBody);
-        void checkDatas(void);
-
-        std::vector<MultipartFormData>* m_multipartDatas;
-
-        std::string m_boundary;
-        std::string::size_type m_idx;
-        bool m_isEndFlag;
-    };
-
 private:
     enum status
     {
@@ -156,6 +134,7 @@ public:
     Byte* getBuffer();
     void parse(uint32 len);
     void continueParsing();
+    inline void clearBuffer() { m_buffer.clear(); }
 
     void nextRequest(const HTTPRequestPtr& request);
 

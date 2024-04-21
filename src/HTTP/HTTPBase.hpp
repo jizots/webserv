@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/18 18:47:29 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/08 18:27:00 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/08 17:41:59 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 # define HTTPBASE_HPP
 
 #include <map>
-#include <vector>
 #include <string>
 
 #include "Utils/Utils.hpp"

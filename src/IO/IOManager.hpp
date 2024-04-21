@@ -13,12 +13,12 @@
 #ifndef IOMANAGER_HPP
 # define IOMANAGER_HPP
 
-#include "Utils/Utils.hpp"
-#include "Socket/MasterSocket.hpp"
-#include "IO/IOTask.hpp"
-
 #include <map>
 #include <set>
+
+#include "Utils/Utils.hpp"
+#include "Socket/MasterSocket.hpp"
+#include "IO/IOTask/IOTask.hpp"
 
 namespace webserv
 {
@@ -30,7 +30,9 @@ public:
     static inline IOManager& shared() { return *s_instance; }
     static void terminate();
 
-    inline std::map<uint16, MasterSocketPtr>& masterSockets() { return m_masterSockets; }
+    void loadConfigs(const std::vector<ServerConfig>& configs);
+
+    void selectIOs(std::set<MasterSocketPtr>&, std::set<IReadTaskPtr>&, std::set<IWriteTaskPtr>&);
 
     inline void insertReadTask(const IReadTaskPtr& task) { m_readTasks.insert(task); }
     inline void insertWriteTask(const IWriteTaskPtr& task) { m_writeTasks.insert(task); }
@@ -40,8 +42,6 @@ public:
 
     void eraseReadTask(IReadTask* task);
     void eraseWriteTask(IWriteTask* task);
-
-    void selectIOs(std::set<MasterSocketPtr>&, std::set<IReadTaskPtr>&, std::set<IWriteTaskPtr>&);
 
 private:
     inline  IOManager()/* = default*/ {}
