@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Functions.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 14:07:13 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/08 17:29:43 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/21 19:26:47 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ namespace webserv
 std::vector<Byte> to_vector(const std::string& str);
 
 std::vector<std::string> splitByChars(const std::string& src, const std::string& chars);
+std::vector<std::string> splitQuotedStringByChars(const std::string& src, const std::string& chars);
 
 std::string dequote(const std::string& str);
 

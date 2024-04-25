@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BuiltinCGIUpload.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/17 15:58:50 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/20 08:58:22 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/23 15:01:16 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ static bool getStdinToByteVector(std::vector<Byte>& body)
         {
             if (byteRead == -1)
             {
-                log << "builtinCGIUpload(): read() error" << "/n";
+                log << "builtinCGIUpload(): read() error" << "\n";
                 return false;
             }
             else
@@ -100,7 +100,7 @@ static void createNewFile(const std::string& filePath, const char* data, size_t 
     if (writeLen > 0 && (size_t)writeLen != lenData)
         log << "builtinCGIUpload(): write() failed\n";
     if (::close(fd) < 0)
-        log << "builtinCGIUpload(): close(): " + std::string(std::strerror(errno));
+        log << "builtinCGIUpload(): close(): " + std::string(std::strerror(errno)) << "\n";
 }
 
 void builtinCGIUpload(const std::map<std::string, std::string>& headers)
@@ -165,7 +165,7 @@ void builtinCGIUpload(const std::map<std::string, std::string>& headers)
         std::cout << BUILT_IN_ERROR_PAGE(200, "No attached files");
         std::exit(0);
     }
-    std::cout << "status: 200\r\n";
+    std::cout << "status: 201\r\n";
     std::cout << "content-type: text/html\r\n";
     std::cout << "\r\n";
     std::cout << BUILT_IN_ERROR_PAGE(201, "Upload success");

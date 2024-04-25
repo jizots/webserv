@@ -33,7 +33,7 @@ bool MultipartFormParser::searchBoundary(const std::vector<Byte>& byteVec, const
 	if (searchStrFromByteVec(byteVec, boundary) == false)
 	{
 		m_isBadRequest = true;
-		log << "[error] MultipartFormParser: Expected boudary dosen't exist";
+		log << "[error] MultipartFormParser: Expected boudary dosen't exist" << "\n";
 		return (false);
 	}
 	return (true);
@@ -50,7 +50,7 @@ void	MultipartFormParser::setDataInfo(const std::string::size_type dataStartPos,
 void	MultipartFormParser::parseHeader(const std::vector<Byte>& requestBody)
 {
 	std::map<std::string, std::string>	header;
-	webserv::HTTPHeaderParser		    headerParser(header);
+	webserv::HTTPHeaderParser		    headerParser(header, false);
 	MultipartFormData			        newData;
 
 	while (m_idx < requestBody.size() && !headerParser.isComplete() && !headerParser.isBadRequest())
@@ -59,7 +59,7 @@ void	MultipartFormParser::parseHeader(const std::vector<Byte>& requestBody)
 		if (headerParser.isBadRequest())
 		{
 			m_isBadRequest = true;
-			log << "[error] MultipartFormParser: Invalid header";
+			log << "[error] MultipartFormParser: Invalid header" << "\n";
 			return ;
 		}
 		++m_idx;
@@ -71,22 +71,31 @@ void	MultipartFormParser::parseHeader(const std::vector<Byte>& requestBody)
 	if (header.find("content-disposition") != header.end())
 	{
 		std::vector<std::string>	splitedStr;
-		splitedStr = splitByChars(header["content-disposition"], " ;");
+		splitedStr = splitQuotedStringByChars(header["content-disposition"], " ;");
 		if (splitedStr.size())
 		{
 			newData.dispositionType = splitedStr[0];
 			for (std::string::size_type i = 1; i < splitedStr.size(); ++i)
 			{
-				std::vector<std::string>	params = splitByChars(splitedStr[i], "=");
+				std::vector<std::string>	params = splitQuotedStringByChars(splitedStr[i], "=");
 				if (params.size() < 2)
 				{
 					std::pair<std::string, std::string> data = std::make_pair(params[0], "");
 					newData.dispositionParams.insert(data);
 				}
-				std::pair<std::string, std::string> data = std::make_pair(params[0], dequote(params[1]));
-				newData.dispositionParams.insert(data);
+				else
+				{
+					std::pair<std::string, std::string> data = std::make_pair(params[0], dequote(params[1]));
+					newData.dispositionParams.insert(data);
+				}
 			}
 		}
+	}
+	else
+	{
+		m_isBadRequest = true;
+		log << "[error] MultipartFormParser: Content-Disposition not found" << "\n";
+		return ;
 	}
 	m_data.push_back(newData);
 };
@@ -107,7 +116,7 @@ void	MultipartFormParser::checkDatas(void)
 			|| m_data[i].dispositionParams.find("name") == m_data[i].dispositionParams.end())
 		{
 			m_isBadRequest = true;
-			log << "[error] MultipartFormParser: Invalid disposition type or name";
+			log << "[error] MultipartFormParser: Invalid disposition type or name" << "\n";
 		}
 	}
 }
@@ -132,9 +141,10 @@ std::vector<MultipartFormData>	MultipartFormParser::parse(const std::vector<Byte
 			parseHeader(requestBody);
 		dataStartPos = m_idx;
 	}
-	if (m_isEndFlag == false || m_data.size() == 0)
+	if (m_isEndFlag == false)
 	{
 		m_isBadRequest = true;
+		log << "[error] MultipartFormParser: Ending boundary not found" << "\n";
 		return (m_data);
 	}
 	checkDatas();

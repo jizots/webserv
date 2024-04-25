@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPHeaderParser.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ekamada <ekamada@student.42.fr>            +#+  +:+       +#+        */
+/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:27:20 by ekamada           #+#    #+#             */
-/*   Updated: 2024/04/20 15:46:28 by ekamada          ###   ########.fr       */
+/*   Updated: 2024/04/23 14:53:02 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 namespace webserv
 {
 
-HTTPHeaderParser::HTTPHeaderParser(std::map<std::string, std::string>& header)
-    : m_header(&header), m_status(_headerKey), m_foundCR(false)
+HTTPHeaderParser::HTTPHeaderParser(std::map<std::string, std::string>& header, bool checkPrintableAscii)
+    : m_header(&header), m_status(_headerKey), m_foundCR(false), m_checkPrintableAscii(checkPrintableAscii)
 {
 }
 
@@ -43,10 +43,14 @@ void HTTPHeaderParser::parse(Byte c)
 		case _headerValue:
 			// c = tolower(c);
 
-			if (c == ' ' || IS_PRINTABLE_ASCII(c)) m_value += c;
+			if (c == ' ' || (m_checkPrintableAscii && IS_PRINTABLE_ASCII(c)))
+				m_value += c;
 
 			else if (c == '\r' || c == '\n')
                 checkCRLF(c, _headerKey);
+
+			else if (!m_checkPrintableAscii)
+				m_value += c;
 
 			else
 				m_status = _badRequest;

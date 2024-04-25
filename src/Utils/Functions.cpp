@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Functions.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/01 14:59:13 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/08 17:30:13 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/21 19:24:59 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,48 @@ std::string to_string(const std::vector<Byte>& value)
 {
     return (std::string(value.begin(), value.end()));
 }
+
+void controlQuoteFlag(bool& hasDquote, const std::string& src, const size_t i)
+{
+    if (hasDquote)
+    {
+        if (2 < i && src[i - 1] != '\\' && src[i -2] != '\\')
+            hasDquote = false;
+    }
+    else
+        hasDquote = true;
+}
+
+std::vector<std::string> splitQuotedStringByChars(const std::string& src, const std::string& chars)
+{
+    std::vector<std::string> splitedStr;
+    size_t i = 0;
+    size_t wc = 0;
+    bool hasDelimiter = false;
+    bool hasDquote = false;
+
+    for (; i < src.size(); ++i)
+    {
+        if (src[i] == '"')
+            controlQuoteFlag(hasDquote, src, i);
+        if (hasDquote == false && std::strchr(chars.c_str(), static_cast<int>(src[i])))
+        {
+            if (wc)
+                hasDelimiter = true;
+        }
+        else
+            ++wc;
+        if (hasDelimiter && wc)
+        {
+            splitedStr.push_back(std::string(src, i - wc, wc));
+            wc = 0;
+            hasDelimiter = false;
+        }
+    }
+    if (wc)
+        splitedStr.push_back(std::string(src, i - wc, wc));
+    return (splitedStr);
+};
 
 std::vector<std::string> splitByChars(const std::string& src, const std::string& chars)
 {

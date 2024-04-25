@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPHeaderParser.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ekamada <ekamada@student.42.fr>            +#+  +:+       +#+        */
+/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:27:23 by ekamada           #+#    #+#             */
-/*   Updated: 2024/04/20 15:45:38 by ekamada          ###   ########.fr       */
+/*   Updated: 2024/04/23 14:57:12 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ private:
     };
 
 public:
-    HTTPHeaderParser(std::map<std::string, std::string>& header);
+    HTTPHeaderParser(std::map<std::string, std::string>& header, bool checkPrintableAscii = true);
 
     void parse(Byte c);
 
@@ -55,6 +55,7 @@ private:
     bool m_foundCR;
     std::string m_key;
     std::string m_value;
+    bool m_checkPrintableAscii;
 };
 
 }
