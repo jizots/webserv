@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AutoIndexResponse.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 16:50:25 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/08 17:49:57 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/26 14:37:44 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,8 +170,8 @@ static std::string makeResponseBody(const std::vector<DirecInfo>& infos, const s
     retHtml.append("th { background-color: #ddd; }\n");
     retHtml.append("tr:nth-child(even) { background-color: #f2f2f2; }\n");
     retHtml.append("a { color: #0000FF; text-decoration: none; }\n");
-    retHtml.append(".directory-icon { display: inline-block; width: 16px; height: 16px; background-image: url(/img/folder.gif); }\n");
-    retHtml.append(".file-icon { display: inline-block; width: 16px; height: 16px; background-image: url(/img/text.gif); }\n");
+    retHtml.append(".directory-icon { display: inline-block; width: 16px; height: 16px; background-image: url(https://fonts.gstatic.com/s/i/materialiconsoutlined/folder/v1/24px.svg); background-size: contain; }\n");
+    retHtml.append(".file-icon { display: inline-block; width: 16px; height: 16px; background-image: url(https://fonts.gstatic.com/s/i/materialiconsoutlined/description/v1/24px.svg); background-repeat: no-repeat; background-size: contain; }\n");
 	retHtml.append(".delete-button { display: inline-block; padding: 4px 8px; background-color: #FF0000; color: #FFFFFF; text-decoration: none; }\n");
     retHtml.append("</style>\n");
     retHtml.append("</head>\n");

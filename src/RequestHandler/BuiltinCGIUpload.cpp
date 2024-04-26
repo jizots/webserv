@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BuiltinCGIUpload.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/17 15:58:50 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/26 13:07:38 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/26 15:19:52 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,14 +123,14 @@ static bool isAccessableDirectory(const std::string& dir)
 
 static void createNewFile(const std::string& filePath, const char* data, size_t lenData)
 {
-    int fd = ::open(filePath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
+    int fd = ::open(filePath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH | O_NONBLOCK);
     if (fd < 0)
     {
         log << "builtinCGIUpload(): open(): " + std::string(std::strerror(errno));
         return ;
     }
     ssize_t writeLen = ::write(fd, data, lenData);
-    if (writeLen > 0 && (size_t)writeLen != lenData)
+    if (writeLen == -1 || (size_t)writeLen != lenData)
         log << "builtinCGIUpload(): write() failed\n";
     if (::close(fd) < 0)
         log << "builtinCGIUpload(): close(): " + std::string(std::strerror(errno)) << "\n";

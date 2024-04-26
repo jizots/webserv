@@ -11,7 +11,7 @@
 
 namespace webserv
 {
-	
+
 /**************
  * Debug utils
 ************/
@@ -311,6 +311,8 @@ static bool	isValidParam(const std::vector<Token>& tokens,
 				return (true);
 			return (false);
 		case INDEX:
+			if (param[0] == '/')
+				throw (ConfigException("error", tokens[index].line, "index must not start with slash(/)", param));
 			return (true);
 		case REDIRECT:
 			return (true);
@@ -882,9 +884,12 @@ std::vector<ServerConfig>	parseServerConfig(const int ac, const char **av)
 		MainDirective				mainDir;
 		std::vector<ServerConfig>	sConfs;
 
-		if (ac != 2)
-			throw (ConfigException("error", 0, "Usage: " + std::string(av[0]) + " <config file>", ""));//will change when default config fixed
-		fileContents = readFileToString(av[1]);
+		if (2 < ac)
+			throw (ConfigException("error", 0, "Usage: " + std::string(av[0]) + " <config file>", ""));
+		if (ac == 1)
+			fileContents = readFileToString("configs/default.conf");
+		else
+			fileContents = readFileToString(av[1]);
 		tokens = tokenize(fileContents);
 		if (!tokens.size())
 			throw (ConfigException("error", 0, "Configuration hasn't element.", ""));
