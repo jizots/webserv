@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 15:24:37 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/20 13:43:42 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/23 13:25:13 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,19 +20,12 @@
 #include "HTTP/HTTPRequest.hpp"
 #include "Socket/ClientSocket.hpp"
 #include "RequestHandler/Resource/Resource.hpp"
-#include "RequestHandler/Resource/ReadFileResource.hpp"
+#include "RequestHandler/Resource/StaticFileResource.hpp"
 #include "RequestHandler/Resource/DirectoryResource.hpp"
 #include "RequestHandler/Resource/CGIResource.hpp"
 
 namespace webserv
 {
-
-struct FindValName
-{
-    const std::string m_valName;
-    inline FindValName(const std::string& valName) : m_valName(valName) {};
-    bool operator()(const HTTPFieldValue& fieldVal) const { return (fieldVal.valName == m_valName); };
-};
 
 class RequestHandler;
 typedef SharedPtr<RequestHandler> RequestHandlerPtr;
@@ -53,7 +46,7 @@ public:
 
     void runTasks(const RequestHandlerPtr& _this);
 
-    bool needBody();
+    inline bool needBody() { return m_responseResource.dynamicCast<CGIResource>() == true; }
     bool shouldEndConnection();
 
 private:
@@ -61,12 +54,7 @@ private:
     int processConnectionHeader();
     int processContentLengthHeader();
     int processTransferEncodingHeader();
-    int processContentTypeHeader();
-
-    std::string uriTranslated(const std::string& uri);
-
-    void runIntermediateTasks(const RequestHandlerPtr& _this);
-    void runResponseTasks(const RequestHandlerPtr& _this);
+    int processKeepAliveHeader();
 
     HTTPRequestPtr m_request;
     

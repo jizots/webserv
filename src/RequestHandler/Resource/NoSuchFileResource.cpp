@@ -1,41 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ReadFileResource.cpp                               :+:      :+:    :+:   */
+/*   NoSuchFileResource.cpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/31 18:31:23 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/06 18:36:38 by tchoquet         ###   ########.fr       */
+/*   Created: 2024/04/21 16:58:06 by tchoquet          #+#    #+#             */
+/*   Updated: 2024/04/26 12:58:38 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "RequestHandler/Resource/ReadFileResource.hpp"
+#include "RequestHandler/Resource/NoSuchFileResource.hpp"
 
-#include <string>
-#include <sys/stat.h>
-#include <sys/fcntl.h>
-
-#include "Utils/Macros.hpp"
 #include "Utils/Logger.hpp"
 
 namespace webserv
 {
 
-ReadFileResource::ReadFileResource(const std::string& path, const struct stat& stat)
-    : Resource(path), m_stat(stat), m_contentType(path)
+NoSuchFileResource::NoSuchFileResource(const std::string& path) : Resource(path)
 {
+
 }
 
-int ReadFileResource::open()
+int NoSuchFileResource::open()
 {
-    m_fd = webserv::open(m_path.c_str(), O_RDONLY);
+    m_fd = webserv::open(m_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
     if (!m_fd)
     {
-        log << "open(): " << std::strerror(errno) << '\n';
+        log << "\"" << m_path << "\": open(): " << std::strerror(errno) << '\n';
         return -1;
     }
-    log << "File " << m_path << " opened for reading (fd: " << m_fd << ")\n"; 
+    log << "File \"" << m_path << "\" opened for writing (fd: " << m_fd << ")\n"; 
     return 0;
 }
 

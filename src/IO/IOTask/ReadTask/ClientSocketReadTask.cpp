@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:04:36 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/20 12:58:11 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/21 16:49:17 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,9 @@ void ClientSocketReadTask::read()
                     m_handler->makeErrorResponse(error);
                     break;
                 }
+
+                if (m_request->timeout > 0)
+                    m_timeoutDuration = Duration::seconds(m_request->timeout);
                 
                 m_parser.continueParsing();
 

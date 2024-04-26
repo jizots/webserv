@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 23:21:58 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/21 17:47:32 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/26 13:31:56 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ namespace webserv
 class CGIResource : public Resource
 {
 public:
-    CGIResource(const std::string& program, const std::string& script, bool isBuildInCGI = false);
+    CGIResource(const std::string& script, const std::string& interpreter, bool isBuildInCGI = false);
 
     inline void setEnvp(const std::string& key, const std::string& value) { m_envp[key] = value; }
 
@@ -37,9 +37,11 @@ public:
 
     int open() /*override*/;
 
+    inline bool canExec() { return m_isBuiltInCGI || ::access((m_interpreter.empty() ? m_script : m_interpreter).c_str(), X_OK) == 0; }
+
 private:
-    const std::string m_program;
     const std::string m_script;
+    const std::string m_interpreter;
     const bool m_isBuiltInCGI;
     std::map<std::string, std::string> m_envp;
 

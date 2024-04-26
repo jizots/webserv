@@ -3,14 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   UriParser.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/17 16:11:38 by sotanaka          #+#    #+#             */
-/*   Updated: 2024/04/17 17:15:03 by sotanaka         ###   ########.fr       */
+/*   Updated: 2024/04/26 04:18:58 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Parser/UriParser/UriPaser.hpp"
+
+#include <algorithm>
 
 namespace webserv
 {
@@ -66,6 +68,13 @@ void UriParser::parse(Byte c)
 
         default:
             break;
+    }
+
+    if (m_status == _parseComplete)
+    {
+        std::vector<std::string> files = splitByChars(*m_uri, "/");
+        if (std::find(files.begin(), files.end(), "..") != files.end())
+            m_status = _badRequest;
     }
 };
 

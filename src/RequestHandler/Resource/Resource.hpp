@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/20 16:45:29 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/05 18:45:24 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/23 13:22:54 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <map>
 
 #include "Utils/SharedPtr.hpp"
+#include "Parser/ConfigParser/ConfigParser.hpp"
 
 namespace webserv
 {
@@ -24,7 +25,7 @@ namespace webserv
 class Resource
 {
 public:
-    static SharedPtr<Resource> create(const std::string& path, const std::map<std::string, std::string>& cgiExt);
+    static SharedPtr<Resource> create(const std::string& uri, const LocationDirective& location);
 
     const std::string& path() { return m_path; }
     

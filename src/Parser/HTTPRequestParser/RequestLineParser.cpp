@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestLineParser.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:27:27 by ekamada           #+#    #+#             */
-/*   Updated: 2024/04/17 19:09:27 by sotanaka         ###   ########.fr       */
+/*   Updated: 2024/04/26 11:23:37 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,19 +26,19 @@ void HTTPRequestParser::RequestLineParser::parse(Byte c)
     switch(m_status)
     {
         case _requestMethod:
-            if (m_method->size() == 0 && ( c == '\r' || c == '\n'))
+            if (m_method->size() == 0 && (c == '\r' || c == '\n'))
             {
                 checkCRLF(c, _requestMethod);
                 break;
             }
 
-            *m_method += c;
-            if (*m_method == "GET " || *m_method == "POST " || *m_method == "DELETE ")
+            *m_method += std::toupper(c);
+            if (c == ' ')
             {
                 *m_method = m_method->substr(0, m_method->size() - 1);
                 m_status = _slash;
             }
-            else if (m_method->size() > 6)
+            else if (c == '\r' || c == '\n')
                 m_status = _badRequest;
             break;
 

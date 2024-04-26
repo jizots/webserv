@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 18:32:54 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/21 17:48:30 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/26 13:41:12 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@
 #include "IO/IOTask/ReadTask/FileReadTask.hpp"
 #include "IO/IOTask/WriteTask/CGIWriteTask.hpp"
 #include "IO/IOTask/ReadTask/CGIReadTask.hpp"
-#include "Parser/HTTPHeaderValueParser/HTTPHeaderValueParser.hpp"
+#include "RequestHandler/Resource/NoSuchFileResource.hpp"
+#include "IO/IOTask/WriteTask/FileWriteTask.hpp"
 
 namespace webserv
 {
@@ -45,84 +46,39 @@ int RequestHandler::processRequestLine()
 
 int RequestHandler::processHeaders()
 {
+    typedef int (RequestHandler::*HeaderProcessFn)();
+
     log << "processing headers\n";
 
-    HTTPHeaderValueParser hvp;
+    const HeaderProcessFn funcs[] = 
+    {
+        &RequestHandler::processConnectionHeader,
+        &RequestHandler::processContentLengthHeader,
+        &RequestHandler::processTransferEncodingHeader,
+    };
 
-    std::map<std::string, std::string>::const_iterator hostIt = m_request->headers.find("host");
-    if (hostIt == m_request->headers.end())
-        return 400;
-    m_request->host = hvp.parseHeaderValue(hostIt->second, &HTTPHeaderValueParser::parseHost);
-    if (hvp.isBadRequest())
-        return 400;
+    //default headers
+    m_response->headers["Connection"] = "keep-alive";
 
-    m_config = m_clientSocket->masterSocket()->configForHost(m_request->host.hostname);
+    if(int error = processHostHeader())
+        return error;
+
+    m_config = m_clientSocket->masterSocket()->configForHost(m_request->hostname);
     m_location = m_config.bestLocation(m_request->uri);
-    
-    std::map<std::string, std::string>::const_iterator connectionIt = m_request->headers.find("connection");
-    if (connectionIt != m_request->headers.end())
-    {
-        m_request->httpFieldValues = hvp.parseHeaderValue(connectionIt->second, &HTTPHeaderValueParser::parseConnection);
-        if (hvp.isBadRequest())
-            return 400;
-        std::vector<HTTPFieldValue>::const_iterator it = std::find_if(m_request->httpFieldValues.begin(), m_request->httpFieldValues.end(), FindValName("close"));
-        if (it != m_request->httpFieldValues.end())
-        {
-            m_response->headers["connection"] = "close";
-        }
-        else
-        {
-            it = std::find_if(m_request->httpFieldValues.begin(), m_request->httpFieldValues.end(), FindValName("keep-alive"));
-            if (it != m_request->httpFieldValues.end())
-            {
-                m_response->headers["connection"] = "keep-alive";
-            }
-            else
-                return 400;
-        }
-    }
 
-    std::map<std::string, std::string>::const_iterator contentLengthIt = m_request->headers.find("content-length");
-    if (contentLengthIt != m_request->headers.end())
+    for (uint32 i = 0; i < sizeof(funcs) / sizeof(funcs[0]); i++)
     {
-        m_request->contentLength = hvp.parseHeaderValue(contentLengthIt->second, &HTTPHeaderValueParser::parseContentLength);
-        if (hvp.isBadRequest())
-            return 400;
-    }
-
-    std::map<std::string, std::string>::const_iterator transferEncodingIt = m_request->headers.find("transfer-encoding");
-    if (transferEncodingIt != m_request->headers.end())
-    {
-        m_request->httpFieldValues = hvp.parseHeaderValue(transferEncodingIt->second, & HTTPHeaderValueParser::parseTransferEncoding);
-        if (hvp.isBadRequest())
-            return 400;
-        std::vector<HTTPFieldValue>::const_iterator it = std::find_if(m_request->httpFieldValues.begin(), m_request->httpFieldValues.end(), FindValName("chunked"));
-        if (it != m_request->httpFieldValues.end())
-            m_request->isChunk = true;
-    }
-
-    std::map<std::string, std::string>::const_iterator contentTypeIt = m_request->headers.find("content-type");
-    if (contentTypeIt != m_request->headers.end())
-    {
-        m_request->httpFieldValue = hvp.parseHeaderValue(contentTypeIt->second, &HTTPHeaderValueParser::parseContentType);
-        if (hvp.isBadRequest())
-            return 400;
-        if (m_request->httpFieldValue.valName == "multipart/form-data")
-        {
-            std::map<std::string, std::string>::const_iterator boundaryIt = m_request->httpFieldValue.parameters.find("boundary");
-            if (boundaryIt == m_request->httpFieldValue.parameters.end())
-                return 400;
-        }
+        if(int error = (this->*funcs[i])())
+            return error;
     }
 
     return 0;
 }
 
-// MARK: internalRedirection
 void RequestHandler::internalRedirection(const std::string& method, const std::string& uri, const std::string& query)
 {
     if (m_internalRedirectionCount > 0)
-        log << "internal redirection uri \"" << uri << "\"\n";
+        log << "internal redirection to uri \"" << uri << "\"\n";
     if (m_internalRedirectionCount == 10)
     {
         log << "too many internal redirection\n";
@@ -139,124 +95,173 @@ void RequestHandler::internalRedirection(const std::string& method, const std::s
     
     m_location = m_config.bestLocation(uri);
 
+    m_responseResource = Resource::create(uri, m_location);
+
+    if (!m_responseResource)
+        return makeErrorResponse(403);
+
     if (std::find(m_location.accepted_methods.begin(), m_location.accepted_methods.end(), method) == m_location.accepted_methods.end())
         return makeErrorResponse(405);
 
-    if (method == "DELETE") // ! Must be uppercase
+    if (StaticFileResourcePtr staticFileResource = m_responseResource.dynamicCast<StaticFileResource>())
     {
-        if (std::remove(uriTranslated(uri).c_str()) != 0)
+        log << "\"" << staticFileResource->path() << "\" is resolved as static file resource\n";
+
+        if (method == "GET" || method == "HEAD")
         {
-            if (errno == ENOENT)
-                return makeErrorResponse(404);
-            return makeErrorResponse(500);
-        }
-
-        return makeErrorResponse(204);
-    }
-
-    ResourcePtr resource;
-
-    if (*(--uri.end()) == '/')
-    {
-        log << "Ending with '/', ";
-        if (*m_location.index.begin() == '/')
-            return internalRedirection(method, m_location.index, "");
-
-        log << "checking index \"" << uriTranslated(uri) + m_location.index << "\"\n";
-
-        if (ResourcePtr m_responseResource = Resource::create(uriTranslated(uri) + m_location.index, m_location.accepted_cgi_extension))
-            return internalRedirection(method, uri + m_location.index, "");
-
-        log << "index not usable, using \"" << uriTranslated(uri) << "\"\n";
-
-        if (DirectoryResourcePtr directoryResource = Resource::create(uriTranslated(uri), m_location.accepted_cgi_extension).dynamicCast<DirectoryResource>())
-        {
-            if (method == "GET" && m_location.autoindex == true)
+            if (staticFileResource->canRead() == false)
             {
-                log << "using auto index\n";
-                return makeAutoindexResponse(uri); // TODO use DirectoryResourcePtr instead of uri
+                log << "\"" << staticFileResource->path() << "\" cannot be read\n";
+                return makeErrorResponse(403);
             }
 
-            log << "auto index not available\n";
+            m_response->headers["Content-Type"] = staticFileResource->contentType();
+            m_response->headers["Content-Length"] = to_string(staticFileResource->contentLength());
+            
+            if (method == "HEAD")
+                m_response->isComplete = true;
+        }
 
-            if (directoryResource->path() == m_config.upload_path)
+        else if (method == "POST")
+            return makeErrorResponse(403); // * Forbidden
+
+        else if (method == "DELETE")
+        {
+            if (staticFileResource->canDelete() == false)
+            {
+                log << "\"" << staticFileResource->path() << "\" cannot be delete\n";
+                return makeErrorResponse(403);
+            }
+
+            if (std::remove(staticFileResource->path().c_str()) != 0)
+                return makeErrorResponse(500);
+
+            return makeErrorResponse(204);
+        }
+
+        else if (method == "PUT")
+            return makeErrorResponse(403); // * Forbidden
+
+        else
+            return makeErrorResponse(501);
+    }
+
+    else if (NoSuchFileResourcePtr noSuchFileResource = m_responseResource.dynamicCast<NoSuchFileResource>())
+    {
+        log << "\"" << noSuchFileResource->path() << "\" is resolved as no such file resource\n";
+
+        if (method == "GET" || method == "HEAD")
+            return makeErrorResponse(404);
+
+        else if (method == "POST")
+            return makeErrorResponse(403); // * Forbidden
+
+        else if (method == "DELETE")
+            return makeErrorResponse(404);
+
+        else if (method == "PUT")
+        {
+            if (m_location.client_max_body_size > 0 && m_request->contentLength > m_location.client_max_body_size)
+                return makeErrorResponse(413);
+            if (noSuchFileResource->canCreate() == false)
+            {
+                log << "\"" << noSuchFileResource->path() << "\" cannot be create\n";
+                return makeErrorResponse(403); // * Forbidden
+            }
+        }
+        else
+            return makeErrorResponse(501);
+    }
+
+    else if (DirectoryResourcePtr directoryResource = m_responseResource.dynamicCast<DirectoryResource>())
+    {
+        log << "\"" << directoryResource->path() << "\" is resolved as directory resource\n";
+
+        if (*(--directoryResource->path().end()) != '/')
+            return makeRedirectionResponse(301, uri + '/');
+
+        if (method == "GET" || method == "HEAD")
+        {
+            log << "trying index \"" << m_location.index  << "\"\n";
+
+            if (*m_location.index.begin() == '/')
+                return internalRedirection(method, m_location.index, query);
+
+            ResourcePtr indexResource = Resource::create(uri + m_location.index, m_location);
+            if (indexResource && !indexResource.dynamicCast<NoSuchFileResource>())
+                return internalRedirection(method, uri + m_location.index, "");
+
+             log << "index not usable\n";
+
+            if (m_location.autoindex == true && directoryResource->canRead())
+            {
+                log << "using auto index\n";
+                makeAutoindexResponse(uri); // TODO use DirectoryResourcePtr instead of uri
+                if (m_request->method == "HEAD") // TODO not produce body when HEAD method
+                    m_response->body.clear();
+                return;
+            }
+            else
+            {
+                log << "auto index not available\n";
+                return makeErrorResponse(403);
+            }
+        }
+
+        else if (method == "POST")
+        {
+            if (m_location.client_max_body_size > 0 && m_request->contentLength > m_location.client_max_body_size)
+                return makeErrorResponse(413);
+            if (directoryResource->path() == m_config.upload_path && directoryResource->canCreateFile())
             {
                 log << "resolved URI \"" << directoryResource->path() << "\" is upload path\n";
-
-                if (method == "POST")
-                    resource = new CGIResource("Build in CGI", "", true);
-                else
-                    return makeErrorResponse(405);
+                m_responseResource = new CGIResource("Build in CGI", "", true);
+                m_responseResource.dynamicCast<CGIResource>()->setEnvp("UPLOAD_PATH", m_config.upload_path);
             }
             else
                 return makeErrorResponse(403);
         }
+
+        else if (method == "DELETE")
+            return makeErrorResponse(403); // * Forbidden
+
+        else if (method == "PUT")
+            return makeErrorResponse(403); // * Forbidden
+
         else
-        {
-            if (errno == ENOENT)
-                return makeErrorResponse(404);
-            return makeErrorResponse(500);
-        }
+            return makeErrorResponse(501);
     }
-    else
-        resource = Resource::create(uriTranslated(uri), m_location.accepted_cgi_extension);
-    if (resource)
+
+    if (CGIResourcePtr cgiProg = m_responseResource.dynamicCast<CGIResource>())
     {
-        if (ReadFileResourcePtr readFileResource = resource.dynamicCast<ReadFileResource>())
+        log << "\"" << cgiProg->path() << "\" is resolved as cgi resource\n";
+
+        if (m_location.client_max_body_size > 0 && m_request->contentLength > m_location.client_max_body_size)
+            return makeErrorResponse(413);
+
+        if (cgiProg->canExec() == false)
         {
-            if (method == "POST") // ! Must be uppercase
-                return makeErrorResponse(405);
-
-            m_response->headers["Content-Type"] = readFileResource->contentType();
-            m_response->headers["Content-Length"] = to_string(readFileResource->contentLength());
+            log << "\"" << cgiProg->path() << "\" is not executable\n";
+            return makeErrorResponse(403); // * Forbidden
         }
+        
+        cgiProg->setEnvp("CONTENT_LENGTH", to_string(m_request->contentLength));
+        cgiProg->setEnvp("QUERY_STRING", query);
+        cgiProg->setEnvp("REQUEST_METHOD", method);
+        cgiProg->setEnvp("SERVER_PROTOCOL", m_request->httpVersionStr());
+        cgiProg->setEnvp("REMOTE_ADDR", m_clientSocket->ipAddress());
+        cgiProg->setEnvp("SERVER_PORT", to_string(m_clientSocket->masterSocket()->port()));
+        
+        std::map<std::string, std::string>::const_iterator it = m_request->headers.find("content-type");
+        if (it != m_request->headers.end())
+            cgiProg->setEnvp("CONTENT_TYPE", to_string(it->second));
+        
+        std::vector<std::string>::const_iterator it2 = std::find(m_config.server_names.begin(), m_config.server_names.end(), m_request->hostname);
+        cgiProg->setEnvp("SERVER_NAME", it2 != m_config.server_names.end() ? *it2 : m_config.server_names.front());
 
-        else if (DirectoryResourcePtr directoryResource = resource.dynamicCast<DirectoryResource>())
-            return makeRedirectionResponse(301, uri + '/');
-
-        else if (CGIResourcePtr cgiProg = resource.dynamicCast<CGIResource>())
-        {
-            std::string::size_type firstDot = uri.find_first_of('.');
-            std::string::size_type nextSlash = firstDot == std::string::npos ? std::string::npos : uri.find_first_of('/', firstDot);
-            std::string extention = firstDot == std::string::npos ? "" : uri.substr(firstDot, nextSlash == std::string::npos ? std::string::npos : nextSlash - firstDot);
-            if (nextSlash != std::string::npos)
-                cgiProg->setEnvp("PATH_INFO", uri.substr(nextSlash));
-            cgiProg->setEnvp("SCRIPT_NAME", uri.substr(0, nextSlash));
-            if (nextSlash != std::string::npos)
-                cgiProg->setEnvp("PATH_TRANSLATED", uriTranslated(uri.substr(nextSlash)));
-            cgiProg->setEnvp("CONTENT_LENGTH",to_string(m_request->contentLength));
-
-            std::map<std::string, std::string>::const_iterator it = m_request->headers.find("content-type");
-            if (it != m_request->headers.end())
-                cgiProg->setEnvp("CONTENT_TYPE", to_string(it->second));
-            
-            cgiProg->setEnvp("QUERY_STRING", query);
-            cgiProg->setEnvp("REQUEST_METHOD", method);
-            cgiProg->setEnvp("SERVER_PROTOCOL", m_request->httpVersionStr());
-
-            // TODO AUTH_TYPE
-            // TODO REMOTE_USER
-
-            cgiProg->setEnvp("REMOTE_ADDR", m_clientSocket->ipAddress());
-            
-            // ? m_envp["REMOTE_HOST"] = clientSocket->ipAddress();
-            // ? REMOTE_IDENT
-
-            std::vector<std::string>::const_iterator it2 = std::find(m_config.server_names.begin(), m_config.server_names.end(), m_request->host.hostname);
-            cgiProg->setEnvp("SERVER_NAME", it2 != m_config.server_names.end() ? *it2 : m_config.server_names.front());
-
-            cgiProg->setEnvp("SERVER_PORT", to_string(m_clientSocket->masterSocket()->port()));
-
-            cgiProg->setEnvp("UPLOAD_PATH", m_config.upload_path);
-        }
-
-        m_responseResource = resource;
-        return;
+        // TODO `AUTH_TYPE` 'auth-scheme' token in the request Authorization header field
+        // TODO `REMOTE_USER` derive from AUTH_TYPE
     }
-
-    if (errno == ENOENT)
-        return makeErrorResponse(404);
-    return makeErrorResponse(500);
 }
 
 void RequestHandler::makeErrorResponse(int code)
@@ -265,6 +270,19 @@ void RequestHandler::makeErrorResponse(int code)
 
     m_response->headers.erase("location");
 
+    if (code == 405)
+    {
+        for (std::vector<std::string>::iterator it = m_location.accepted_methods.begin(); it != m_location.accepted_methods.end(); ++it)
+        {
+            if (it == m_location.accepted_methods.begin())
+                m_response->headers["Allow"] = *it;
+            else
+                m_response->headers["Allow"] += ", " + *it;
+        }
+    }
+    else
+        m_response->headers.erase("Allow");
+
     if (m_response->statusCode == 200)
     {
         std::map<int, std::string>::const_iterator userPage = m_location.error_page.find(code);
@@ -275,10 +293,13 @@ void RequestHandler::makeErrorResponse(int code)
         m_response->setStatusCode(code);
 
         if (userPage != m_location.error_page.end() && *userPage->second.begin() == '/')
-            return internalRedirection("GET", std::string(userPage->second), "");
+            return internalRedirection(m_request->method == "HEAD" ? "HEAD" : "GET", std::string(userPage->second), "");
     }
 
+    m_responseResource.clear();
     m_response->makeBuiltInResponse(code);
+    if (m_request->method == "HEAD")
+        m_response->body.clear();
 }
 
 void RequestHandler::makeRedirectionResponse(int code, const std::string& location)
@@ -286,6 +307,7 @@ void RequestHandler::makeRedirectionResponse(int code, const std::string& locati
     log << "redirection code " << code << " to \"" << location << "\"\n";
 
     m_response->headers["location"] = location;
+    m_response->headers.erase("Allow");
 
     if (m_response->statusCode == 200)
     {
@@ -297,10 +319,13 @@ void RequestHandler::makeRedirectionResponse(int code, const std::string& locati
             return makeRedirectionResponse(302, userPage->second);
 
         if (userPage != m_location.error_page.end() && *userPage->second.begin() == '/')
-            return internalRedirection("GET", std::string(userPage->second), "");
+            return internalRedirection(m_request->method == "HEAD" ? "HEAD" : "GET", std::string(userPage->second), "");
     }
 
+    m_responseResource.clear();
     m_response->makeBuiltInResponse(code);
+    if (m_request->method == "HEAD")
+        m_response->body.clear();
 }
 
 void RequestHandler::runTasks(const RequestHandlerPtr& _this)
@@ -308,7 +333,7 @@ void RequestHandler::runTasks(const RequestHandlerPtr& _this)
     log << "running task\n";
 
     if (m_response->isComplete)
-    {    
+    {
         if (m_clientSocket->nextResponse() == m_response)
             IOManager::shared().insertWriteTask(new ClientSocketWriteTask(m_clientSocket, m_response));
         return;
@@ -320,12 +345,18 @@ void RequestHandler::runTasks(const RequestHandlerPtr& _this)
             makeErrorResponse(404);
         else
             makeErrorResponse(500);
+
         return runTasks(_this);
     }
 
-    if (ReadFileResourcePtr readFileResource = m_responseResource.dynamicCast<ReadFileResource>())
+    if (StaticFileResourcePtr staticFileResource = m_responseResource.dynamicCast<StaticFileResource>())
     {
-        IOManager::shared().insertReadTask(new FileReadTask(readFileResource, m_response, _this));
+        IOManager::shared().insertReadTask(new FileReadTask(staticFileResource, m_response, _this));
+    }
+
+    else if (NoSuchFileResourcePtr noSuchFileResource = m_responseResource.dynamicCast<NoSuchFileResource>())
+    {
+        IOManager::shared().insertWriteTask(new FileWriteTask(noSuchFileResource, m_request, _this));
     }
 
     else if (CGIResourcePtr cgiResource = m_responseResource.dynamicCast<CGIResource>())
@@ -351,28 +382,19 @@ void RequestHandler::runTasks(const RequestHandlerPtr& _this)
     m_responseResource.clear();
 }
 
-bool RequestHandler::needBody() 
-{
-    return m_responseResource.dynamicCast<CGIResource>() == true;
-}
-
 bool RequestHandler::shouldEndConnection() 
 {
     if (m_response->statusCode >= 400)
         return true;
 
-    std::map<std::string, std::string>::iterator it = m_response->headers.find("connection");
+    std::map<std::string, std::string>::iterator it = m_response->headers.find("Connection");
     if (it == m_response->headers.end())
-        return true;
+    {
+        log << "Connection header field not present in response\n";
+        return false;
+    }
 
     return it->second == "close";
-}
-
-std::string RequestHandler::uriTranslated(const std::string& uri)
-{
-    if (m_location.alias.empty() == false)
-        return m_location.alias + uri.substr(m_location.location.size());
-    return RMV_LAST_SLASH(m_location.root) + uri;
 }
 
 }

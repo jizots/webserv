@@ -1,13 +1,17 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    bad_cgi.py                                         :+:      :+:    :+:    #
+#    pwd.py                                             :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/04/22 20:29:05 by tchoquet          #+#    #+#              #
-#    Updated: 2024/04/22 20:29:09 by tchoquet         ###   ########.fr        #
+#    Created: 2024/04/23 18:50:41 by tchoquet          #+#    #+#              #
+#    Updated: 2024/04/23 18:55:12 by tchoquet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-print("BAD CGI")
+import os
+
+print("Content-Type: text/plain\r")
+print("\r")
+print(os.getcwd())

@@ -1,39 +1,25 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    pipe_flooding.py                                   :+:      :+:    :+:    #
+#    cgi_tester.py                                      :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/04/18 13:50:11 by tchoquet          #+#    #+#              #
-#    Updated: 2024/04/22 20:33:45 by tchoquet         ###   ########.fr        #
+#    Created: 2024/04/22 18:07:21 by tchoquet          #+#    #+#              #
+#    Updated: 2024/04/22 22:30:39 by tchoquet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 import sys
-import errno
-
-BUFFER_SIZE = 4096
-
-data = "x" * BUFFER_SIZE
-writeLen = 0
+import os
 
 print("Content-Type: text/plain\r")
 print("\r")
 
-while True:
-    try:
-        sys.stdout.write(data)
-        sys.stdout.flush()
+if os.environ.get('QUERY_STRING', '') != '':
+    print(os.environ['QUERY_STRING'])
 
-    except IOError as e:
-        if e.errno == errno.EAGAIN or e.errno == errno.EWOULDBLOCK:
-            print("\nNon-blocking I/O failure")
-        else:
-            print("\nI/O error:", e)
-        break
+body = sys.stdin.read()
 
-    writeLen += BUFFER_SIZE
-    if writeLen >= (65535 * 2):
-        print("\nNo error")
-        break
+if len(body) > 0:
+    print(body)

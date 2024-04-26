@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIResource.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/31 20:56:43 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/23 16:42:52 by sotanaka         ###   ########.fr       */
+/*   Updated: 2024/04/26 13:10:39 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,29 +25,13 @@
 namespace webserv
 {
 
-CGIResource::CGIResource(const std::string& program, const std::string& script, bool isBuildInCGI)
-    : Resource(script.empty() ? program : script), m_program(program), m_script(script), m_isBuiltInCGI(isBuildInCGI)
+CGIResource::CGIResource(const std::string& script, const std::string& interpreter, bool isBuildInCGI)
+    : Resource(script), m_script(script), m_interpreter(interpreter), m_isBuiltInCGI(isBuildInCGI)
 {
 }
 
 int CGIResource::open()
-{
-    std::vector<const char *> argv;
-    std::vector<const char *> envp;
-
-    if (!m_isBuiltInCGI)
-    {
-        argv.push_back(m_program.c_str());
-        if (!m_script.empty())
-            argv.push_back(m_script.c_str());
-        argv.push_back(NULL);
-
-        envp.reserve(m_envp.size());
-        for (std::map<std::string, std::string>::iterator it = m_envp.begin(); it != m_envp.end(); ++it)
-            envp.push_back(strdup((it->first + "=" + it->second).c_str()));
-        envp.push_back(NULL);
-    }
-    
+{    
     FileDescriptor toCGIfds[2] = {};
     FileDescriptor fromCGIfds[2] = {};
 
@@ -83,14 +67,43 @@ int CGIResource::open()
         close(fromCGIfds[WRITE_END]);
 
         if (m_isBuiltInCGI)
+        {
             builtinCGIUpload(m_envp);
+            std::cout << "status: 502 Bad gateway\r\n";
+            std::cout << "content-type: text/html\r\n";
+#ifndef NDEBUG
+            std::cout << "Error: " << "builtinCGIUpload(): unexpected return" << std::endl;
+#endif // NDEBUG
+            std::cout << "\r\n";
+            std::cout << BUILT_IN_ERROR_PAGE(502, "Bad gateway") << std::endl;
+        }
         else
-            execve(argv.front(), (char *const *)argv.data(), (char *const *)envp.data());
+        {
+            if (chdir(m_script.substr(0, m_script.find_last_of('/')).c_str()) == 0)
+            {
+                std::vector<const char *> argv;
+                std::vector<const char *> envp;
 
-        std::cout << "status: 502 Bad gateway\r\n";
-        std::cout << "content-type: text/plain\r\n";
-        std::cout << "\r\n";
-        std::cout << BUILT_IN_ERROR_PAGE(502, "Bad gateway") << std::endl;
+                if (m_interpreter.empty() == false)
+                    argv.push_back(m_interpreter.c_str());
+                argv.push_back(m_script.substr(m_script.find_last_of('/') + 1).c_str());
+                argv.push_back(NULL);
+
+                envp.reserve(m_envp.size());
+                for (std::map<std::string, std::string>::iterator it = m_envp.begin(); it != m_envp.end(); ++it)
+                    envp.push_back(strdup((it->first + "=" + it->second).c_str()));
+                envp.push_back(NULL);
+                
+                execve(argv.front(), (char *const *)argv.data(), (char *const *)envp.data());
+            } 
+            std::cout << "status: 502 Bad gateway\r\n";
+            std::cout << "content-type: text/html\r\n";
+#ifndef NDEBUG
+            std::cout << "errno: " << std::string(std::strerror(errno)) <<"\r\n";
+#endif // NDEBUG
+            std::cout << "\r\n";
+            std::cout << BUILT_IN_ERROR_PAGE(502, "Bad gateway") << std::endl;
+        }
 
         dup2(savedStdin, FileDescriptor::stdin()); 
         dup2(savedStdout, FileDescriptor::stdout());
@@ -100,9 +113,6 @@ int CGIResource::open()
     {
         // Webserv (parent)
 
-        for (uint64 i = 0; i < envp.size(); i++)
-            std::free((void*)envp[i]);
-
         close(toCGIfds[READ_END]);
         close(fromCGIfds[WRITE_END]);
         
@@ -111,7 +121,7 @@ int CGIResource::open()
             m_writeFd = toCGIfds[WRITE_END];
             m_readFd = fromCGIfds[READ_END];
 
-            log << "CGI process \"" << m_path << "\" created (read fd: " << m_readFd << ", write fd: " << m_writeFd << ")\n";
+            log << "CGI process for script \"" << m_path << "\" created (read fd: " << m_readFd << ", write fd: " << m_writeFd << ")\n";
             return 0;
         }
         else

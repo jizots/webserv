@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   BuiltinCGIUpload.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/17 15:58:50 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/23 15:01:16 by sotanaka         ###   ########.fr       */
+/*   Updated: 2024/04/26 13:07:38 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "RequestHandler/BuiltinCGIUpload.hpp"
-#include "Parser/HTTPHeaderValueParser/HTTPHeaderValueParser.hpp"
 #include "Parser/MultipartFormParser/MultipartFormParser.hpp"
 #include "RequestHandler/RequestHandler.hpp"
 
@@ -24,6 +23,42 @@
 
 namespace webserv
 {
+
+struct HTTPFieldValue
+{
+    std::string valName;
+    std::map<std::string, std::string> parameters;
+};
+
+int parseSingleFieldVal(const std::string& fieldVal, HTTPFieldValue& result)
+{
+	std::vector<std::string> strs = splitByChars(fieldVal, "; ");
+
+	if (strs.size() >= 1)
+		result.valName = strs[0];
+	for (size_t i = 1; i < strs.size(); ++i)
+	{
+		std::vector<std::string> param = splitByChars(strs[i], "=");
+		if (param.size() != 2)
+		{
+			log << "parseSingleFieldVal(): Invalid field value: " << fieldVal << "\n";
+			return -1;
+			break;
+		}
+		else
+			result.parameters.insert(std::make_pair(stringToLower(param[0]), dequote(param[1])));
+	}
+	return 0;
+};
+
+int parseContentType(const std::string& fieldLine, HTTPFieldValue& result)
+{
+	if (parseSingleFieldVal(fieldLine, result) != 0)
+	    return -1;
+    
+    result.valName = stringToLower(result.valName);
+	return 0;
+};
 
 static bool getStdinToByteVector(std::vector<Byte>& body)
 {
@@ -50,11 +85,9 @@ static bool getStdinToByteVector(std::vector<Byte>& body)
 
 static std::string getBoundaryFromValue(const std::string& contentType)
 {
-    HTTPHeaderValueParser headerValueParser;
-    HTTPFieldValue        httpFieldValue;
+    HTTPFieldValue httpFieldValue;
 
-    httpFieldValue = headerValueParser.parseHeaderValue(contentType, &HTTPHeaderValueParser::parseContentType);
-    if (headerValueParser.isBadRequest())
+    if (parseContentType(contentType, httpFieldValue) != 0)
         return ("");
     if (httpFieldValue.valName == "multipart/form-data")
     {

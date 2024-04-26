@@ -1,42 +1,42 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   FileReadTask.hpp                                   :+:      :+:    :+:   */
+/*   FileWriteTask.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/06 16:06:31 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/21 14:21:28 by tchoquet         ###   ########.fr       */
+/*   Created: 2024/04/21 17:32:25 by tchoquet          #+#    #+#             */
+/*   Updated: 2024/04/21 17:51:38 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FILEREADTASK_HPP
-# define FILEREADTASK_HPP
+#ifndef FILEWRITETASK_HPP
+# define FILEWRITETASK_HPP
 
 #include "IO/IOTask/IOTask.hpp"
 
-#include "RequestHandler/Resource/StaticFileResource.hpp"
-#include "HTTP/HTTPResponse.hpp"
+#include "HTTP/HTTPRequest.hpp"
 #include "RequestHandler/RequestHandler.hpp"
+#include "RequestHandler/Resource/NoSuchFileResource.hpp"
 
 namespace webserv
 {
 
-class FileReadTask : public IReadTask
+class FileWriteTask : public IWriteTask
 {
 public:
-    FileReadTask(const StaticFileResourcePtr& resource, const HTTPResponsePtr& response, const RequestHandlerPtr& handler);
-
+    FileWriteTask(const NoSuchFileResourcePtr& resource, const HTTPRequestPtr& request, const RequestHandlerPtr& handler);
+    
     inline const FileDescriptor& fd() /*override*/ { return m_resource->fileDescriptor(); }
-    void read() /*override*/;
+    void write() /*override*/;
 
 private:
-    StaticFileResourcePtr m_resource;
-    HTTPResponsePtr m_response;
+    NoSuchFileResourcePtr m_resource;
+    HTTPRequestPtr m_request;
     RequestHandlerPtr m_handler;
     uint64 m_idx;
 };
 
 }
 
-#endif // FILEREADTASK_HPP
+#endif // FILEWRITETASK_HPP

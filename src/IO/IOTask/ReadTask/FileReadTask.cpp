@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:08:53 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/09 00:39:17 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/23 21:34:59 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 namespace webserv
 {
 
-FileReadTask::FileReadTask(const ReadFileResourcePtr& resource, const HTTPResponsePtr& response, const RequestHandlerPtr& handler)
+FileReadTask::FileReadTask(const StaticFileResourcePtr& resource, const HTTPResponsePtr& response, const RequestHandlerPtr& handler)
     : m_resource(resource), m_response(response), m_handler(handler), m_idx(0)
 {
     m_response->body.resize(m_resource->contentLength());
@@ -36,7 +36,13 @@ void FileReadTask::read()
     }
 
     else if (readLen == 0)
+    {
         log << "EOF received on fd: " << fd() << '\n';
+        if (m_idx < m_resource->contentLength())
+            m_handler->makeErrorResponse(500);
+        else
+            m_response->isComplete = true;
+    }
 
     else
     {

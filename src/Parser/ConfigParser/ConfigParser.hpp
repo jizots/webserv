@@ -8,7 +8,7 @@
 
 #include "Utils/Types.hpp"
 
-#define SPECIAL_CHARS "\'\"|()^$*+?=\\"
+#define SPECIAL_CHARS "\'\"|()^$+?=\\"
 #define DELIMITER_CHARS "{};"
 
 namespace webserv
@@ -127,6 +127,9 @@ struct LocationDirective
     std::vector<std::string> accepted_methods;
     std::map<std::string, std::string> accepted_cgi_extension;
     std::string alias;
+
+    std::string translateURI(const std::string& uri) const;
+    bool isMatching(const std::string& uri) const;
 };
 
 /*

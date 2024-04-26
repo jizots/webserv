@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:25:33 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/20 13:33:48 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/21 16:26:06 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,32 +26,20 @@
 namespace webserv
 {
 
-struct HTTPHostValue
-{
-    std::string hostname;
-    uint16 port;
-};
-
-struct HTTPFieldValue
-{
-    std::string valName;
-    std::map<std::string, std::string> parameters;
-};
-
 struct HTTPRequest : public HTTPBase
 {
-    inline HTTPRequest() : HTTPBase(), contentLength(0), isChunk(false){};
+    inline HTTPRequest() : HTTPBase(), port(0), contentLength(0), isChunk(false), timeout(0) {};
 
     std::string method;
     std::string uri;
     std::string query;
     std::string params; // ?
-    HTTPFieldValue httpFieldValue;
-    std::vector<HTTPFieldValue> httpFieldValues;
 
-    HTTPHostValue host;
+    std::string hostname;
+    uint16 port;
     uint64 contentLength;
     bool isChunk;
+    uint32 timeout;
 };
 typedef SharedPtr<HTTPRequest> HTTPRequestPtr;
 

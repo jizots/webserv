@@ -112,7 +112,7 @@ static std::vector<Token>	tokenize(const std::string& str)
 		if (ignoreComment(c, isComment, line))
 			continue;
 		if (IS_IN(SPECIAL_CHARS, c))
-			throw (ConfigException("error", line, "Can't usable", std::string(1, c)));
+			throw (ConfigException("error", line, "Can't use", std::string(1, c)));
 		if (c == '\n')
 			++line;
 		if (std::isspace(c) || IS_IN(DELIMITER_CHARS, c))
@@ -259,7 +259,7 @@ static bool	isValidAcceptedMethods(const std::vector<Token>& tokens,
 		&& (index < 0 || static_cast<uint64>(index) < tokens.size() - 1))
 	{
 		tmp = tokens[index].value;
-		if (tmp == "GET" || tmp == "POST" || tmp == "DELETE")
+		if (tmp == "GET" || tmp == "POST" || tmp == "DELETE" || tmp == "PUT" || tmp == "HEAD")
 		{
 			tmp.clear();
 			if (tokens[index + 1].value == ";")
@@ -678,6 +678,8 @@ static void	setToLocationLevel(LocationDirective& lDir,
 	case ACCEPTED_METHODS:
 		if (lDir.accepted_methods.size() == 0)
 			lDir.accepted_methods = src;
+        if (std::find(lDir.accepted_methods.begin(), lDir.accepted_methods.end(), "GET") != lDir.accepted_methods.end())
+            lDir.accepted_methods.push_back("HEAD");
 		break;
 	case ALIAS:
 		if (lDir.alias.empty())
@@ -791,7 +793,10 @@ static void	setUndefinedParam(ServerConfig& sConf)
 		if (sConf.locations[i].index.empty())
 			sConf.locations[i].index = "index.html";
 		if (sConf.locations[i].accepted_methods.size() == 0)
+        {
 			sConf.locations[i].accepted_methods.push_back("GET");
+			sConf.locations[i].accepted_methods.push_back("HEAD");
+        }
 	}
 }
 
@@ -808,6 +813,34 @@ static void	setParamEachServer(const MainDirective& mainDir, std::vector<ServerC
 	}
 };
 
+std::string LocationDirective::translateURI(const std::string& uri) const
+{
+    if (alias.empty() == false)
+        return alias + uri.substr(location.size());
+    return RMV_LAST_SLASH(root) + uri;
+}
+
+bool LocationDirective::isMatching(const std::string& uri) const
+{
+    if (location.substr(0, 2) == "*.")
+    {
+        const std::string ext = location.substr(1);
+        const std::string::size_type dotPos = uri.find(ext);
+
+        if (dotPos == std::string::npos)
+            return false;
+        
+        if (dotPos + ext.size() == uri.size())
+            return true;
+
+        if (uri[dotPos + ext.size()] == '/')
+            return true;
+
+        return false;
+    }
+    return uri.compare(0, location.size() > uri.size() ? uri.size() : location.size(), location) == 0;
+}
+
 const LocationDirective& ServerConfig::bestLocation(const std::string& uri)
 {
     if (m_lastUri == uri)
@@ -821,8 +854,14 @@ const LocationDirective& ServerConfig::bestLocation(const std::string& uri)
 
     for (std::vector<LocationDirective>::size_type i = 0; i != locations.size(); i++) 
     {
-        if (uri.compare(0, locations[i].location.size() > uri.size() ? uri.size() : locations[i].location.size(), locations[i].location) == 0)
-        {   
+        if(locations[i].isMatching(uri))
+        {
+            if (locations[i].location.substr(0, 2) == "*.")
+            {
+                log << "using location: \"" << locations[i].location << "\"\n";
+                m_lastLocationIdx = i;
+                return locations[i];
+            }
             map[locations[i].location.size()] = i;
             log << "matching location: \"" << locations[i].location << "\"\n";
         }
