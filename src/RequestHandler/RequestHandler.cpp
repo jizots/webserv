@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 18:32:54 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/26 13:41:12 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/26 15:33:06 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,14 @@ void RequestHandler::internalRedirection(const std::string& method, const std::s
     m_internalRedirectionCount++;
     
     m_location = m_config.bestLocation(uri);
+
+    if (m_location.redirect.empty() == false)
+    {
+        if (*m_location.redirect.begin() == '/')
+            return internalRedirection(method, m_location.redirect, query);
+        else
+            return makeRedirectionResponse(302, m_location.redirect);
+    }
 
     m_responseResource = Resource::create(uri, m_location);
 
@@ -183,9 +191,6 @@ void RequestHandler::internalRedirection(const std::string& method, const std::s
         if (method == "GET" || method == "HEAD")
         {
             log << "trying index \"" << m_location.index  << "\"\n";
-
-            if (*m_location.index.begin() == '/')
-                return internalRedirection(method, m_location.index, query);
 
             ResourcePtr indexResource = Resource::create(uri + m_location.index, m_location);
             if (indexResource && !indexResource.dynamicCast<NoSuchFileResource>())
