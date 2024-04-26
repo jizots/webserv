@@ -6,3 +6,4 @@ build/*
 **/.DS_Store
 configs/*-local.conf
 www/uploads/*
+webserv
