@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:08:53 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/23 21:34:59 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/26 16:24:04 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,13 +31,13 @@ void FileReadTask::read()
 
     if (readLen < 0)
     {
-        log << "Error on fd: " << fd() << ": " << std::strerror(errno) << '\n';
+        log << "Error while reading file \"" << m_resource->path() << "\" (fd: " << fd() << "): " << std::strerror(errno) << '\n';
         m_handler->makeErrorResponse(500);
     }
 
     else if (readLen == 0)
     {
-        log << "EOF received on fd: " << fd() << '\n';
+        log << "EOF received from file \"" << m_resource->path() << "\" (fd: " << fd() << ")\n";
         if (m_idx < m_resource->contentLength())
             m_handler->makeErrorResponse(500);
         else

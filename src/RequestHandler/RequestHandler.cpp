@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 18:32:54 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/26 15:33:06 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/26 17:21:27 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -385,6 +385,15 @@ void RequestHandler::runTasks(const RequestHandlerPtr& _this)
     }
 
     m_responseResource.clear();
+}
+
+bool RequestHandler::needBody()
+{
+    if (m_responseResource.dynamicCast<CGIResource>() == true)
+        return true;
+    if (m_responseResource.dynamicCast<NoSuchFileResource>() == true)
+        return true;
+    return false;
 }
 
 bool RequestHandler::shouldEndConnection() 

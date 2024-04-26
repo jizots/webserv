@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 17:32:57 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/21 17:58:07 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/26 16:18:22 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,21 @@ void FileWriteTask::write()
     
     ssize_t writeLen = webserv::write(fd(), m_request->body.data() + m_idx, m_request->body.size() - m_idx);
     
-    if (writeLen <= 0)
+    if (writeLen < 0)
+    {
         log << "Error while writing to file " << m_resource->path() << " (fd: " << fd() << "): " << std::strerror(errno) << '\n';
+        m_handler->makeErrorResponse(500);
+    }
+
+    else if (writeLen == 0)
+    {
+        log << "No data write to file " << m_resource->path() << " (fd: " << fd() << ")\n";
+        if (m_idx < m_request->body.size())
+            m_handler->makeErrorResponse(500);
+        else
+            m_handler->makeErrorResponse(201);
+    }
+
     else
     {
         log << writeLen << " bytes write to file " << m_resource->path() << " (fd: " << fd() << ")\n";

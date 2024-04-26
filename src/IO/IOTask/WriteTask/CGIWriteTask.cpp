@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:16:53 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/09 00:47:01 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/26 16:24:17 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void CGIWriteTask::write()
     
     if (writeLen <= 0)
     {
-        // log << "Error while writing to cgi (fd: " << fd() << "): " << std::strerror(errno) << '\n';
+        log << "Error while writing to cgi (fd: " << fd() << "): " << std::strerror(errno) << '\n';
         return;
     }
     else

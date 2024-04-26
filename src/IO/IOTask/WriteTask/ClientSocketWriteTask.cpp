@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:15:37 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/18 14:50:28 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/26 16:28:06 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void ClientSocketWriteTask::write()
     uint32 sendLen = send(fd(), m_buffer.data() + m_idx, m_buffer.size() - m_idx, 0);
 
     if (sendLen <= 0)
-        log << "Error while sending data to client (fd: " << fd() << "): " << std::strerror(errno) << '\n'; // ? should i retry like in the cgi write task
+        log << "Error while sending data to client (fd: " << fd() << "): " << std::strerror(errno) << '\n';
     else
     {
         log << sendLen << " bytes send on client socket " << m_clientSocket->fileDescriptor() << '\n';

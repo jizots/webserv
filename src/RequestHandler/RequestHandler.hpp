@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 15:24:37 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/23 13:25:13 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/26 16:04:01 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ public:
 
     void runTasks(const RequestHandlerPtr& _this);
 
-    inline bool needBody() { return m_responseResource.dynamicCast<CGIResource>() == true; }
+    bool needBody();
     bool shouldEndConnection();
 
 private:

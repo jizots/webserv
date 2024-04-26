@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:04:36 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/21 16:49:17 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/26 16:22:21 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,11 @@ namespace webserv
 {
 
 ClientSocketReadTask::ClientSocketReadTask(const ClientSocketPtr& clientSocket)
+#ifndef NDEBUG
+    : IReadTask(Duration::infinity()),
+#else
     : IReadTask(Duration::seconds(5)),
+#endif
       m_clientSocket(clientSocket),
       m_request(new HTTPRequest()), m_parser(m_request), m_handler(new RequestHandler(m_request, m_clientSocket)),
       m_status(requestLine)
@@ -36,7 +40,7 @@ void ClientSocketReadTask::read()
 
     if (recvLen < 0)
     {
-        // log << "Error on fd: " << fd() << ": " << std::strerror(errno) << '\n';
+        log << "Error while reading client request (fd: " << fd() << "): " << std::strerror(errno) << '\n';
         m_parser.clearBuffer();
         return;
     }
