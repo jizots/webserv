@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 23:21:58 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/20 13:08:43 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/21 17:47:32 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ public:
 
     inline const FileDescriptor& writeFd() { return m_writeFd; }
     inline const FileDescriptor& readFd() { return m_readFd; }
+    inline int pid() { return m_pid; }
 
     int open() /*override*/;
 
@@ -44,6 +45,7 @@ private:
 
     FileDescriptor m_writeFd;
     FileDescriptor m_readFd;
+    int m_pid;
 };
 typedef SharedPtr<CGIResource> CGIResourcePtr;
 

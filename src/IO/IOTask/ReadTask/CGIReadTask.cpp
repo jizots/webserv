@@ -3,24 +3,37 @@
 /*                                                        :::      ::::::::   */
 /*   CGIReadTask.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:14:10 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/09 01:01:02 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/23 16:46:05 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "IO/IOTask/ReadTask/CGIReadTask.hpp"
+#include <sys/wait.h>
+#include <signal.h>
 
+#include "IO/IOTask/ReadTask/CGIReadTask.hpp"
 #include "IO/IOManager.hpp"
 
 namespace webserv
 {
 
-CGIReadTask::CGIReadTask(const FileDescriptor& fd, const HTTPResponsePtr& response, const RequestHandlerPtr& handler)
-    : m_fd(fd), m_response(response), m_handler(handler), m_parser(m_headers, m_response->body), m_writeTaskPtr(NULL), m_status(header)
+CGIReadTask::CGIReadTask(const FileDescriptor& fd, int pid, const HTTPResponsePtr& response, const RequestHandlerPtr& handler)
+    : m_fd(fd), m_pid(pid), m_response(response), m_handler(handler), m_parser(m_headers, m_response->body), m_writeTaskPtr(NULL), m_status(header)
 {
 }
+
+CGIReadTask::~CGIReadTask()
+{
+    if (::waitpid(m_pid, NULL, WNOHANG) == 0)
+    {
+        log << "Killing child process with pid: " << m_pid << '\n';
+        kill(m_pid, SIGKILL);
+        ::waitpid(m_pid, NULL, 0);
+    }
+};
+
 
 void CGIReadTask::read()
 {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIResource.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/31 20:56:43 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/20 08:59:05 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/23 16:42:52 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,11 +54,11 @@ int CGIResource::open()
     if (pipeWNB(toCGIfds) < 0 || pipeRNB(fromCGIfds))
         log << "pipe(): " << std::strerror(errno) << '\n';   
 
-    int cgiPid = fork();
-    if (cgiPid < 0)
+    m_pid = fork();
+    if (m_pid < 0)
         log << "fork(): " << std::strerror(errno) << '\n';
 
-    if (cgiPid == 0)
+    if (m_pid == 0)
     {
         // CGI process (child)
         Logger::shared().setIsChildProcess(true);
@@ -106,7 +106,7 @@ int CGIResource::open()
         close(toCGIfds[READ_END]);
         close(fromCGIfds[WRITE_END]);
         
-        if (cgiPid > 0)
+        if (m_pid > 0)
         {
             m_writeFd = toCGIfds[WRITE_END];
             m_readFd = fromCGIfds[READ_END];

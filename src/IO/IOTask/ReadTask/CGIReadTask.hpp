@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIReadTask.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:13:31 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/05 18:41:45 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/23 16:11:43 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,8 @@ namespace webserv
 class CGIReadTask : public IReadTask
 {
 public:
-    CGIReadTask(const FileDescriptor& fd, const HTTPResponsePtr& response, const RequestHandlerPtr& handler);
+    CGIReadTask(const FileDescriptor& fd, int pid, const HTTPResponsePtr& response, const RequestHandlerPtr& handler);
+    ~CGIReadTask();
 
     inline const FileDescriptor& fd() /*override*/ { return m_fd; }
     void read() /*override*/;
@@ -40,6 +41,7 @@ private:
     enum Status { header, body };
 
     FileDescriptor m_fd;
+    int m_pid;
     HTTPResponsePtr m_response;
     RequestHandlerPtr m_handler;
 

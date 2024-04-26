@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 18:32:54 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/20 08:58:37 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/21 17:48:30 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -330,7 +330,7 @@ void RequestHandler::runTasks(const RequestHandlerPtr& _this)
 
     else if (CGIResourcePtr cgiResource = m_responseResource.dynamicCast<CGIResource>())
     {
-        CGIReadTask* cgiReadTask = new CGIReadTask(cgiResource->readFd(), m_response, _this);
+        CGIReadTask* cgiReadTask = new CGIReadTask(cgiResource->readFd(), cgiResource->pid(), m_response, _this);
         IOManager::shared().insertReadTask(cgiReadTask);
 
         if (m_request->body.empty() == false)
