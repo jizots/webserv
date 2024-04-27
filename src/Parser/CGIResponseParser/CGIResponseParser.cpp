@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 18:35:15 by ekamada           #+#    #+#             */
-/*   Updated: 2024/04/08 17:48:22 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/26 18:12:32 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,8 @@
 namespace webserv
 {
 
-CGIResponseParser::CGIResponseParser(std::map<std::string, std::string>& headersDst, std::vector<Byte>& bodyDst)
-    : m_body(bodyDst), 
-      m_status(_headers),
+CGIResponseParser::CGIResponseParser(std::map<std::string, std::string>& headersDst)
+    : m_status(_headers),
       m_headerParser(headersDst)
 {
 }
@@ -34,13 +33,11 @@ void CGIResponseParser::parse(uint32 len)
 {
     if (len == 0)
     {
-        if (m_status < _body)
-            m_status = _badResponse;
+        if (m_status == _body)
+            m_bodyParser->parseEOF();
         else
-            m_status = m_status == _badResponse ? _badResponse : _parseComplete;
-        return;
+            return (void)(m_status = _badResponse);
     }
-        
     m_buffer.resize((m_buffer.size() - BUFFER_SIZE) + len);
     m_curr = m_buffer.begin();
     continueParsing();
@@ -68,9 +65,19 @@ void CGIResponseParser::continueParsing()
                 break;
 
             case _body:
-                if (m_curr == m_buffer.end())
+                if (m_bodyParser->isComplete())
+                {
+                    if (m_bodyParser->isBadRequest())
+                        m_status = _badResponse;
+                    else
+                        m_status = _parseComplete;
                     goto ret;
-                m_body.push_back(*m_curr++);
+                }
+                else if (m_curr == m_buffer.end())
+                    goto ret;
+                else
+                    m_bodyParser->parse(*m_curr++);
+                break;
         }
     }
 

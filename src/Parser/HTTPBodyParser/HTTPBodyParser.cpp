@@ -1,21 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   BodyParser.cpp                                     :+:      :+:    :+:   */
+/*   HTTPBodyParser.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/01 16:25:38 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/08 17:44:31 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/26 18:03:01 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Parser/HTTPRequestParser/HTTPRequestParser.hpp"
+#include "Parser/HTTPBodyParser/HTTPBodyParser.hpp"
 
 namespace webserv
 {
 
-HTTPRequestParser::BodyParser::BodyParser(std::vector<Byte>& bodyDst, uint64 contentLength)
+HTTPBodyParser::HTTPBodyParser(std::vector<Byte>& bodyDst, uint64 contentLength)
     : m_body(&bodyDst), m_status(_body), m_contentLength(contentLength)
 {
     if (contentLength == 0)
@@ -24,15 +24,23 @@ HTTPRequestParser::BodyParser::BodyParser(std::vector<Byte>& bodyDst, uint64 con
         m_body->reserve(m_contentLength);
 }
 
-HTTPRequestParser::BodyParser::BodyParser(std::vector<Byte>& bodyDst)
+HTTPBodyParser::HTTPBodyParser(std::vector<Byte>& bodyDst)
     : m_body(&bodyDst), m_status(_body), m_contentLength(0)
 {
 }
 
-void HTTPRequestParser::BodyParser::parse(Byte c)
+void HTTPBodyParser::parse(Byte c)
 {
     m_body->push_back(c);
-    if (m_body->size() >= m_contentLength)
+    if (m_contentLength > 0 && m_body->size() >= m_contentLength)
+        m_status = _parseComplete;
+}
+
+void HTTPBodyParser::parseEOF()
+{
+    if (m_contentLength > 0 && m_body->size() != m_contentLength)
+        m_status = _badRequest;
+    else
         m_status = _parseComplete;
 }
 

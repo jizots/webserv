@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 18:32:54 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/26 17:21:27 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/27 12:39:22 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,7 +162,7 @@ void RequestHandler::internalRedirection(const std::string& method, const std::s
             return makeErrorResponse(404);
 
         else if (method == "POST")
-            return makeErrorResponse(403); // * Forbidden
+            return makeErrorResponse(404); // * Forbidden
 
         else if (method == "DELETE")
             return makeErrorResponse(404);

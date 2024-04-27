@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:27:27 by ekamada           #+#    #+#             */
-/*   Updated: 2024/04/08 17:44:21 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/26 19:08:29 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ namespace webserv
 {
 
 HTTPRequestParser::ChunkedBodyParser::ChunkedBodyParser(std::vector<Byte>& bodyDst)
-    : BodyParser(bodyDst), m_isChunkLen(true), m_foundCR(false), m_endUnChunk(false)
+    : HTTPBodyParser(bodyDst), m_isChunkLen(true), m_foundCR(false), m_endUnChunk(false)
 {
 }
 

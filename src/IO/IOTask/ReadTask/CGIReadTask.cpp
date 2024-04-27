@@ -6,21 +6,23 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:14:10 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/26 16:21:15 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/27 04:04:58 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "IO/IOTask/ReadTask/CGIReadTask.hpp"
+
 #include <sys/wait.h>
 #include <signal.h>
+#include <algorithm>
 
-#include "IO/IOTask/ReadTask/CGIReadTask.hpp"
 #include "IO/IOManager.hpp"
 
 namespace webserv
 {
 
 CGIReadTask::CGIReadTask(const FileDescriptor& fd, int pid, const HTTPResponsePtr& response, const RequestHandlerPtr& handler)
-    : m_fd(fd), m_pid(pid), m_response(response), m_handler(handler), m_parser(m_headers, m_response->body), m_writeTaskPtr(NULL), m_status(header)
+    : m_fd(fd), m_pid(pid), m_response(response), m_handler(handler), m_parser(m_headers), m_writeTaskPtr(NULL), m_status(header)
 {
 }
 
@@ -74,28 +76,23 @@ void CGIReadTask::read()
                     std::map<std::string, std::string>::const_iterator it = m_headers.find("location");
                     if (it != m_headers.end())
                     {
-                        m_handler->internalRedirection("GET", it->second, ""); // TODO parse location
+                        std::string uri, params, query;
+                        UriParser uriParser(uri, params, query);
+                        uriParser.parseString(it->second);
+                        if (uriParser.isBadRequest())
+                            m_handler->makeErrorResponse(502);
+                        else
+                            m_handler->internalRedirection("GET", uri, params);
                         break;
                     }
-                        
                 }
 
-                for (std::map<std::string, std::string>::const_iterator it = m_headers.begin(); it != m_headers.end(); ++it)
+                if (int error = processHeaders())
                 {
-                    if (it->first == "status")
-                    {
-                        if (is<uint16>(it->second.substr(0, it->second.find_first_of(' '))) == false || to<uint16>(it->second.substr(0, it->second.find_first_of(' '))) > 599)
-                        {
-                            m_handler->makeErrorResponse(502);
-                            break;
-                        }
-
-                        m_response->setStatusCode(to<uint16>(it->second.substr(0, it->second.find_first_of(' '))));
-                    }
-                    else
-                        m_response->headers[it->first] = it->second;
+                    m_handler->makeErrorResponse(error);
+                    break;
                 }
-                
+
                 m_parser.continueParsing();
 
                 m_status = body;
@@ -111,13 +108,57 @@ void CGIReadTask::read()
                     break;
                 }
 
-                m_response->headers["content-length"] = to_string(m_response->body.size());
+                if (m_response->isChunk == false)
+                    m_response->headers["content-length"] = to_string(m_response->body.size());
                 m_response->isComplete = true;
         }
     }
 
     m_handler->runTasks(m_handler);
     IOManager::shared().eraseReadTask(this);
+}
+
+int CGIReadTask::processHeaders()
+{
+    std::map<std::string, std::string>::const_iterator contentLengthIt = m_headers.find("content-length");
+    if (contentLengthIt != m_headers.end())
+    {
+        if (is<uint64>(contentLengthIt->second) == false)
+            return 502;
+
+        uint64 contentLength = to<uint64>(contentLengthIt->second);
+        if (contentLength > 0)
+            m_parser.setBodyParser(new HTTPBodyParser(m_response->body, contentLength));
+    }
+    else
+        m_parser.setBodyParser(new HTTPBodyParser(m_response->body));
+
+    std::map<std::string, std::string>::const_iterator transEncodingIt = m_headers.find("transfer-encoding");
+    if (transEncodingIt != m_headers.end())
+    {
+        std::vector<std::string> parsedTransferEncoding;
+        parsedTransferEncoding = splitByChars(transEncodingIt->second, ",");
+
+        for (std::vector<std::string>::iterator it = parsedTransferEncoding.begin(); it != parsedTransferEncoding.end(); ++it)
+            *it = trimCharacters(*it, " \t");
+        
+        if (std::find(parsedTransferEncoding.begin(), parsedTransferEncoding.end(), "chunked") != parsedTransferEncoding.end())
+            m_response->isChunk = true;
+    }
+
+    for (std::map<std::string, std::string>::const_iterator it = m_headers.begin(); it != m_headers.end(); ++it)
+    {
+        if (it->first == "status")
+        {
+            if (is<uint16>(it->second.substr(0, it->second.find_first_of(' '))) == false)
+                return 502;
+            m_response->setStatusCode(to<uint16>(it->second.substr(0, it->second.find_first_of(' '))));
+        }
+        else
+            m_response->headers[it->first] = it->second;
+    }
+
+    return 0;
 }
 
 }

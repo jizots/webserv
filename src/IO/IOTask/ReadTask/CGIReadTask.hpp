@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIReadTask.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:13:31 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/23 16:11:43 by sotanaka         ###   ########.fr       */
+/*   Updated: 2024/04/27 04:04:53 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include "RequestHandler/RequestHandler.hpp"
 #include "Parser/CGIResponseParser/CGIResponseParser.hpp"
 #include "IO/IOTask/WriteTask/CGIWriteTask.hpp"
+#include "Parser/UriParser/UriPaser.hpp"
 
 namespace webserv
 {
@@ -40,13 +41,15 @@ public:
 private:
     enum Status { header, body };
 
+    int processHeaders();
+
     FileDescriptor m_fd;
     int m_pid;
     HTTPResponsePtr m_response;
     RequestHandlerPtr m_handler;
 
-    CGIResponseParser m_parser;
     std::map<std::string, std::string> m_headers;
+    CGIResponseParser m_parser;
 
     CGIWriteTask* m_writeTaskPtr;
     Status m_status;

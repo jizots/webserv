@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/15 15:53:02 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/20 13:11:28 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/26 19:07:09 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include "HTTP/HTTPRequest.hpp"
 #include "Parser/HTTPHeaderParser/HTTPHeaderParser.hpp"
 #include "Parser/UriParser/UriPaser.hpp"
+#include "Parser/HTTPBodyParser/HTTPBodyParser.hpp"
 
 namespace webserv
 {
@@ -72,36 +73,7 @@ private:
         std::string m_protocol;
     };
 
-    class BodyParser
-    {
-    protected:
-        enum status
-        {
-            _body          = 1,
-            _parseComplete = 2,
-            _badRequest    = 3,
-        };
-
-    public:
-        BodyParser(std::vector<Byte>& bodyDst, uint64 contentLength);
-        BodyParser(std::vector<Byte>& bodyDst);
-
-        virtual void parse(Byte c);
-
-        inline bool isComplete()   { return m_status >= _parseComplete; }
-        inline bool isBadRequest() { return m_status == _badRequest;    }
-
-        inline virtual ~BodyParser() {}
-
-    protected:
-        std::vector<Byte>* m_body;
-
-        status m_status;
-
-        uint64 m_contentLength;
-    };
-
-    class ChunkedBodyParser : public BodyParser
+    class ChunkedBodyParser : public HTTPBodyParser
     {
     public:
         ChunkedBodyParser(std::vector<Byte>& bodyDst);
@@ -150,7 +122,7 @@ private:
 
     RequestLineParser m_requestLineParser;
     HTTPHeaderParser m_headerParser;
-    UniPointer<BodyParser> m_bodyParser;
+    UniPointer<HTTPBodyParser> m_bodyParser;
     
     std::vector<Byte> m_buffer;
     std::vector<Byte>::iterator m_curr;

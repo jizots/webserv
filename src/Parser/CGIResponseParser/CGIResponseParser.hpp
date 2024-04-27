@@ -19,6 +19,7 @@
 
 #include "Utils/Types.hpp"
 #include "Parser/HTTPHeaderParser/HTTPHeaderParser.hpp"
+#include "Parser/HTTPBodyParser/HTTPBodyParser.hpp"
 
 namespace webserv
 {
@@ -35,22 +36,23 @@ private:
     };
 
 public:
-    CGIResponseParser(std::map<std::string, std::string>& headersDst, std::vector<Byte>& bodyDst);
+    CGIResponseParser(std::map<std::string, std::string>& headersDst);
 
     Byte* getBuffer();
     void parse(uint32 len);
     void continueParsing();
     inline void clearBuffer() { m_buffer.clear(); }
+    inline void setBodyParser(const UniPointer<HTTPBodyParser>& parser) { m_bodyParser = parser; }
 
     inline bool isHeaderComplete() { return m_status  > _headers;       };
     inline bool isComplete()       { return m_status >= _parseComplete; };
     inline bool isBadResponse()    { return m_status == _badResponse;    };
 
 private:
-    std::vector<Byte>& m_body;
     int m_status;
 
     HTTPHeaderParser m_headerParser;
+    UniPointer<HTTPBodyParser> m_bodyParser;
 
     std::vector<Byte> m_buffer;
     std::vector<Byte>::iterator m_curr;
