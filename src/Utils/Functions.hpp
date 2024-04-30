@@ -1,14 +1,14 @@
-/* ************************************************************************** */
+/******************************************************************************/
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   Functions.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
+/*   By: hotph <hotph@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 14:07:13 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/21 19:26:47 by sotanaka         ###   ########.fr       */
+/*   Updated: 2024/04/29 22:06:19 by hotph            ###   ########.fr       */
 /*                                                                            */
-/* ************************************************************************** */
+/******************************************************************************/
 
 #ifndef FUNCTIONS_HPP
 #define FUNCTIONS_HPP
@@ -47,6 +47,15 @@ bool	compStringCaseInsensitive(const std::string& s1, const std::string& s2);
 
 template<typename T>
 inline bool isUnsigned() { return false; };
+
+template<>
+inline bool isUnsigned<uint8>() { return true; };
+
+template<>
+inline bool isUnsigned<uint16>() { return true; };
+
+template<>
+inline bool isUnsigned<uint32>() { return true; };
 
 template<>
 inline bool isUnsigned<uint64>() { return true; };

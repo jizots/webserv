@@ -591,8 +591,8 @@ static bool	isNoDuplication(const MainDirective& mainDir)
 	isUniqSimpleDirective(mainDir.blocks[0].directives);
 	for (size_t i = 0; i < getServerBlocks(mainDir)->size(); ++i)
 	{
-		std::vector<std::string>	serverName;
 		std::vector<std::string>	location;
+		std::vector<std::string>	serverName;
 
 		isUniqSimpleDirective((*getServerBlocks(mainDir))[i].directives);
 		for (size_t j = 0; j < (*getServerBlocks(mainDir))[i].blockDirectives.size(); ++j)
@@ -815,6 +815,21 @@ static void	setParamEachServer(const MainDirective& mainDir, std::vector<ServerC
 	}
 };
 
+static void	serverDuplicationCheck(const std::vector<ServerConfig>& sConfs)
+{
+	for (size_t i = 0; i < sConfs.size() - 1; ++i)
+	{
+		for (size_t j = 0; j < sConfs[i].server_names.size(); ++j)
+		{
+			if (std::find(sConfs[i + 1].server_names.begin(), sConfs[i + 1].server_names.end(), sConfs[i].server_names[j]) != sConfs[i + 1].server_names.end())
+			{
+				if (std::find(sConfs[i + 1].listens.begin(), sConfs[i + 1].listens.end(), sConfs[i].listens[j]) != sConfs[i + 1].listens.end())
+					throw (ConfigException("error", 0, "Duplication server_name and listen", ""));
+			}
+		}
+	}
+};
+
 std::string LocationDirective::translateURI(const std::string& uri) const
 {
     if (alias.empty() == false)
@@ -896,6 +911,7 @@ std::vector<ServerConfig>	parseServerConfig(const int ac, const char **av)
 		makeTmpStruct(tokens, mainDir, "main", 0, 0);
 		isNoDuplication(mainDir);
 		setParamEachServer(mainDir, sConfs);
+		serverDuplicationCheck(sConfs);
 		// std::cout << sConfs;
 		return (sConfs);
 	}
