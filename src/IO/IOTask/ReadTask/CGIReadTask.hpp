@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:13:31 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/27 04:04:53 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/28 14:37:12 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,13 @@ class CGIReadTask : public IReadTask
 {
 public:
     CGIReadTask(const FileDescriptor& fd, int pid, const HTTPResponsePtr& response, const RequestHandlerPtr& handler);
-    ~CGIReadTask();
 
     inline const FileDescriptor& fd() /*override*/ { return m_fd; }
     void read() /*override*/;
 
     inline void setRelatedWriteTaskPtr(CGIWriteTask* ptr) { m_writeTaskPtr = ptr; }
+
+    ~CGIReadTask();
 
 private:
     enum Status { header, body };

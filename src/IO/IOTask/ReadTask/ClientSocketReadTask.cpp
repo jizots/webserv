@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:04:36 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/26 16:22:21 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/28 14:33:21 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,11 +39,7 @@ void ClientSocketReadTask::read()
     ssize_t recvLen = recv(fd(), m_parser.getBuffer(), BUFFER_SIZE, 0);
 
     if (recvLen < 0)
-    {
         log << "Error while reading client request (fd: " << fd() << "): " << std::strerror(errno) << '\n';
-        m_parser.clearBuffer();
-        return;
-    }
 
     else if (recvLen == 0)
         log << "EOF received on fd: " << fd() << '\n';

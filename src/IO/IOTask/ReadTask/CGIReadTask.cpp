@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:14:10 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/27 04:04:58 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/28 14:52:31 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,20 +22,14 @@ namespace webserv
 {
 
 CGIReadTask::CGIReadTask(const FileDescriptor& fd, int pid, const HTTPResponsePtr& response, const RequestHandlerPtr& handler)
-    : m_fd(fd), m_pid(pid), m_response(response), m_handler(handler), m_parser(m_headers), m_writeTaskPtr(NULL), m_status(header)
+#ifndef NDEBUG
+    : IReadTask(Duration::infinity()),
+#else
+    : IReadTask(Duration::seconds(5)),
+#endif
+      m_fd(fd), m_pid(pid), m_response(response), m_handler(handler), m_parser(m_headers), m_writeTaskPtr(NULL), m_status(header)
 {
 }
-
-CGIReadTask::~CGIReadTask()
-{
-    if (::waitpid(m_pid, NULL, WNOHANG) == 0)
-    {
-        log << "Killing child process with pid: " << m_pid << '\n';
-        kill(m_pid, SIGKILL);
-        ::waitpid(m_pid, NULL, 0);
-    }
-};
-
 
 void CGIReadTask::read()
 {
@@ -46,11 +40,10 @@ void CGIReadTask::read()
     if (readLen < 0)
     {
         log << "Error while reading cgi response (fd: " << fd() << "): " << std::strerror(errno) << '\n';
-        m_parser.clearBuffer();
-        return;
+        m_handler->makeErrorResponse(502);
     }
 
-    if (readLen >= 0)
+    else if (readLen >= 0)
     {
         if (readLen == 0)
             log << "EOF received on fd: " << fd() << '\n';
@@ -117,6 +110,16 @@ void CGIReadTask::read()
     m_handler->runTasks(m_handler);
     IOManager::shared().eraseReadTask(this);
 }
+
+CGIReadTask::~CGIReadTask()
+{
+    if (::waitpid(m_pid, NULL, WNOHANG) == 0)
+    {
+        log << "Killing child process with pid: " << m_pid << '\n';
+        kill(m_pid, SIGKILL);
+        ::waitpid(m_pid, NULL, 0);
+    }
+};
 
 int CGIReadTask::processHeaders()
 {

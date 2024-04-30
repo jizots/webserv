@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 18:32:54 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/27 12:39:22 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/28 15:13:22 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,10 @@ void RequestHandler::internalRedirection(const std::string& method, const std::s
 
     if (!m_responseResource)
         return makeErrorResponse(403);
-
+    
+    if (!m_responseResource.dynamicCast<CGIResource>() && method != "GET" && method != "HEAD" && method != "POST" && method != "DELETE" && method != "PUT")
+        return makeErrorResponse(501);
+        
     if (std::find(m_location.accepted_methods.begin(), m_location.accepted_methods.end(), method) == m_location.accepted_methods.end())
         return makeErrorResponse(405);
 

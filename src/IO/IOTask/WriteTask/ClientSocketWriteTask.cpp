@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:15:37 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/26 16:28:06 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/28 14:48:48 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,12 @@ namespace webserv
 {
 
 ClientSocketWriteTask::ClientSocketWriteTask(const ClientSocketPtr& clientSocket, const HTTPResponsePtr& resp)
-    : m_clientSocket(clientSocket), m_idx(0)
+#ifndef NDEBUG
+    : IWriteTask(Duration::infinity()),
+#else
+    : IWriteTask(Duration::seconds(5)),
+#endif
+      m_clientSocket(clientSocket), m_idx(0)
 {
     resp->getRaw(m_buffer);
 }
@@ -41,13 +46,12 @@ void ClientSocketWriteTask::write()
         m_idx += sendLen;
         if (m_idx < m_buffer.size())
             return;
-    }
-        
-    m_clientSocket->popResponse();
     
-    HTTPResponsePtr nextResponse = m_clientSocket->nextResponse();
-    if (nextResponse && nextResponse->isComplete)
-        IOManager::shared().insertWriteTask(new ClientSocketWriteTask(m_clientSocket, m_clientSocket->nextResponse()));
+        m_clientSocket->popResponse();
+        HTTPResponsePtr nextResponse = m_clientSocket->nextResponse();
+        if (nextResponse && nextResponse->isComplete)
+            IOManager::shared().insertWriteTask(new ClientSocketWriteTask(m_clientSocket, m_clientSocket->nextResponse()));
+    }
 
     IOManager::shared().eraseWriteTask(this);
 }

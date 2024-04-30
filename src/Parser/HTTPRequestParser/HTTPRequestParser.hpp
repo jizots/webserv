@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/15 15:53:02 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/26 19:07:09 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/28 15:05:53 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,6 @@ public:
     Byte* getBuffer();
     void parse(uint32 len);
     void continueParsing();
-    inline void clearBuffer() { m_buffer.clear(); }
 
     void nextRequest(const HTTPRequestPtr& request);
 

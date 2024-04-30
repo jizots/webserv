@@ -41,7 +41,6 @@ public:
     Byte* getBuffer();
     void parse(uint32 len);
     void continueParsing();
-    inline void clearBuffer() { m_buffer.clear(); }
     inline void setBodyParser(const UniPointer<HTTPBodyParser>& parser) { m_bodyParser = parser; }
 
     inline bool isHeaderComplete() { return m_status  > _headers;       };
