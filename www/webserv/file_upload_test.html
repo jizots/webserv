@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>File upload tests</title>
+    </head>
+
+    <body>
+        <div class="container">
+            <h1>File upload tests</h1>
+            <form enctype="multipart/form-data">
+                <label for="file1">File 1:</label>
+                <input type="file" name="file1">
+                
+                <label for="file2">File 2:</label>
+                <input type="file" name="file2">
+                
+                <input type="submit" value="Upload (POST, multipart/form-data)" formaction="/uploads/" formmethod="POST">
+            </form>
+
+            <br><br><hr style="width: 100%;"><br><br>
+            
+            <input type="file" name="file3", id="putFile">
+            <button onclick="uploadFile()">Upload (PUT)</button>
+            
+            <br><br><hr style="width: 100%;"><br>
+            
+            <button onclick="window.location.href='/uploads/'">Go to uploads/</button>
+        </div>
+    </body>
+
+    <style>
+        body {
+            background-color: #f2f2f2;
+            font-family: Arial;
+            
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+            width: fit-content;
+            padding: 20px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        label[for="file1"] {
+            font-size: 18px;
+        }
+
+        label[for="file2"] {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        input[name="file1"],
+        input[name="file2"] {
+            font-size: 18px;
+        }
+
+        input[type="submit"] {
+            margin-top: 20px;
+            width: 320px;
+            font-size: 18px;
+            padding: 10px 20px;
+        }
+
+        input[name="file3"] {
+            font-size: 18px;
+        }
+        button {
+            margin-top: 20px;
+            width: 320px;
+            font-size: 24px;
+            padding: 10px 20px;
+        }
+
+    </style>
+
+    <script>
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(input => {
+            input.addEventListener('change', () => {
+                const fileName = input.value;
+                const isASCII = /^[\x00-\x7F]*$/.test(fileName);
+                if (!isASCII) {
+                    alert("Sorry, the file name must be in US-ASCII encoding.");
+                }
+            });
+        });
+
+        function uploadFile() 
+        {
+            const fileInput = document.getElementById("putFile");
+            const file = fileInput.files[0];
+            const fileName = file.name;
+            const url = `/upload_put/${fileName}`;
+
+            fetch(url, { method: 'PUT', body: file })
+                .then(response =>
+                {
+                    if (response.status == 201)
+                        alert("File uploaded successfully!");
+                    else
+                        alert("Failed to upload file.");
+                })
+        }
+    </script>
+</html>

@@ -1,17 +1,20 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    pwd.py                                             :+:      :+:    :+:    #
+#    cgi_tester.py                                      :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/04/23 18:50:41 by tchoquet          #+#    #+#              #
-#    Updated: 2024/04/23 18:55:12 by tchoquet         ###   ########.fr        #
+#    Created: 2024/04/22 18:07:21 by tchoquet          #+#    #+#              #
+#    Updated: 2024/04/30 14:46:58 by tchoquet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-import os
+import cgi
 
-print("Content-Type: text/plain\r")
+print("Content-Type: text/html\r")
 print("\r")
-print(os.getcwd())
+
+cgi.print_form(cgi.parse())
+cgi.print_directory()
+cgi.print_environ()

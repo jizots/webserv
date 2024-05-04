@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CGI tests</title>
+    </head>
+
+    <body>
+        <div class="container">
+            <h1>CGI tests</h1>
+            <form>
+                <label for="name">Name:</label>
+                <input type="text" name="name" required value="John Doe">
+                
+                <label for="email">Email:</label>
+                <input type="email" name="email" required value="johndoe@example.com">
+                
+                <input type="submit" value="to CGI Tester (POST)" formaction="/cgi-bin/cgi_tester.py" formmethod="POST" >
+                <input type="submit" value="to CGI Tester (GET)" formaction="/cgi-bin/cgi_tester.py" formmethod="GET" >
+            </form>
+        </div>
+    </body>
+
+    <style>
+        body {
+            background-color: #f2f2f2;
+            font-family: Arial;
+            
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+            width: fit-content;
+            padding: 20px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        label[for="name"] {
+            font-size: 24px;
+        }
+
+        label[for="email"] {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            font-size: 24px;
+            padding: 5px 10px;
+        }
+
+        input[type="submit"] {
+            margin-top: 20px;
+            width: 320px;
+            font-size: 24px;
+            padding: 10px 20px;
+        }
+    </style>
+</html>

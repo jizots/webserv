@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 15:24:37 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/26 16:04:01 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/30 14:15:12 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ public:
     int processHeaders();
 
     inline void makeResponse() { internalRedirection(m_request->method, m_request->uri, m_request->query); }
-    void internalRedirection(const std::string& method, const std::string& uri, const std::string& query);
+    void internalRedirection(std::string method, std::string uri, std::string query);
     void makeErrorResponse(int code);
     void makeRedirectionResponse(int code, const std::string& location);
     void makeAutoindexResponse(const std::string& uri);

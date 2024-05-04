@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Error pages tests</title>
+    </head>
+
+    <body>
+        <div class="container">
+            <h1>Error pages tests</h1>
+            <button onclick="window.location.href='/no_such'">404 Not Found</button>
+            <button onclick="window.location.href='/error'">403 Forbidden</button>
+            <button onclick="window.location.href='/upload_put/'">405 Method Not Allowed</button>
+        </div>
+    </body>
+
+    <style>
+        body {
+            background-color: #f2f2f2;
+            font-family: Arial;
+            
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+            width: fit-content;
+            padding: 20px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        button {
+            margin-top: 20px;
+            width: 320px;
+            font-size: 24px;
+            padding: 10px 20px;
+        }
+    </style>
+</html>

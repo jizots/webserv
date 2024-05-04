@@ -902,7 +902,7 @@ std::vector<ServerConfig>	parseServerConfig(const int ac, const char **av)
 		if (2 < ac)
 			throw (ConfigException("error", 0, "Usage: " + std::string(av[0]) + " <config file>", ""));
 		if (ac == 1)
-			fileContents = readFileToString("configs/default.conf");
+			fileContents = readFileToString("configs/webserv.conf");
 		else
 			fileContents = readFileToString(av[1]);
 		tokens = tokenize(fileContents);

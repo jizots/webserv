@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 18:32:54 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/28 15:13:22 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/04/30 14:55:38 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ int RequestHandler::processHeaders()
     return 0;
 }
 
-void RequestHandler::internalRedirection(const std::string& method, const std::string& uri, const std::string& query)
+void RequestHandler::internalRedirection(std::string method, std::string uri, std::string query)
 {
     if (m_internalRedirectionCount > 0)
         log << "internal redirection to uri \"" << uri << "\"\n";
@@ -254,7 +254,8 @@ void RequestHandler::internalRedirection(const std::string& method, const std::s
         }
         
         cgiProg->setEnvp("CONTENT_LENGTH", to_string(m_request->contentLength));
-        cgiProg->setEnvp("QUERY_STRING", query);
+        if (query.empty() == false)
+            cgiProg->setEnvp("QUERY_STRING", query);
         cgiProg->setEnvp("REQUEST_METHOD", method);
         cgiProg->setEnvp("SERVER_PROTOCOL", m_request->httpVersionStr());
         cgiProg->setEnvp("REMOTE_ADDR", m_clientSocket->ipAddress());
@@ -263,7 +264,11 @@ void RequestHandler::internalRedirection(const std::string& method, const std::s
         std::map<std::string, std::string>::const_iterator it = m_request->headers.find("content-type");
         if (it != m_request->headers.end())
             cgiProg->setEnvp("CONTENT_TYPE", to_string(it->second));
-        
+
+        it = m_request->headers.find("cookie");
+        if (it != m_request->headers.end())
+            cgiProg->setEnvp("HTTP_COOKIE", to_string(it->second));
+
         std::vector<std::string>::const_iterator it2 = std::find(m_config.server_names.begin(), m_config.server_names.end(), m_request->hostname);
         cgiProg->setEnvp("SERVER_NAME", it2 != m_config.server_names.end() ? *it2 : m_config.server_names.front());
 
