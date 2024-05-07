@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestLineParser.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:27:27 by ekamada           #+#    #+#             */
-/*   Updated: 2024/04/26 11:23:37 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/05/05 16:01:09 by sotanaka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void HTTPRequestParser::RequestLineParser::parse(Byte c)
                 break;
             }
 
-            *m_method += std::toupper(c);
+            *m_method += c;
             if (c == ' ')
             {
                 *m_method = m_method->substr(0, m_method->size() - 1);
