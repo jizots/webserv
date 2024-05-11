@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 17:31:24 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/20 09:01:30 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/05/06 12:18:25 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,11 +35,10 @@ bool FdSet::contain(const FileDescriptor& fd)
 
 int select(FdSet& readFds, FdSet& writeFds, long usecTimeout)
 {
-    struct timeval timeVal =
-    {
-        .tv_sec = 0,
-        .tv_usec = usecTimeout
-    };
+    struct timeval timeVal;
+
+    timeVal.tv_sec = 0;
+    timeVal.tv_usec = (int)usecTimeout;
 
     return select(std::max(readFds.m_biggestFd, writeFds.m_biggestFd) + 1, &readFds.m_fdSet, &writeFds.m_fdSet, NULL, &timeVal);;
 }

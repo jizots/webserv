@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 13:34:28 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/20 13:53:28 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/05/06 10:32:57 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ reload:
             std::vector<ServerConfig> newConfig = parseServerConfig(argc, argv);
             Logger::terminate();
             Logger::init(configs[0].error_log);
-            IOManager::shared().loadConfigs(newConfig);
+            IOManager::shared().loadConfigs(newConfig); // TODO Chek what happen if this fail (bind: adress used)
         }
         catch (const std::exception& e)
         {

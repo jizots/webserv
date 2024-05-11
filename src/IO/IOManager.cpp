@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/18 15:16:58 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/09 20:16:38 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/05/07 20:44:36 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ void IOManager::init()
 void IOManager::terminate()
 {
     delete s_instance;
+    s_instance = NULL;
 }
 
 void IOManager::loadConfigs(const std::vector<ServerConfig>& configs)

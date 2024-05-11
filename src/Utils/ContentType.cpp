@@ -6,11 +6,13 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:12:54 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/03/25 16:04:05 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/05/10 15:01:15 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Utils/ContentType.hpp"
+
+#include "Utils/Functions.hpp"
 
 namespace webserv
 {
@@ -61,7 +63,7 @@ ContentType::ContentType(const std::string& filePath): m_id(none)
     size_t ext_pos = filePath.rfind('.');
     if (ext_pos != std::string::npos)
     {
-        std::string ext = filePath.substr(ext_pos, filePath.size() - ext_pos);
+        std::string ext = stringToLower(filePath.substr(ext_pos, filePath.size() - ext_pos));
 
         if (ext == ".html")
         {

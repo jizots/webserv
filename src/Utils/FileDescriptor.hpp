@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 16:30:22 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/20 09:05:10 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/05/08 00:11:45 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,8 @@ private:
     friend ssize_t write(const FileDescriptor& fd, const void* buf, size_t nbyte);
     friend void write(const FileDescriptor& fd, const std::string& str);
     friend int close(FileDescriptor& fd);
+    friend int setsockopt(const FileDescriptor& fd, int level, int option_name, const void *option_value, socklen_t option_len);
+
 
 public:
     FileDescriptor();
@@ -100,6 +102,8 @@ inline ssize_t send  (const FileDescriptor& fd, void *buffer, size_t length, int
 inline ssize_t read  (const FileDescriptor& fd, void* buf, size_t nbyte)                               { return ::read(fd.m_fd, buf, nbyte);                             }
 inline ssize_t write (const FileDescriptor& fd, const void* buf, size_t nbyte)                         { return ::write(fd.m_fd, buf, nbyte);                            }
 inline    void write (const FileDescriptor& fd, const std::string& str)                                { ssize_t n = ::write(fd.m_fd, str.c_str(), str.size()); (void)n; }
+
+inline int setsockopt(const FileDescriptor& fd, int level, int option_name, const void *option_value, socklen_t option_len) { return ::setsockopt(fd.m_fd, level, option_name, option_value, option_len); }
 
 }
 

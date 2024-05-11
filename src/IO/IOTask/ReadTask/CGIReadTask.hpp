@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:13:31 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/28 14:37:12 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/05/08 13:56:20 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,11 @@ public:
 private:
     enum Status { header, body };
 
+    template<int CODE>
+    void erroCodeResponse();
+
+    void redirectionResponse();
+
     int processHeaders();
 
     FileDescriptor m_fd;
@@ -54,6 +59,8 @@ private:
 
     CGIWriteTask* m_writeTaskPtr;
     Status m_status;
+
+    void (CGIReadTask::*m_createRespFunc)();
 };
 
 }

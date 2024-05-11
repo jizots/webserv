@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 18:32:54 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/30 14:55:38 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/05/09 15:06:38 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,10 @@ RequestHandler::RequestHandler(const HTTPRequestPtr& request, const ClientSocket
 int RequestHandler::processRequestLine()
 {
     log << "processing requestLine\n";
+
+    std::vector<std::string> files = splitByChars(m_request->uri, "/");
+    if (std::find(files.begin(), files.end(), "..") != files.end())
+       return 400;
 
     if (m_request->verMajor != 1 || m_request->verMinor != 1)
         return 505;

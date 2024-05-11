@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 16:14:10 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/28 14:52:31 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/05/09 15:19:32 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,9 @@ namespace webserv
 {
 
 CGIReadTask::CGIReadTask(const FileDescriptor& fd, int pid, const HTTPResponsePtr& response, const RequestHandlerPtr& handler)
-#ifndef NDEBUG
-    : IReadTask(Duration::infinity()),
-#else
-    : IReadTask(Duration::seconds(5)),
-#endif
-      m_fd(fd), m_pid(pid), m_response(response), m_handler(handler), m_parser(m_headers), m_writeTaskPtr(NULL), m_status(header)
+    : IReadTask(Duration::seconds(1)),
+      m_fd(fd), m_pid(pid), m_response(response), m_handler(handler), m_parser(m_headers), m_writeTaskPtr(NULL), m_status(header),
+      m_createRespFunc(&CGIReadTask::erroCodeResponse<504>)
 {
 }
 
@@ -40,7 +37,7 @@ void CGIReadTask::read()
     if (readLen < 0)
     {
         log << "Error while reading cgi response (fd: " << fd() << "): " << std::strerror(errno) << '\n';
-        m_handler->makeErrorResponse(502);
+        m_createRespFunc = &CGIReadTask::erroCodeResponse<502>;
     }
 
     else if (readLen >= 0)
@@ -60,7 +57,7 @@ void CGIReadTask::read()
 
                 if (m_parser.isBadResponse())
                 {
-                    m_handler->makeErrorResponse(502);
+                    m_createRespFunc = &CGIReadTask::erroCodeResponse<502>;
                     break;
                 }
 
@@ -69,22 +66,13 @@ void CGIReadTask::read()
                     std::map<std::string, std::string>::const_iterator it = m_headers.find("location");
                     if (it != m_headers.end())
                     {
-                        std::string uri, params, query;
-                        UriParser uriParser(uri, params, query);
-                        uriParser.parseString(it->second);
-                        if (uriParser.isBadRequest())
-                            m_handler->makeErrorResponse(502);
-                        else
-                            m_handler->internalRedirection("GET", uri, params);
+                        m_createRespFunc = &CGIReadTask::redirectionResponse;
                         break;
                     }
                 }
 
-                if (int error = processHeaders())
-                {
-                    m_handler->makeErrorResponse(error);
+                if (processHeaders() != 0)
                     break;
-                }
 
                 m_parser.continueParsing();
 
@@ -97,18 +85,19 @@ void CGIReadTask::read()
 
                 if (m_parser.isBadResponse())
                 {
-                    m_handler->makeErrorResponse(502);
+                    m_createRespFunc = &CGIReadTask::erroCodeResponse<502>;
                     break;
                 }
 
                 if (m_response->isChunk == false)
                     m_response->headers["content-length"] = to_string(m_response->body.size());
                 m_response->isComplete = true;
+                m_createRespFunc = NULL;
         }
     }
 
-    m_handler->runTasks(m_handler);
     IOManager::shared().eraseReadTask(this);
+    IOManager::shared().eraseWriteTask(m_writeTaskPtr);
 }
 
 CGIReadTask::~CGIReadTask()
@@ -119,7 +108,27 @@ CGIReadTask::~CGIReadTask()
         kill(m_pid, SIGKILL);
         ::waitpid(m_pid, NULL, 0);
     }
+    if (m_createRespFunc)
+        (this->*m_createRespFunc)();
+    m_handler->runTasks(m_handler);
 };
+
+template<int CODE>
+void CGIReadTask::erroCodeResponse()
+{
+    m_handler->makeErrorResponse(CODE);
+}
+
+void CGIReadTask::redirectionResponse()
+{
+    std::string uri, params, query;
+    UriParser uriParser(uri, params, query);
+    uriParser.parseString(m_headers["location"]);
+    if (uriParser.isBadURI())
+        m_handler->makeErrorResponse(502);
+    else
+        m_handler->internalRedirection("GET", uri, query);
+}
 
 int CGIReadTask::processHeaders()
 {
@@ -127,7 +136,7 @@ int CGIReadTask::processHeaders()
     if (contentLengthIt != m_headers.end())
     {
         if (is<uint64>(contentLengthIt->second) == false)
-            return 502;
+            return m_createRespFunc = &CGIReadTask::erroCodeResponse<502>, -1;
 
         uint64 contentLength = to<uint64>(contentLengthIt->second);
         if (contentLength > 0)
@@ -154,8 +163,15 @@ int CGIReadTask::processHeaders()
         if (it->first == "status")
         {
             if (is<uint16>(it->second.substr(0, it->second.find_first_of(' '))) == false)
-                return 502;
-            m_response->setStatusCode(to<uint16>(it->second.substr(0, it->second.find_first_of(' '))));
+                return m_createRespFunc = &CGIReadTask::erroCodeResponse<502>, -1;
+            std::string::size_type spPos = it->second.find_first_of(' ');
+            if (spPos == std::string::npos)
+                m_response->setStatusCode(to<uint16>(it->second.substr(0, it->second.find_first_of(' '))));
+            else
+            {
+                m_response->statusCode = to<uint16>(it->second.substr(0, it->second.find_first_of(' ')));
+                m_response->statusDescription = it->second.substr(it->second.find_first_of(' '));
+            }
         }
         else
             m_response->headers[it->first] = it->second;

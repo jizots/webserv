@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 16:20:12 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/20 08:56:04 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/05/09 16:54:09 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,10 @@
 
 #define RMV_LAST_SLASH(str) (*(--str.end()) == '/' ? str.substr(0, str.length() - 1) : str)
 
-#define IS_IN(str, c)         (std::string(str).find(c) != std::string::npos)
-#define IS_PRINTABLE_ASCII(c) (c >= ' ' && c <= '~')
-#define IS_UN_RESERVED(c)     (std::isalpha(c) || std::isdigit(c) || IS_IN("!*`(),$-_."                   , c))
-#define IS_RESERVED(c)        (std::isalpha(c) || std::isdigit(c) || IS_IN("!*`(),$-_." ";/?:@&=+"        , c))
-#define IS_PCHAR(c)           (std::isalpha(c) || std::isdigit(c) || IS_IN("!*`(),$-_." ":@&=+/"          , c))
-#define IS_TOKEN(c)           (std::isalpha(c) || std::isdigit(c) || IS_IN(             "!#$%&'*+-.^_`|~" , c))
+#define IS_IN(str, c)           (std::string(str).find(c) != std::string::npos)
+#define IS_PRINTABLE_ASCII(c)   (c >= ' ' && c <= '~')
+#define IS_RESERVED(c)          IS_IN(":/?#[]@!$&'()*+,;=", c)
+#define IS_UN_RESERVED(c)       (std::isalpha(c) || std::isdigit(c) || IS_IN("-._~" , c))
+#define IS_NGINX_UN_RESERVED(c) (std::isalpha(c) || std::isdigit(c) || IS_IN("-.:+" , c))
+#define IS_TOKEN(c)             (std::isalpha(c) || std::isdigit(c) || IS_IN(             "!#$%&'*+-.^_`|~" , c))
+#define IS_HEX(c)               IS_IN("0123456789abcdefABCDEF", c)

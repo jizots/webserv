@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 15:46:39 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/20 08:59:18 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/05/07 20:44:36 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,14 @@ MasterSocket::MasterSocket(uint16 port) : m_fileDescriptor(webserv::socket(AF_IN
 {
     if (m_fileDescriptor)
     {
+        int reuse = 1;
+        if (setsockopt(m_fileDescriptor, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse)) < 0)
+            throw std::runtime_error("setsockopt(SO_REUSEADDR): " + std::string(std::strerror(errno)));
+
+#ifdef SO_REUSEPORT
+        if (setsockopt(m_fileDescriptor, SOL_SOCKET, SO_REUSEPORT, (const char*)&reuse, sizeof(reuse)) < 0) 
+            throw std::runtime_error("setsockopt(SO_REUSEPORT): " + std::string(std::strerror(errno)));
+#endif
         const sockaddr_in address = (sockaddr_in)
         {
             .sin_family = AF_INET,

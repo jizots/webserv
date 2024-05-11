@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UriPaser.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/17 15:34:35 by sotanaka          #+#    #+#             */
-/*   Updated: 2024/04/17 16:55:27 by sotanaka         ###   ########.fr       */
+/*   Updated: 2024/05/09 15:09:03 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,25 +25,21 @@ class UriParser
 private:
     enum status
     {
-        _uri            = 1,
-        _params         = 2,
-        _query          = 3,
-        _parseComplete  = 4,
-        _badRequest     = 5,
+        _uri    = 1,
+        _params = 2,
+        _query  = 3,
+        _badURI = 4,
     };
 
 public:
     UriParser(std::string& uriDst, std::string& paramsDst, std::string& queryDst);
 
-    void parse(Byte c);
-    void parseString(const std::string& uri);
+    void appendParsed(const std::vector<Byte>& buff);
+    void parseString(const std::string& str);
 
-    inline bool isComplete()   { return m_status >= _parseComplete; }
-    inline bool isBadRequest() { return m_status == _badRequest;    }
+    inline bool isBadURI() { return m_status == _badURI;    }
 
 private:
-    void decodeHex(Byte c, std::string& dst);
-
     std::string* m_uri;
     std::string* m_params;
     std::string* m_query;

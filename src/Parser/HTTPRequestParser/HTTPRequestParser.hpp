@@ -6,7 +6,7 @@
 /*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/15 15:53:02 by tchoquet          #+#    #+#             */
-/*   Updated: 2024/04/28 15:05:53 by tchoquet         ###   ########.fr       */
+/*   Updated: 2024/05/09 17:41:15 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,15 @@
 #include "Parser/UriParser/UriPaser.hpp"
 #include "Parser/HTTPBodyParser/HTTPBodyParser.hpp"
 
+namespace webserv_test { class HTTPRequestLineParserTest; }
+
 namespace webserv
 {
 
 class HTTPRequestParser
 {
+    friend class webserv_test::HTTPRequestLineParserTest;
+
 private:
     class RequestLineParser
     {
@@ -35,7 +39,7 @@ private:
         enum status
         {
             _requestMethod  = 1,
-            _slash          = 2,
+            // _slash          = 2,
             _uri            = 3,
             // _params         = 4,
             // _query          = 5,
@@ -62,7 +66,7 @@ private:
         UriParser m_uriParser;
     
         std::string* m_method;
-        std::string* m_uri;
+
         uint8* m_verMajor;
         uint8* m_verMinor;
 
@@ -70,7 +74,8 @@ private:
 
         std::string m_hex;
         bool m_foundCR;
-        std::string m_protocol;
+        std::string m_protocolRaw;
+        std::vector<Byte> m_uriBuff;
     };
 
     class ChunkedBodyParser : public HTTPBodyParser

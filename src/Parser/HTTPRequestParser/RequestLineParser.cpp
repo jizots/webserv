@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestLineParser.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sotanaka <sotanaka@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tchoquet <tchoquet@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 14:27:27 by ekamada           #+#    #+#             */
-/*   Updated: 2024/05/05 16:01:09 by sotanaka         ###   ########.fr       */
+/*   Updated: 2024/05/09 17:36:01 by tchoquet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ namespace webserv
 {
 
 HTTPRequestParser::RequestLineParser::RequestLineParser(std::string& methodDst, std::string& uriDst, std::string& paramsDst, std::string& queryDst, uint8& verMajorDst, uint8& verMinorDst)
-    : m_uriParser(UriParser(uriDst, paramsDst, queryDst)), m_method(&methodDst), m_uri(&uriDst),
+    : m_uriParser(UriParser(uriDst, paramsDst, queryDst)), m_method(&methodDst),
       m_verMajor(&verMajorDst), m_verMinor(&verMinorDst), m_status(_requestMethod), m_foundCR(false)
 {
 }
@@ -31,40 +31,36 @@ void HTTPRequestParser::RequestLineParser::parse(Byte c)
                 checkCRLF(c, _requestMethod);
                 break;
             }
-
-            *m_method += c;
-            if (c == ' ')
-            {
-                *m_method = m_method->substr(0, m_method->size() - 1);
-                m_status = _slash;
-            }
-            else if (c == '\r' || c == '\n')
-                m_status = _badRequest;
-            break;
-
-        case _slash:
-            if (c == '/')
-            {
-                *m_uri += '/';
+            if (c >= 'A' && c <= 'Z')
+                *m_method += c;
+            else if (c == ' ' && m_method->size() > 0)
                 m_status = _uri;
-            }
             else
                 m_status = _badRequest;
             break;
 
         case _uri:
-            m_uriParser.parse(c);
-            if (m_uriParser.isBadRequest())
-                m_status = _badRequest;
-            else if (m_uriParser.isComplete())
-                m_status = _HTTP;
+            if (m_uriBuff.empty() == false && IS_NGINX_UN_RESERVED(c) == false)
+            {
+                m_uriParser.appendParsed(m_uriBuff);
+                if (m_uriParser.isBadURI())
+                    m_status = _badRequest;
+                else if (c == ' ')
+                    m_status = _HTTP;
+                else
+                    m_uriBuff = std::vector<Byte>(1, c);
+            }
+            else if (c != ' ')
+                m_uriBuff.push_back(c);
             break;
 
         case _HTTP:
-            m_protocol += c;
-            if (m_protocol == "HTTP/")
+            if (m_protocolRaw.empty() && c == ' ')
+                break;
+            m_protocolRaw += c;
+            if (m_protocolRaw == "HTTP/")
                 m_status = _verMajor;
-            else if (m_protocol[m_protocol.size() - 1] != "HTTP/"[m_protocol.size() - 1])
+            else if (m_protocolRaw[m_protocolRaw.size() - 1] != "HTTP/"[m_protocolRaw.size() - 1])
                 m_status = _badRequest;
             break;
 
