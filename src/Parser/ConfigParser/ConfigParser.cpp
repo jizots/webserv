@@ -855,7 +855,7 @@ bool LocationDirective::isMatching(const std::string& uri) const
 
         return false;
     }
-    return uri.compare(0, location.size() > uri.size() ? uri.size() : location.size(), location) == 0;
+    return stringToLower(uri).compare(0, location.size() > uri.size() ? uri.size() : location.size(), stringToLower(location)) == 0;
 }
 
 const LocationDirective& ServerConfig::bestLocation(const std::string& uri)
