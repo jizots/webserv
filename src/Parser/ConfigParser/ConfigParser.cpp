@@ -783,15 +783,15 @@ static void	setUndefinedParam(ServerConfig& sConf)
 	if (sConf.server_names.size() == 0)
 		throw (ConfigException("error", 0, "server_name is not defined", ""));
 	if (sConf.error_log.empty())
-		sConf.error_log = "log/webserv.log";
+		sConf.error_log = "webserv.log";
 	if (sConf.listens.empty())
 		sConf.listens.push_back(8042);
 	if (sConf.upload_path.empty())
-		sConf.upload_path = "www/uploads/";
+		sConf.upload_path = "www/webserv/uploads/";
 	for (size_t i = 0; i < sConf.locations.size(); ++i)
 	{
 		if (sConf.locations[i].root.empty())
-			sConf.locations[i].root = "www/html";
+			sConf.locations[i].root = "www/webserv/html";
 		if (sConf.locations[i].index.empty())
 			sConf.locations[i].index = "index.html";
 		if (sConf.locations[i].accepted_methods.size() == 0)
@@ -823,8 +823,11 @@ static void	serverDuplicationCheck(const std::vector<ServerConfig>& sConfs)
 		{
 			if (std::find(sConfs[i + 1].server_names.begin(), sConfs[i + 1].server_names.end(), sConfs[i].server_names[j]) != sConfs[i + 1].server_names.end())
 			{
-				if (std::find(sConfs[i + 1].listens.begin(), sConfs[i + 1].listens.end(), sConfs[i].listens[j]) != sConfs[i + 1].listens.end())
-					throw (ConfigException("error", 0, "Duplication server_name and listen", ""));
+				for (size_t k = 0; k < sConfs[i].listens.size(); ++k)
+				{
+					if (std::find(sConfs[i + 1].listens.begin(), sConfs[i + 1].listens.end(), sConfs[i].listens[k]) != sConfs[i + 1].listens.end())
+						throw (ConfigException("error", 0, "Duplication server_name and listen", ""));
+				}
 			}
 		}
 	}
