@@ -783,15 +783,15 @@ static void	setUndefinedParam(ServerConfig& sConf)
 	if (sConf.server_names.size() == 0)
 		throw (ConfigException("error", 0, "server_name is not defined", ""));
 	if (sConf.error_log.empty())
-		sConf.error_log = "log/webserv.log";
+		sConf.error_log = "webserv.log";
 	if (sConf.listens.empty())
 		sConf.listens.push_back(8042);
 	if (sConf.upload_path.empty())
-		sConf.upload_path = "www/uploads/";
+		sConf.upload_path = "www/webserv/uploads/";
 	for (size_t i = 0; i < sConf.locations.size(); ++i)
 	{
 		if (sConf.locations[i].root.empty())
-			sConf.locations[i].root = "www/html";
+			sConf.locations[i].root = "www/webserv/html";
 		if (sConf.locations[i].index.empty())
 			sConf.locations[i].index = "index.html";
 		if (sConf.locations[i].accepted_methods.size() == 0)
