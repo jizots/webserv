@@ -823,8 +823,11 @@ static void	serverDuplicationCheck(const std::vector<ServerConfig>& sConfs)
 		{
 			if (std::find(sConfs[i + 1].server_names.begin(), sConfs[i + 1].server_names.end(), sConfs[i].server_names[j]) != sConfs[i + 1].server_names.end())
 			{
-				if (std::find(sConfs[i + 1].listens.begin(), sConfs[i + 1].listens.end(), sConfs[i].listens[j]) != sConfs[i + 1].listens.end())
-					throw (ConfigException("error", 0, "Duplication server_name and listen", ""));
+				for (size_t k = 0; k < sConfs[i].listens.size(); ++k)
+				{
+					if (std::find(sConfs[i + 1].listens.begin(), sConfs[i + 1].listens.end(), sConfs[i].listens[k]) != sConfs[i + 1].listens.end())
+						throw (ConfigException("error", 0, "Duplication server_name and listen", ""));
+				}
 			}
 		}
 	}
